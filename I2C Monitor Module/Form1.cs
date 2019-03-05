@@ -19,6 +19,8 @@ namespace I2C_Monitor_Module
 			TotalPhase iface = new TotalPhase(); //each totalphase is a new pair, create more if more devices
 			iface.find_device(); //button to do this, then display devices
 
+			
+
 			//select devices to use
 			//maybe some config file to define the devices? so we can make sure it is the right pair
 
