@@ -57,7 +57,7 @@ namespace I2C_Monitor_Module
 			{
 				if (b.return_id().ToString() == (string)comboBox_beagle.SelectedItem)
 					iface.current_beagle = b;
-			}
+			} //set the beagle and aardvark if it matches the combobox
 
 			for(int i = 0; i < listBox_active.Items.Count; i++)
 			{
@@ -66,7 +66,14 @@ namespace I2C_Monitor_Module
 					listBox_active.SelectedItem = l;
 				if (l == iface.current_beagle.return_id().ToString())
 					listBox_active.SelectedItem = l;
-			}
+			} //highlight the text in the listbox
+
+
+		}
+
+		private void button1_Click(object sender, EventArgs e)
+		{
+			iface.current_aardvark.i2c_read();
 		}
 	}
 
