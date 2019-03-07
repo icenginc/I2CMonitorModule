@@ -49,6 +49,7 @@ namespace I2C_Monitor_Module
 	{
 		public Aardvark()
 		{
+			port = 999;
 		} //for blank one
 
 		public Aardvark(ushort port, uint id)
@@ -66,14 +67,28 @@ namespace I2C_Monitor_Module
 		int bus_timeout;
 		public const int BUS_TIMEOUT = 150;  // ms
 
-		public void i2c_write()
+		public int i2c_write()
 		{
-			
+			byte[] data_out = new byte[2] { 0x2C, 0x06 };
+			//only for SHT module
+			var result = AardvarkApi.aa_i2c_write(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, 2, data_out);
+
+			if (result < 0)
+				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
+
+			return result;
 		}
 
-		public short i2c_read()
+		public int i2c_read()
 		{
-			AardvarkApi.aa_i2c_read(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, 
+			int bytes = 10;
+			byte[] data_in = new byte[bytes];
+			var result =  AardvarkApi.aa_i2c_read(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, (ushort)bytes, data_in);
+
+			if (result < 0)
+				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
+
+			return result;
 		}
 
 		public ushort return_port()

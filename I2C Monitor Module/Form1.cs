@@ -73,7 +73,10 @@ namespace I2C_Monitor_Module
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			iface.current_aardvark.i2c_read();
+			if (iface.current_aardvark.return_id() != 0 && iface.current_aardvark.return_port() != 999) //making sure we have set the current aardvark first
+				listBox_active.Items.Add(iface.current_aardvark.i2c_read());
+			else
+				MessageBox.Show("Aardvark device not selected");
 		}
 	}
 
