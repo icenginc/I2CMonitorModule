@@ -74,7 +74,26 @@ namespace I2C_Monitor_Module
 		private void button1_Click(object sender, EventArgs e)
 		{
 			if (iface.current_aardvark.return_id() != 0 && iface.current_aardvark.return_port() != 999) //making sure we have set the current aardvark first
-				listBox_active.Items.Add(iface.current_aardvark.i2c_read());
+			{
+				ushort bytes_in = 6;
+				ushort bytes_out = 2;
+				byte[] data_in = new byte[bytes_in];
+				byte[] data_out = new byte[bytes_out];
+				data_out = new byte[] { 0x2C, 0x06}; //measure command to SHT module
+
+				Console.WriteLine("Write:" + iface.current_aardvark.i2c_write(bytes_out, data_out));
+				System.Threading.Thread.Sleep(500);
+				Console.WriteLine("Read:" + iface.current_aardvark.i2c_read(bytes_in, out data_in)); //pass data_in by reference
+
+				foreach (byte data in data_in)
+					Console.Write(data + " ");
+				Console.WriteLine();
+
+				var cTemp = ((((data_in[0] * 256.0) + data_in[1]) * 175) / 65535.0) - 45;
+				var humidity = ((((data_in[3] * 256.0) + data_in[4]) * 100) / 65535.0);
+				Console.WriteLine("Temp: " + cTemp + ", Humidity: " + humidity);
+			}
+
 			else
 				MessageBox.Show("Aardvark device not selected");
 		}

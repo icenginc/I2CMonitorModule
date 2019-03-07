@@ -67,11 +67,10 @@ namespace I2C_Monitor_Module
 		int bus_timeout;
 		public const int BUS_TIMEOUT = 150;  // ms
 
-		public int i2c_write()
+		public int i2c_write(ushort bytes, byte[] data_out)
 		{
-			byte[] data_out = new byte[2] { 0x2C, 0x06 };
 			//only for SHT module
-			var result = AardvarkApi.aa_i2c_write(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, 2, data_out);
+			var result = AardvarkApi.aa_i2c_write(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, bytes, data_out);
 
 			if (result < 0)
 				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
@@ -79,11 +78,11 @@ namespace I2C_Monitor_Module
 			return result;
 		}
 
-		public int i2c_read()
+		public int i2c_read(ushort bytes, out byte[] data_in)
 		{
-			int bytes = 10;
-			byte[] data_in = new byte[bytes];
-			var result =  AardvarkApi.aa_i2c_read(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, (ushort)bytes, data_in);
+			data_in = Enumerable.Repeat<byte>(0, bytes).ToArray(); //set it to all 0's first
+
+			var result =  AardvarkApi.aa_i2c_read(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, bytes, data_in);
 
 			if (result < 0)
 				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
@@ -179,12 +178,12 @@ namespace I2C_Monitor_Module
 
 		private void setup_i2c()
 		{
-			
+			BeagleApi.bg_enable(handle, BeagleProtocol.BG_PROTOCOL_I2C);
 		}
 
 		public void snoop_i2c()
 		{
-
+			BeagleApi.bg_
 		}
 	}
 }
