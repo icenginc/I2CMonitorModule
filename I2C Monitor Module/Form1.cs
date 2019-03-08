@@ -97,6 +97,11 @@ namespace I2C_Monitor_Module
 			else
 				MessageBox.Show("Aardvark device not selected");
 		}
+
+		private void button_i2cmonitor_Click(object sender, EventArgs e)
+		{
+			iface.current_beagle.snoop_i2c(6);
+		}
 	}
 
 	

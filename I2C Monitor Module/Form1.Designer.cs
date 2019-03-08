@@ -36,7 +36,8 @@
 			this.comboBox_beagle = new System.Windows.Forms.ComboBox();
 			this.label3 = new System.Windows.Forms.Label();
 			this.listBox_active = new System.Windows.Forms.ListBox();
-			this.button1 = new System.Windows.Forms.Button();
+			this.button_i2cread = new System.Windows.Forms.Button();
+			this.button_i2cmonitor = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// button_scan
@@ -110,22 +111,33 @@
 			this.listBox_active.Size = new System.Drawing.Size(120, 95);
 			this.listBox_active.TabIndex = 8;
 			// 
-			// button1
+			// button_i2cread
 			// 
-			this.button1.Location = new System.Drawing.Point(158, 220);
-			this.button1.Name = "button1";
-			this.button1.Size = new System.Drawing.Size(75, 23);
-			this.button1.TabIndex = 9;
-			this.button1.Text = "button_i2cread";
-			this.button1.UseVisualStyleBackColor = true;
-			this.button1.Click += new System.EventHandler(this.button1_Click);
+			this.button_i2cread.Location = new System.Drawing.Point(269, 220);
+			this.button_i2cread.Name = "button_i2cread";
+			this.button_i2cread.Size = new System.Drawing.Size(75, 23);
+			this.button_i2cread.TabIndex = 9;
+			this.button_i2cread.Text = "i2cread";
+			this.button_i2cread.UseVisualStyleBackColor = true;
+			this.button_i2cread.Click += new System.EventHandler(this.button1_Click);
+			// 
+			// button_i2cmonitor
+			// 
+			this.button_i2cmonitor.Location = new System.Drawing.Point(350, 220);
+			this.button_i2cmonitor.Name = "button_i2cmonitor";
+			this.button_i2cmonitor.Size = new System.Drawing.Size(75, 23);
+			this.button_i2cmonitor.TabIndex = 10;
+			this.button_i2cmonitor.Text = "i2cmonitor";
+			this.button_i2cmonitor.UseVisualStyleBackColor = true;
+			this.button_i2cmonitor.Click += new System.EventHandler(this.button_i2cmonitor_Click);
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(437, 261);
-			this.Controls.Add(this.button1);
+			this.Controls.Add(this.button_i2cmonitor);
+			this.Controls.Add(this.button_i2cread);
 			this.Controls.Add(this.listBox_active);
 			this.Controls.Add(this.label3);
 			this.Controls.Add(this.comboBox_beagle);
@@ -151,7 +163,8 @@
 		private System.Windows.Forms.ComboBox comboBox_beagle;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.ListBox listBox_active;
-		private System.Windows.Forms.Button button1;
+		private System.Windows.Forms.Button button_i2cread;
+		private System.Windows.Forms.Button button_i2cmonitor;
 	}
 }
 
