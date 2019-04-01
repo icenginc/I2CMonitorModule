@@ -96,17 +96,20 @@ namespace I2C_Monitor_Module
 
 			else
 				MessageBox.Show("Aardvark device not selected");
-		}
+		} //for testing with sht31d module
 
 		private void button_i2cmonitor_Click(object sender, EventArgs e)
 		{
-			iface.current_beagle.snoop_i2c(6);
+			var data = iface.current_beagle.snoop_i2c(2);
+			foreach (string line in data)
+				textBox_data.Text += (line + Environment.NewLine);
+			textBox_data.Select(textBox_data.Text.Length, 0);
 			//var data = iface.current_beagle.return_data();
 		}
 
 		private void button_reset_Click(object sender, EventArgs e)
 		{
-			//iface.current_beagle
+			iface.current_beagle.reset_beagle();
 		}
 	}
 

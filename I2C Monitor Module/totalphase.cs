@@ -174,6 +174,12 @@ namespace I2C_Monitor_Module
 			return data_in;
 		}
 
+		public void reset_beagle()
+		{
+			BeagleApi.bg_disable(handle);
+			setup_i2c();
+		}
+
 		private void open_handle()
 		{
 			handle = BeagleApi.bg_open(port);
@@ -204,10 +210,11 @@ namespace I2C_Monitor_Module
 			}
 		}
 
-		public void snoop_i2c(int num_packets)
+		public List<string> snoop_i2c(int num_packets)
 		{
 			// Capture and print each transaction
 			List<ushort> full_data = new List<ushort>(); //keep adding bytes to this as it goes
+			List<string> lines = new List<string>();
 			for (int i = 0; i < num_packets || num_packets == 0; ++i)
 			{
 				uint status = 0;
@@ -217,13 +224,10 @@ namespace I2C_Monitor_Module
 
 				// Read transaction with bit timing data
 				int count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
-				string output = "";
-				foreach (ushort data in data_in)
-					output += data.ToString("X") + " ";
-				
+				string output = output_parse(data_in);				
 				string status_string = print_general_status(status);
 
-				MessageBox.Show(status_string + Environment.NewLine + output); //added this so see in gui
+				lines.Add(status_string + " - " + output + " - " + "Iteration: " + i); //added this so see in gui
 
 				if (status_string.Contains("TIMEOUT"))
 					continue; //skip if no activity on bus
@@ -304,7 +308,8 @@ namespace I2C_Monitor_Module
 			}
 
 			// Stop the capture
-			BeagleApi.bg_disable(handle);
+			//BeagleApi.bg_disable(handle);
+			return lines;
 		}
 
 		//--- from totalphase documentation
@@ -313,7 +318,29 @@ namespace I2C_Monitor_Module
 			return (ulong)(stamp * 1000 / (ulong)(samplerate_khz / 1000));
 		}
 
-		static string print_general_status(uint status)
+		string output_parse(ushort[] data)
+		{
+			string output = "";
+			int value = 0;
+
+			if (data[0] == 32)
+				output += "Address: ";
+			if (data[0] == 33)
+				output += "Temperature: ";
+
+			for (int i = 1; i < data.Length; i++)
+					output += data[i].ToString("X");
+
+			if (output.Contains("Temp"))
+			{
+				value = (data[1] << 8) + (data[2] >> 1);
+				output += "(" + ((value / 4) - 273) + ")";
+			}
+
+			return output;
+		}
+
+		string print_general_status(uint status)
 		{
 			string status_string = " ";
 
@@ -321,7 +348,10 @@ namespace I2C_Monitor_Module
 
 			// General status codes
 			if (status == BeagleApi.BG_READ_OK)
-				status_string += ("OK ");
+				status_string += ("OK");
+
+			if (status != 0)
+				status_string += "(" + BeagleApi.bg_host_buffer_used(handle) + ":" + BeagleApi.bg_host_buffer_size(handle, 0) + ")";
 
 			if ((status & BeagleApi.BG_READ_TIMEOUT) != 0)
 				status_string += ("TIMEOUT ");

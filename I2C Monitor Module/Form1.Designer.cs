@@ -39,6 +39,7 @@
 			this.button_i2cread = new System.Windows.Forms.Button();
 			this.button_i2cmonitor = new System.Windows.Forms.Button();
 			this.button_reset = new System.Windows.Forms.Button();
+			this.textBox_data = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
 			// button_scan
@@ -142,11 +143,21 @@
 			this.button_reset.UseVisualStyleBackColor = true;
 			this.button_reset.Click += new System.EventHandler(this.button_reset_Click);
 			// 
+			// textBox_data
+			// 
+			this.textBox_data.Location = new System.Drawing.Point(12, 131);
+			this.textBox_data.Multiline = true;
+			this.textBox_data.Name = "textBox_data";
+			this.textBox_data.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.textBox_data.Size = new System.Drawing.Size(245, 112);
+			this.textBox_data.TabIndex = 12;
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(437, 261);
+			this.Controls.Add(this.textBox_data);
 			this.Controls.Add(this.button_reset);
 			this.Controls.Add(this.button_i2cmonitor);
 			this.Controls.Add(this.button_i2cread);
@@ -178,6 +189,7 @@
 		private System.Windows.Forms.Button button_i2cread;
 		private System.Windows.Forms.Button button_i2cmonitor;
 		private System.Windows.Forms.Button button_reset;
+		public System.Windows.Forms.TextBox textBox_data;
 	}
 }
 
