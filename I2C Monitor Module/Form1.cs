@@ -101,6 +101,12 @@ namespace I2C_Monitor_Module
 		private void button_i2cmonitor_Click(object sender, EventArgs e)
 		{
 			iface.current_beagle.snoop_i2c(6);
+			//var data = iface.current_beagle.return_data();
+		}
+
+		private void button_reset_Click(object sender, EventArgs e)
+		{
+			//iface.current_beagle
 		}
 	}
 

@@ -38,6 +38,7 @@
 			this.listBox_active = new System.Windows.Forms.ListBox();
 			this.button_i2cread = new System.Windows.Forms.Button();
 			this.button_i2cmonitor = new System.Windows.Forms.Button();
+			this.button_reset = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// button_scan
@@ -131,11 +132,22 @@
 			this.button_i2cmonitor.UseVisualStyleBackColor = true;
 			this.button_i2cmonitor.Click += new System.EventHandler(this.button_i2cmonitor_Click);
 			// 
+			// button_reset
+			// 
+			this.button_reset.Location = new System.Drawing.Point(350, 191);
+			this.button_reset.Name = "button_reset";
+			this.button_reset.Size = new System.Drawing.Size(75, 23);
+			this.button_reset.TabIndex = 11;
+			this.button_reset.Text = "buffer reset";
+			this.button_reset.UseVisualStyleBackColor = true;
+			this.button_reset.Click += new System.EventHandler(this.button_reset_Click);
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(437, 261);
+			this.Controls.Add(this.button_reset);
 			this.Controls.Add(this.button_i2cmonitor);
 			this.Controls.Add(this.button_i2cread);
 			this.Controls.Add(this.listBox_active);
@@ -165,6 +177,7 @@
 		private System.Windows.Forms.ListBox listBox_active;
 		private System.Windows.Forms.Button button_i2cread;
 		private System.Windows.Forms.Button button_i2cmonitor;
+		private System.Windows.Forms.Button button_reset;
 	}
 }
 

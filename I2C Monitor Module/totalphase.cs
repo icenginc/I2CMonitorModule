@@ -149,13 +149,16 @@ namespace I2C_Monitor_Module
 			setup_i2c();
 		}
 
+		const int max_bytes = 8;  //6 for SHT31
 		ushort port;
 		uint id;
 		int handle;
-		int bitrate = 100;
-		int bus_timeout;
-		public const int BUS_TIMEOUT = 150;  // ms
-
+		int sample_rate;
+		int timeout;
+		ushort[] data_in = new ushort[max_bytes];
+		uint[] timing;
+		int timing_size;
+		
 		public ushort return_port()
 		{
 			return port;
@@ -164,6 +167,11 @@ namespace I2C_Monitor_Module
 		public uint return_id()
 		{
 			return id;
+		}
+
+		public ushort[] return_data()
+		{
+			return data_in;
 		}
 
 		private void open_handle()
@@ -176,14 +184,166 @@ namespace I2C_Monitor_Module
 			}
 		}
 
-		private void setup_i2c()
+		private void setup_i2c() //set timing bit size, sample rate, and timeout
 		{
-			BeagleApi.bg_enable(handle, BeagleProtocol.BG_PROTOCOL_I2C);
+			// Get the size of the timing information for a transaction of
+			// max_bytes length
+			timing_size = BeagleApi.bg_bit_timing_size(BeagleProtocol.BG_PROTOCOL_I2C, max_bytes);
+			timing = new uint[timing_size];
+
+			sample_rate = BeagleApi.bg_samplerate(handle, 0); //sampling rate in khz
+			if (BeagleApi.bg_timeout(handle, 1000) != (int)BeagleStatus.BG_OK) //set the timeout to 1s
+			{
+				Console.WriteLine("error: Could not set Beagle timeout; exiting...\n");
+				throw new InvalidOperationException("Could not set Beagle timeout; exiting...");
+			}
+			if (BeagleApi.bg_enable(handle, BeagleProtocol.BG_PROTOCOL_I2C) != (int)BeagleStatus.BG_OK) //start polling bus
+			{
+				Console.WriteLine("error: could not enable I2C capture; exiting...\n");
+				throw new InvalidOperationException("error: could not enable I2C capture; exiting...");
+			}
 		}
 
-		public void snoop_i2c()
+		public void snoop_i2c(int num_packets)
 		{
-			BeagleApi.bg_
+			// Capture and print each transaction
+			List<ushort> full_data = new List<ushort>(); //keep adding bytes to this as it goes
+			for (int i = 0; i < num_packets || num_packets == 0; ++i)
+			{
+				uint status = 0;
+				ulong time_sop = 0, time_sop_ns = 0;
+				ulong time_duration = 0;
+				uint time_dataoffset = 0;
+
+				// Read transaction with bit timing data
+				int count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
+				string output = "";
+				foreach (ushort data in data_in)
+					output += data.ToString("X") + " ";
+				
+				string status_string = print_general_status(status);
+
+				MessageBox.Show(status_string + Environment.NewLine + output); //added this so see in gui
+
+				if (status_string.Contains("TIMEOUT"))
+					continue; //skip if no activity on bus
+				// Translate timestamp to ns
+				time_sop_ns = TIMESTAMP_TO_NS(time_sop, sample_rate);
+
+				Console.Write("{0:d},{1:d}", i, time_sop_ns);
+				Console.Write(",I2C,(");
+
+				if (count < 0) //error condition
+					Console.Write("error={0:d},", count);
+				else
+					Console.Write("Read " + count + " bits. ");
+
+				//print_general_status(status); //below reference funct -> moved up
+				Console.Write(status_string);
+				print_i2c_status(status); //below reference funct
+				Console.Write(")");
+
+				// Check for errors
+				if (count <= 0)
+				{
+					Console.Write("\n");
+					Console.Out.Flush(); //what does this do?
+
+					if (count < 0)
+						break;
+
+					// If zero data captured, continue
+					continue;
+				}
+
+				// Print the address and read/write
+				Console.Write(",");
+				int offset = 0;
+				if ((status & BeagleApi.BG_READ_ERR_MIDDLE_OF_PACKET) == 0)
+				{
+					// Display the start condition
+					Console.Write("[S] ");
+
+					if (count >= 1)
+					{
+						// Determine if byte was NACKed
+						int nack = (data_in[0] & BeagleApi.BG_I2C_MONITOR_NACK);
+
+						// Determine if this is a 10-bit address
+						if (count == 1 || (data_in[0] & 0xf9) != 0xf0 ||
+							(nack != 0))
+						{
+							// Display 7-bit address
+							Console.Write("<{0:x2}:{1:s}>{2:s} ",
+								   (data_in[0] & 0xff) >> 1,
+								   ((data_in[0] & 0x01) != 0) ? 'r' : 'w',
+								   (nack != 0) ? "*" : "");
+							offset = 1;
+						}
+						else
+						{
+							// Display 10-bit address
+							Console.Write("<{0:x3}:{1:s}>{2:s} ", ((data_in[0] << 7) & 0x300) | (data_in[1] & 0xff), ((data_in[0] & 0x01) != 0) ? 'r' : 'w',
+								   (nack != 0) ? "*" : "");
+							offset = 2;
+						}
+					}
+				}
+
+				// Display rest of transaction - data
+				count = count - offset;
+				for (int n = 0; n < count; ++n)
+				{
+					// Determine if byte was NACKed
+					int nack = (data_in[offset] & BeagleApi.BG_I2C_MONITOR_NACK);
+
+					Console.Write("{0:x2}{1:s} ",
+							data_in[offset] & 0xff, (nack != 0) ? "*" : "");
+					++offset;
+				}
+			}
+
+			// Stop the capture
+			BeagleApi.bg_disable(handle);
+		}
+
+		//--- from totalphase documentation
+		static ulong TIMESTAMP_TO_NS(ulong stamp, int samplerate_khz)
+		{
+			return (ulong)(stamp * 1000 / (ulong)(samplerate_khz / 1000));
+		}
+
+		static string print_general_status(uint status)
+		{
+			string status_string = " ";
+
+			Console.Write(" ");
+
+			// General status codes
+			if (status == BeagleApi.BG_READ_OK)
+				status_string += ("OK ");
+
+			if ((status & BeagleApi.BG_READ_TIMEOUT) != 0)
+				status_string += ("TIMEOUT ");
+
+			if ((status & BeagleApi.BG_READ_ERR_MIDDLE_OF_PACKET) != 0)
+				status_string += ("MIDDLE ");
+
+			if ((status & BeagleApi.BG_READ_ERR_SHORT_BUFFER) != 0)
+				status_string += ("SHORT BUFFER ");
+
+			if ((status & BeagleApi.BG_READ_ERR_PARTIAL_LAST_BYTE) != 0)
+				status_string += string.Format("PARTIAL_BYTE(bit {0:d}) ", status & 0xff);
+
+			return status_string;
+		}
+
+
+		static void print_i2c_status(uint status)
+		{
+			// I2C status codes
+			if ((status & BeagleApi.BG_READ_I2C_NO_STOP) != 0)
+				Console.Write("I2C_NO_STOP ");
 		}
 	}
 }
