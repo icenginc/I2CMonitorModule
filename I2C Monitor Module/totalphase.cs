@@ -183,7 +183,7 @@ namespace I2C_Monitor_Module
 		public void reset_beagle()
 		{
 			BeagleApi.bg_disable(handle);
-			System.Threading.Thread.Sleep(250);
+			System.Threading.Thread.Sleep(500);
 			setup_i2c();
 		}
 

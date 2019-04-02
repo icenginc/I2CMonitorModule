@@ -7,28 +7,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace I2C_Monitor_Module
 {
 	public partial class Form1 : Form
 	{
 		TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
-		bool loop = true;
-
+		string config_path = "C://I2CMonitorModule//";
+		string config_file;
+		bool loop = false;
+		bool select = false;
+		bool config = false;
+		/// <summary>
+		/// these locks are to direct the user to the correct order of steps
+		/// </summary>
 		public Form1()
 		{
 			InitializeComponent();
-
+			load_config();
 			button_scan_Click(this, new EventArgs());
-
-
-
-
-			//select devices to use
-			//maybe some config file to define the devices? so we can make sure it is the right pair
-
-			//read test
-
 		}
 
 		private void button_scan_Click(object sender, EventArgs e)
@@ -48,16 +46,21 @@ namespace I2C_Monitor_Module
 
 		private void button_select_Click(object sender, EventArgs e)
 		{
+			select = true;
 			foreach (Aardvark a in iface.aardvarks)
 			{
 				if (a.return_id().ToString() == (string)comboBox_aardvark.SelectedItem)
 					iface.current_aardvark = a;
+				else
+					select = false;
 			}
 
 			foreach (Beagle b in iface.beagles)
 			{
 				if (b.return_id().ToString() == (string)comboBox_beagle.SelectedItem)
 					iface.current_beagle = b;
+				else
+					select = false;
 			} //set the beagle and aardvark if it matches the combobox
 
 			for (int i = 0; i < listBox_active.Items.Count; i++)
@@ -68,8 +71,6 @@ namespace I2C_Monitor_Module
 				if (l == iface.current_beagle.return_id().ToString())
 					listBox_active.SelectedItem = l;
 			} //highlight the text in the listbox
-
-
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -101,17 +102,41 @@ namespace I2C_Monitor_Module
 
 		private void button_i2cmonitor_Click(object sender, EventArgs e)
 		{
-			run_here(); //do everything in separate funciton
+			if (select)
+			{
+				loop = true; //continue
+				run_here(); //do everything in separate funciton
+			}
+			else //if valid beagle/aardvark combo not selected
+				MessageBox.Show("Aardvark/Beagle not selected!");
 		}
 
 		private void button_reset_Click(object sender, EventArgs e)
 		{
-			iface.current_beagle.reset_beagle();
+			if (select)
+			{
+				iface.current_beagle.reset_beagle();
+			}
+			else //if valid beagle/aardvark combo not selected
+				MessageBox.Show("Aardvark/Beagle not selected!");
 		}
 
 		private void button_stop_Click(object sender, EventArgs e)
 		{
-			loop = false;
+			loop = false; //pause
+		}
+
+		private void comboBox_config_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			
+			FileInfo config_file = new FileInfo(config_path + comboBox_config.Text);
+			//parse should return a true
+			bool success = parse_config(config_file);
+			//if it returns false then dont set the 
+			if (success)
+				config = true;
+			else
+				config = false;
 		}
 	}
 

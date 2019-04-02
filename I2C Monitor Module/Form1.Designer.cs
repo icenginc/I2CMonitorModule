@@ -41,6 +41,8 @@
 			this.button_reset = new System.Windows.Forms.Button();
 			this.textBox_data = new System.Windows.Forms.TextBox();
 			this.button_stop = new System.Windows.Forms.Button();
+			this.comboBox_config = new System.Windows.Forms.ComboBox();
+			this.label4 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// button_scan
@@ -164,11 +166,31 @@
 			this.button_stop.UseVisualStyleBackColor = true;
 			this.button_stop.Click += new System.EventHandler(this.button_stop_Click);
 			// 
+			// comboBox_config
+			// 
+			this.comboBox_config.FormattingEnabled = true;
+			this.comboBox_config.Location = new System.Drawing.Point(12, 50);
+			this.comboBox_config.Name = "comboBox_config";
+			this.comboBox_config.Size = new System.Drawing.Size(185, 21);
+			this.comboBox_config.TabIndex = 15;
+			this.comboBox_config.SelectedIndexChanged += new System.EventHandler(this.comboBox_config_SelectedIndexChanged);
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(9, 33);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(88, 13);
+			this.label4.TabIndex = 14;
+			this.label4.Text = "Configuration File";
+			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(518, 300);
+			this.Controls.Add(this.comboBox_config);
+			this.Controls.Add(this.label4);
 			this.Controls.Add(this.button_stop);
 			this.Controls.Add(this.textBox_data);
 			this.Controls.Add(this.button_reset);
@@ -204,6 +226,8 @@
 		private System.Windows.Forms.Button button_reset;
 		public System.Windows.Forms.TextBox textBox_data;
 		private System.Windows.Forms.Button button_stop;
+		private System.Windows.Forms.ComboBox comboBox_config;
+		private System.Windows.Forms.Label label4;
 	}
 }
 
