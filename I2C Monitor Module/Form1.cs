@@ -13,21 +13,22 @@ namespace I2C_Monitor_Module
 	public partial class Form1 : Form
 	{
 		TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
+		bool loop = true;
 
 		public Form1()
 		{
 			InitializeComponent();
 
 			button_scan_Click(this, new EventArgs());
-			
 
-			
+
+
 
 			//select devices to use
 			//maybe some config file to define the devices? so we can make sure it is the right pair
 
 			//read test
-			
+
 		}
 
 		private void button_scan_Click(object sender, EventArgs e)
@@ -59,7 +60,7 @@ namespace I2C_Monitor_Module
 					iface.current_beagle = b;
 			} //set the beagle and aardvark if it matches the combobox
 
-			for(int i = 0; i < listBox_active.Items.Count; i++)
+			for (int i = 0; i < listBox_active.Items.Count; i++)
 			{
 				string l = listBox_active.Items[i].ToString();
 				if (l == iface.current_aardvark.return_id().ToString())
@@ -79,7 +80,7 @@ namespace I2C_Monitor_Module
 				ushort bytes_out = 2;
 				byte[] data_in = new byte[bytes_in];
 				byte[] data_out = new byte[bytes_out];
-				data_out = new byte[] { 0x2C, 0x06}; //measure command to SHT module
+				data_out = new byte[] { 0x2C, 0x06 }; //measure command to SHT module
 
 				Console.WriteLine("Write:" + iface.current_aardvark.i2c_write(bytes_out, data_out));
 				System.Threading.Thread.Sleep(500);
@@ -100,16 +101,17 @@ namespace I2C_Monitor_Module
 
 		private void button_i2cmonitor_Click(object sender, EventArgs e)
 		{
-			var data = iface.current_beagle.snoop_i2c(2);
-			foreach (string line in data)
-				textBox_data.Text += (line + Environment.NewLine);
-			textBox_data.Select(textBox_data.Text.Length, 0);
-			//var data = iface.current_beagle.return_data();
+			run_here(); //do everything in separate funciton
 		}
 
 		private void button_reset_Click(object sender, EventArgs e)
 		{
 			iface.current_beagle.reset_beagle();
+		}
+
+		private void button_stop_Click(object sender, EventArgs e)
+		{
+			loop = false;
 		}
 	}
 

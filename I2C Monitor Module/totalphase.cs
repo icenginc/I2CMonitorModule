@@ -149,16 +149,17 @@ namespace I2C_Monitor_Module
 			setup_i2c();
 		}
 
-		const int max_bytes = 8;  //6 for SHT31
+		const int max_bytes = 3;  //6 for SHT31
 		ushort port;
 		uint id;
 		int handle;
 		int sample_rate;
 		int timeout;
+		int buffer_available;
 		ushort[] data_in = new ushort[max_bytes];
 		uint[] timing;
 		int timing_size;
-		
+
 		public ushort return_port()
 		{
 			return port;
@@ -174,9 +175,15 @@ namespace I2C_Monitor_Module
 			return data_in;
 		}
 
+		public int return_buffer()
+		{
+			return buffer_available;
+		}
+
 		public void reset_beagle()
 		{
 			BeagleApi.bg_disable(handle);
+			System.Threading.Thread.Sleep(250);
 			setup_i2c();
 		}
 
@@ -329,11 +336,11 @@ namespace I2C_Monitor_Module
 				output += "Temperature: ";
 
 			for (int i = 1; i < data.Length; i++)
-					output += data[i].ToString("X");
+				output += ((data[i]&0xff).ToString("X") + " "); //bitwise and to filter data
 
 			if (output.Contains("Temp"))
 			{
-				value = (data[1] << 8) + (data[2] >> 1);
+				value = ((data[1] & 0xff) << 8) + ((data[2] & 0xff)); //bitwise and to filter data
 				output += "(" + ((value / 4) - 273) + ")";
 			}
 
@@ -351,8 +358,10 @@ namespace I2C_Monitor_Module
 				status_string += ("OK");
 
 			if (status != 0)
-				status_string += "(" + BeagleApi.bg_host_buffer_used(handle) + ":" + BeagleApi.bg_host_buffer_size(handle, 0) + ")";
-
+			{
+				buffer_available = BeagleApi.bg_host_buffer_used(handle);
+				status_string += "(" + buffer_available + ":" + BeagleApi.bg_host_buffer_size(handle, 0) + ")";
+			}
 			if ((status & BeagleApi.BG_READ_TIMEOUT) != 0)
 				status_string += ("TIMEOUT ");
 

@@ -40,11 +40,12 @@
 			this.button_i2cmonitor = new System.Windows.Forms.Button();
 			this.button_reset = new System.Windows.Forms.Button();
 			this.textBox_data = new System.Windows.Forms.TextBox();
+			this.button_stop = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// button_scan
 			// 
-			this.button_scan.Location = new System.Drawing.Point(269, 158);
+			this.button_scan.Location = new System.Drawing.Point(423, 142);
 			this.button_scan.Name = "button_scan";
 			this.button_scan.Size = new System.Drawing.Size(75, 23);
 			this.button_scan.TabIndex = 0;
@@ -54,7 +55,7 @@
 			// 
 			// button_select
 			// 
-			this.button_select.Location = new System.Drawing.Point(350, 158);
+			this.button_select.Location = new System.Drawing.Point(423, 171);
 			this.button_select.Name = "button_select";
 			this.button_select.Size = new System.Drawing.Size(75, 23);
 			this.button_select.TabIndex = 1;
@@ -65,7 +66,7 @@
 			// label1
 			// 
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(283, 50);
+			this.label1.Location = new System.Drawing.Point(357, 33);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(101, 13);
 			this.label1.TabIndex = 2;
@@ -74,7 +75,7 @@
 			// label2
 			// 
 			this.label2.AutoSize = true;
-			this.label2.Location = new System.Drawing.Point(286, 96);
+			this.label2.Location = new System.Drawing.Point(360, 79);
 			this.label2.Name = "label2";
 			this.label2.Size = new System.Drawing.Size(91, 13);
 			this.label2.TabIndex = 3;
@@ -83,7 +84,7 @@
 			// comboBox_aardvark
 			// 
 			this.comboBox_aardvark.FormattingEnabled = true;
-			this.comboBox_aardvark.Location = new System.Drawing.Point(286, 67);
+			this.comboBox_aardvark.Location = new System.Drawing.Point(360, 50);
 			this.comboBox_aardvark.Name = "comboBox_aardvark";
 			this.comboBox_aardvark.Size = new System.Drawing.Size(121, 21);
 			this.comboBox_aardvark.TabIndex = 4;
@@ -91,7 +92,7 @@
 			// comboBox_beagle
 			// 
 			this.comboBox_beagle.FormattingEnabled = true;
-			this.comboBox_beagle.Location = new System.Drawing.Point(286, 113);
+			this.comboBox_beagle.Location = new System.Drawing.Point(360, 96);
 			this.comboBox_beagle.Name = "comboBox_beagle";
 			this.comboBox_beagle.Size = new System.Drawing.Size(121, 21);
 			this.comboBox_beagle.TabIndex = 5;
@@ -99,7 +100,7 @@
 			// label3
 			// 
 			this.label3.AutoSize = true;
-			this.label3.Location = new System.Drawing.Point(9, 12);
+			this.label3.Location = new System.Drawing.Point(213, 13);
 			this.label3.Name = "label3";
 			this.label3.Size = new System.Drawing.Size(46, 13);
 			this.label3.TabIndex = 7;
@@ -108,24 +109,25 @@
 			// listBox_active
 			// 
 			this.listBox_active.FormattingEnabled = true;
-			this.listBox_active.Location = new System.Drawing.Point(12, 29);
+			this.listBox_active.Location = new System.Drawing.Point(216, 30);
 			this.listBox_active.Name = "listBox_active";
 			this.listBox_active.Size = new System.Drawing.Size(120, 95);
 			this.listBox_active.TabIndex = 8;
 			// 
 			// button_i2cread
 			// 
-			this.button_i2cread.Location = new System.Drawing.Point(269, 220);
+			this.button_i2cread.Location = new System.Drawing.Point(342, 220);
 			this.button_i2cread.Name = "button_i2cread";
 			this.button_i2cread.Size = new System.Drawing.Size(75, 23);
 			this.button_i2cread.TabIndex = 9;
 			this.button_i2cread.Text = "i2cread";
 			this.button_i2cread.UseVisualStyleBackColor = true;
+			this.button_i2cread.Visible = false;
 			this.button_i2cread.Click += new System.EventHandler(this.button1_Click);
 			// 
 			// button_i2cmonitor
 			// 
-			this.button_i2cmonitor.Location = new System.Drawing.Point(350, 220);
+			this.button_i2cmonitor.Location = new System.Drawing.Point(423, 229);
 			this.button_i2cmonitor.Name = "button_i2cmonitor";
 			this.button_i2cmonitor.Size = new System.Drawing.Size(75, 23);
 			this.button_i2cmonitor.TabIndex = 10;
@@ -135,7 +137,7 @@
 			// 
 			// button_reset
 			// 
-			this.button_reset.Location = new System.Drawing.Point(350, 191);
+			this.button_reset.Location = new System.Drawing.Point(423, 200);
 			this.button_reset.Name = "button_reset";
 			this.button_reset.Size = new System.Drawing.Size(75, 23);
 			this.button_reset.TabIndex = 11;
@@ -149,14 +151,25 @@
 			this.textBox_data.Multiline = true;
 			this.textBox_data.Name = "textBox_data";
 			this.textBox_data.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.textBox_data.Size = new System.Drawing.Size(245, 112);
+			this.textBox_data.Size = new System.Drawing.Size(380, 157);
 			this.textBox_data.TabIndex = 12;
+			// 
+			// button_stop
+			// 
+			this.button_stop.Location = new System.Drawing.Point(423, 258);
+			this.button_stop.Name = "button_stop";
+			this.button_stop.Size = new System.Drawing.Size(75, 23);
+			this.button_stop.TabIndex = 13;
+			this.button_stop.Text = "Stop";
+			this.button_stop.UseVisualStyleBackColor = true;
+			this.button_stop.Click += new System.EventHandler(this.button_stop_Click);
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(437, 261);
+			this.ClientSize = new System.Drawing.Size(518, 300);
+			this.Controls.Add(this.button_stop);
 			this.Controls.Add(this.textBox_data);
 			this.Controls.Add(this.button_reset);
 			this.Controls.Add(this.button_i2cmonitor);
@@ -190,6 +203,7 @@
 		private System.Windows.Forms.Button button_i2cmonitor;
 		private System.Windows.Forms.Button button_reset;
 		public System.Windows.Forms.TextBox textBox_data;
+		private System.Windows.Forms.Button button_stop;
 	}
 }
 
