@@ -48,6 +48,10 @@
   <ItemGroup>
     <Compile Include="aardvark.cs" />
     <Compile Include="beagle.cs" />
+    <Compile Include="initial.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="job.cs" />
     <Compile Include="runloop.cs">
       <SubType>Form</SubType>
     </Compile>

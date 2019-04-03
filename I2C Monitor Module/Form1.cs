@@ -14,11 +14,10 @@ namespace I2C_Monitor_Module
 	public partial class Form1 : Form
 	{
 		TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
-		string config_path = "C://I2CMonitorModule//";
-		string config_file;
-		bool loop = false;
-		bool select = false;
-		bool config = false;
+		string config_path = "C://InSituMonitorModule//";
+		FileInfo config_file;
+		bool loop = false; //to stop or esume the measuremetns
+		bool select = false; //to stop or 
 		/// <summary>
 		/// these locks are to direct the user to the correct order of steps
 		/// </summary>
@@ -71,6 +70,11 @@ namespace I2C_Monitor_Module
 				if (l == iface.current_beagle.return_id().ToString())
 					listBox_active.SelectedItem = l;
 			} //highlight the text in the listbox
+
+			if (parse_config(config_file))
+				select = true;
+			else
+				select = false;
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -108,7 +112,7 @@ namespace I2C_Monitor_Module
 				run_here(); //do everything in separate funciton
 			}
 			else //if valid beagle/aardvark combo not selected
-				MessageBox.Show("Aardvark/Beagle not selected!");
+				MessageBox.Show("Aardvark/Beagle/Config not selected!");
 		}
 
 		private void button_reset_Click(object sender, EventArgs e)
@@ -118,7 +122,7 @@ namespace I2C_Monitor_Module
 				iface.current_beagle.reset_beagle();
 			}
 			else //if valid beagle/aardvark combo not selected
-				MessageBox.Show("Aardvark/Beagle not selected!");
+				MessageBox.Show("Aardvark/Beagle/Config not selected!");
 		}
 
 		private void button_stop_Click(object sender, EventArgs e)
@@ -128,15 +132,8 @@ namespace I2C_Monitor_Module
 
 		private void comboBox_config_SelectedIndexChanged(object sender, EventArgs e)
 		{
-			
-			FileInfo config_file = new FileInfo(config_path + comboBox_config.Text);
-			//parse should return a true
-			bool success = parse_config(config_file);
-			//if it returns false then dont set the 
-			if (success)
-				config = true;
-			else
-				config = false;
+			config_file = new FileInfo(config_path + comboBox_config.Text);
+			//find the file
 		}
 	}
 
