@@ -17,7 +17,7 @@ namespace I2C_Monitor_Module
 		int bibx = 0;
 		int biby = 0;
 		int sites;
-		byte slave_add_short;
+		ushort slave_add_short;
 		string protocol_string;
 		string device_name;
 		bool extended_bool;
@@ -66,16 +66,16 @@ namespace I2C_Monitor_Module
 
 		private void slave_add(string line)
 		{
-			string token = "SlaveAddress=";
+			string token = "SlaveAddress=0x";
 			if (line.Contains(token))
-				slave_add_short = byte.Parse(line.Replace(token, ""));
+				slave_add_short = ushort.Parse(line.Replace(token, ""));
 		}
 
 		private void device_add(string line)
 		{
 			string token = "DeviceAddress";
 			if (line.Contains(token))
-				device_adds.Add(line.Replace(token, ""));
+				device_adds.Add(new device(line.Replace("token", "")));
 			//this po p ulates the device addresses, need to then parse further
 		}
 
@@ -90,9 +90,9 @@ namespace I2C_Monitor_Module
 		{
 			string token = "Bib";
 			if (line.Contains(token + "X"))
-				bibx = Int32.Parse(line.Replace(token + "X", ""));
+				bibx = Int32.Parse(line.Replace(token + "X=", ""));
 			if (line.Contains(token + "Y"))
-				biby = Int32.Parse(line.Replace(token + "Y", ""));
+				biby = Int32.Parse(line.Replace(token + "Y=", ""));
 			if (bibx != 0 && biby != 0) //if both are filled
 				sites = bibx * biby;
 		}
@@ -112,31 +112,44 @@ namespace I2C_Monitor_Module
 				}
 			}
 		}
-
-		private void resolve_addresses()
-		{
-			for(int i = 0; i < device_adds.Count; i++)
-			{
-				string current = device_adds[i].Substring(device_adds[i].IndexOf('('), device_adds[i].Length - device_adds[i].IndexOf(')')); 
-				DataTable table = new DataTable();
-				device_adds[i] = (string)table.Compute(current, string.Empty);
-			}
-		}
 	}
 
 	class device
 	{
 		public device(string input)
 		{
-			this.input = input.Split(',');
+			split = input.Split(',');
+			parse_name(split[0]);
+			parse_address(split[1]);
+			parse_length(split[2]);
+			parse_formula(split[3]);
 		}
-
-		string[] input;
+		
+		string[] split;
 		string name;
 		byte address;
 		ushort length;
 		string formula;
 
+		private void parse_formula(string v)
+		{
+			formula = v.Substring(v.IndexOf('('), v.Length - v.IndexOf('('));
+		}
 
+		private void parse_length(string v)
+		{
+			length = ushort.Parse(v.Replace("0x", ""));
+		}
+
+		private void parse_address(string v)
+		{
+			int temp = Convert.ToInt32(v.Replace("0x", ""), 16);
+			address = byte.Parse(temp.ToString());
+		}
+
+		private void parse_name(string v)
+		{
+			name = v.Substring(v.IndexOf("\"") + 1, (v.LastIndexOf("\"") - v.IndexOf("\""))-1);
+		}
 	}
 }
