@@ -4,7 +4,7 @@ using System.Data;
 
 namespace I2C_Monitor_Module
 {
-	class job
+	class job //the INI file basically
 	{
 		public job(List<string> input)
 		{
@@ -22,6 +22,12 @@ namespace I2C_Monitor_Module
 		string device_name;
 		bool extended_bool;
 		List<device> device_adds = new List<device>(); // class that fills itself once the string is inserted
+
+		public int Bibx
+		{get { return this.bibx; }}
+
+		public int Biby
+		{ get { return this.biby; } }
 
 		private void parse(string line)
 		{

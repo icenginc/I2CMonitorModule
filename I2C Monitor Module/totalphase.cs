@@ -14,6 +14,7 @@ namespace I2C_Monitor_Module
 
 		public Aardvark current_aardvark = new Aardvark();
 		public Beagle current_beagle = new Beagle();
+		public job current_job;
 
 		public void find_device()
 		{

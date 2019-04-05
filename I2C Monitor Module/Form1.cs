@@ -75,6 +75,11 @@ namespace I2C_Monitor_Module
 				select = true;
 			else
 				select = false;
+
+			if (resolve_boards())
+				;
+			else
+				select = false;
 		}
 
 		private void button1_Click(object sender, EventArgs e)
