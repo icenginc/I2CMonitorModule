@@ -77,15 +77,32 @@ namespace I2C_Monitor_Module
 				}
 			}//each iteration is one mux address
 
+			Console.WriteLine("Buildt pages - populating now..");
+			/*
+			BackgroundWorker tab_populate = new BackgroundWorker();
+			tab_populate.DoWork += Tab_populate_DoWork;
+			tab_populate.RunWorkerAsync();
+			*/
 			foreach (TabPage page in tabControl_boards.TabPages)
 			{
 				if (iface.current_job != null)
 				{
+					var x = tabControl_boards.Size.Width - 2;
+					var y = tabControl_boards.Size.Height - 2;
+					var width = x / iface.current_job.Bibx;
+					var height = y / iface.current_job.Biby;
+
 					for (int i = 0; i < iface.current_job.Biby; i++) //column
 					{
-						for (int j = 0; j < iface.current_job.Bibx; i++) //row
+						for (int j = 0; j < iface.current_job.Bibx; j++) //row
 						{
 							//build the DUT thing in here
+							Button button = new Button();
+							button.Text = "DUT " + iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
+							button.Location = new Point(j * width, i * height); //calculated height based on loop position
+							button.Size = new Size(width - 3, height - 3);
+							button.Show();
+							page.Controls.Add(button); //add a button
 						}
 					}
 				} //if the job is loaded, fill the GUI with board dimensions
@@ -95,6 +112,10 @@ namespace I2C_Monitor_Module
 
 			return true; //on success
 		}
+
+		private void Tab_populate_DoWork(object sender, DoWorkEventArgs e)
+		{
+		} //moved here temporarily, moved back
 
 		private bool scan_board(ushort mux)
 		{

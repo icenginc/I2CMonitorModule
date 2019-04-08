@@ -241,7 +241,7 @@
 			this.tabControl_boards.Location = new System.Drawing.Point(2, 288);
 			this.tabControl_boards.Name = "tabControl_boards";
 			this.tabControl_boards.SelectedIndex = 0;
-			this.tabControl_boards.Size = new System.Drawing.Size(584, 287);
+			this.tabControl_boards.Size = new System.Drawing.Size(584, 280);
 			this.tabControl_boards.TabIndex = 41;
 			// 
 			// tabPage1
@@ -251,7 +251,7 @@
 			this.tabPage1.Location = new System.Drawing.Point(4, 24);
 			this.tabPage1.Name = "tabPage1";
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage1.Size = new System.Drawing.Size(576, 259);
+			this.tabPage1.Size = new System.Drawing.Size(576, 252);
 			this.tabPage1.TabIndex = 0;
 			this.tabPage1.Text = "DUTs";
 			// 
@@ -294,7 +294,7 @@
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
 			this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
-			this.tableLayoutPanel1.Size = new System.Drawing.Size(554, 259);
+			this.tableLayoutPanel1.Size = new System.Drawing.Size(554, 252);
 			this.tableLayoutPanel1.TabIndex = 41;
 			// 
 			// label7
@@ -307,7 +307,7 @@
 			this.label7.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
 			this.label7.Location = new System.Drawing.Point(3, 0);
 			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(104, 64);
+			this.label7.Size = new System.Drawing.Size(104, 63);
 			this.label7.TabIndex = 40;
 			this.label7.Text = "DUT1";
 			this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -322,7 +322,7 @@
 			this.label8.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.label8.Location = new System.Drawing.Point(333, 0);
 			this.label8.Name = "label8";
-			this.label8.Size = new System.Drawing.Size(104, 64);
+			this.label8.Size = new System.Drawing.Size(104, 63);
 			this.label8.TabIndex = 43;
 			this.label8.Text = "DUT4";
 			this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -337,7 +337,7 @@
 			this.label9.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.label9.Location = new System.Drawing.Point(223, 0);
 			this.label9.Name = "label9";
-			this.label9.Size = new System.Drawing.Size(104, 64);
+			this.label9.Size = new System.Drawing.Size(104, 63);
 			this.label9.TabIndex = 42;
 			this.label9.Text = "DUT3";
 			this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -352,7 +352,7 @@
 			this.label10.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.label10.Location = new System.Drawing.Point(113, 0);
 			this.label10.Name = "label10";
-			this.label10.Size = new System.Drawing.Size(104, 64);
+			this.label10.Size = new System.Drawing.Size(104, 63);
 			this.label10.TabIndex = 41;
 			this.label10.Text = "DUT2";
 			this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -367,7 +367,7 @@
 			this.label11.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
 			this.label11.Location = new System.Drawing.Point(443, 0);
 			this.label11.Name = "label11";
-			this.label11.Size = new System.Drawing.Size(108, 64);
+			this.label11.Size = new System.Drawing.Size(108, 63);
 			this.label11.TabIndex = 44;
 			this.label11.Text = "DUT5";
 			this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -380,9 +380,9 @@
 			this.label12.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label12.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label12.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-			this.label12.Location = new System.Drawing.Point(3, 64);
+			this.label12.Location = new System.Drawing.Point(3, 63);
 			this.label12.Name = "label12";
-			this.label12.Size = new System.Drawing.Size(104, 64);
+			this.label12.Size = new System.Drawing.Size(104, 63);
 			this.label12.TabIndex = 45;
 			this.label12.Text = "DUT6";
 			this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -395,9 +395,9 @@
 			this.label13.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label13.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label13.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label13.Location = new System.Drawing.Point(113, 64);
+			this.label13.Location = new System.Drawing.Point(113, 63);
 			this.label13.Name = "label13";
-			this.label13.Size = new System.Drawing.Size(104, 64);
+			this.label13.Size = new System.Drawing.Size(104, 63);
 			this.label13.TabIndex = 46;
 			this.label13.Text = "DUT7";
 			this.label13.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -410,9 +410,9 @@
 			this.label14.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label14.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label14.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label14.Location = new System.Drawing.Point(223, 64);
+			this.label14.Location = new System.Drawing.Point(223, 63);
 			this.label14.Name = "label14";
-			this.label14.Size = new System.Drawing.Size(104, 64);
+			this.label14.Size = new System.Drawing.Size(104, 63);
 			this.label14.TabIndex = 47;
 			this.label14.Text = "DUT8";
 			this.label14.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -425,9 +425,9 @@
 			this.label15.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label15.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label15.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label15.Location = new System.Drawing.Point(333, 64);
+			this.label15.Location = new System.Drawing.Point(333, 63);
 			this.label15.Name = "label15";
-			this.label15.Size = new System.Drawing.Size(104, 64);
+			this.label15.Size = new System.Drawing.Size(104, 63);
 			this.label15.TabIndex = 48;
 			this.label15.Text = "DUT9";
 			this.label15.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -440,9 +440,9 @@
 			this.label16.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label16.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label16.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label16.Location = new System.Drawing.Point(443, 64);
+			this.label16.Location = new System.Drawing.Point(443, 63);
 			this.label16.Name = "label16";
-			this.label16.Size = new System.Drawing.Size(108, 64);
+			this.label16.Size = new System.Drawing.Size(108, 63);
 			this.label16.TabIndex = 49;
 			this.label16.Text = "DUT10";
 			this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -455,9 +455,9 @@
 			this.label17.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label17.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label17.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label17.Location = new System.Drawing.Point(3, 128);
+			this.label17.Location = new System.Drawing.Point(3, 126);
 			this.label17.Name = "label17";
-			this.label17.Size = new System.Drawing.Size(104, 64);
+			this.label17.Size = new System.Drawing.Size(104, 63);
 			this.label17.TabIndex = 50;
 			this.label17.Text = "DUT11";
 			this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -470,9 +470,9 @@
 			this.label18.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label18.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label18.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label18.Location = new System.Drawing.Point(113, 128);
+			this.label18.Location = new System.Drawing.Point(113, 126);
 			this.label18.Name = "label18";
-			this.label18.Size = new System.Drawing.Size(104, 64);
+			this.label18.Size = new System.Drawing.Size(104, 63);
 			this.label18.TabIndex = 51;
 			this.label18.Text = "DUT12";
 			this.label18.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -485,9 +485,9 @@
 			this.label19.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label19.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label19.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label19.Location = new System.Drawing.Point(223, 128);
+			this.label19.Location = new System.Drawing.Point(223, 126);
 			this.label19.Name = "label19";
-			this.label19.Size = new System.Drawing.Size(104, 64);
+			this.label19.Size = new System.Drawing.Size(104, 63);
 			this.label19.TabIndex = 52;
 			this.label19.Text = "DUT13";
 			this.label19.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -500,9 +500,9 @@
 			this.label20.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label20.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label20.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label20.Location = new System.Drawing.Point(333, 128);
+			this.label20.Location = new System.Drawing.Point(333, 126);
 			this.label20.Name = "label20";
-			this.label20.Size = new System.Drawing.Size(104, 64);
+			this.label20.Size = new System.Drawing.Size(104, 63);
 			this.label20.TabIndex = 53;
 			this.label20.Text = "DUT14";
 			this.label20.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -515,9 +515,9 @@
 			this.label21.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label21.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label21.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label21.Location = new System.Drawing.Point(443, 128);
+			this.label21.Location = new System.Drawing.Point(443, 126);
 			this.label21.Name = "label21";
-			this.label21.Size = new System.Drawing.Size(108, 64);
+			this.label21.Size = new System.Drawing.Size(108, 63);
 			this.label21.TabIndex = 54;
 			this.label21.Text = "DUT15";
 			this.label21.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -530,9 +530,9 @@
 			this.label22.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label22.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label22.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label22.Location = new System.Drawing.Point(443, 192);
+			this.label22.Location = new System.Drawing.Point(443, 189);
 			this.label22.Name = "label22";
-			this.label22.Size = new System.Drawing.Size(108, 67);
+			this.label22.Size = new System.Drawing.Size(108, 63);
 			this.label22.TabIndex = 59;
 			this.label22.Text = "DUT20";
 			this.label22.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -545,9 +545,9 @@
 			this.label23.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label23.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label23.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label23.Location = new System.Drawing.Point(333, 192);
+			this.label23.Location = new System.Drawing.Point(333, 189);
 			this.label23.Name = "label23";
-			this.label23.Size = new System.Drawing.Size(104, 67);
+			this.label23.Size = new System.Drawing.Size(104, 63);
 			this.label23.TabIndex = 58;
 			this.label23.Text = "DUT19";
 			this.label23.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -560,9 +560,9 @@
 			this.label24.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label24.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label24.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label24.Location = new System.Drawing.Point(223, 192);
+			this.label24.Location = new System.Drawing.Point(223, 189);
 			this.label24.Name = "label24";
-			this.label24.Size = new System.Drawing.Size(104, 67);
+			this.label24.Size = new System.Drawing.Size(104, 63);
 			this.label24.TabIndex = 57;
 			this.label24.Text = "DUT18";
 			this.label24.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -575,9 +575,9 @@
 			this.label25.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label25.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label25.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label25.Location = new System.Drawing.Point(3, 192);
+			this.label25.Location = new System.Drawing.Point(3, 189);
 			this.label25.Name = "label25";
-			this.label25.Size = new System.Drawing.Size(104, 67);
+			this.label25.Size = new System.Drawing.Size(104, 63);
 			this.label25.TabIndex = 55;
 			this.label25.Text = "DUT16";
 			this.label25.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -590,9 +590,9 @@
 			this.label26.BackColor = System.Drawing.SystemColors.ControlLight;
 			this.label26.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
 			this.label26.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.label26.Location = new System.Drawing.Point(113, 192);
+			this.label26.Location = new System.Drawing.Point(113, 189);
 			this.label26.Name = "label26";
-			this.label26.Size = new System.Drawing.Size(104, 67);
+			this.label26.Size = new System.Drawing.Size(104, 63);
 			this.label26.TabIndex = 56;
 			this.label26.Text = "DUT17";
 			this.label26.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -601,7 +601,7 @@
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(598, 575);
+			this.ClientSize = new System.Drawing.Size(598, 580);
 			this.Controls.Add(this.tabControl_boards);
 			this.Controls.Add(this.label6);
 			this.Controls.Add(this.label5);

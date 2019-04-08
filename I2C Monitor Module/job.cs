@@ -29,6 +29,9 @@ namespace I2C_Monitor_Module
 		public int Biby
 		{ get { return this.biby; } }
 
+		public int[] Monitor_Map
+		{ get { return this.monitor_map; } }
+
 		private void parse(string line)
 		{
 			try
