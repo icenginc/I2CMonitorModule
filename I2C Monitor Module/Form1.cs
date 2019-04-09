@@ -140,6 +140,11 @@ namespace I2C_Monitor_Module
 			config_file = new FileInfo(config_path + comboBox_config.Text);
 			//find the file
 		}
+
+		private void tabControl_boards_Resize(object sender, EventArgs e)
+		{
+			resize_pages();
+		}
 	}
 
 	
