@@ -11,7 +11,7 @@ using System.IO;
 
 namespace I2C_Monitor_Module
 {
-	public partial class Form1 : Form
+	public partial class InSituMonitoringModule : Form
 	{
 
 		private void load_config()

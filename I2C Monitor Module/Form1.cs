@@ -11,17 +11,22 @@ using System.IO;
 
 namespace I2C_Monitor_Module
 {
-	public partial class Form1 : Form
+	public partial class InSituMonitoringModule : Form
 	{
 		TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
 		string config_path = "C://InSituMonitorModule//";
 		FileInfo config_file;
+
+		public string System { get; set; }
+		public string Lot { get; set; }
+		public string Job { get; set; }
+
 		bool loop = false; //to stop or esume the measuremetns
 		bool select = false; //to stop or 
 		/// <summary>
 		/// these locks are to direct the user to the correct order of steps
 		/// </summary>
-		public Form1()
+		public InSituMonitoringModule()
 		{
 			InitializeComponent();
 			load_config();
@@ -46,6 +51,8 @@ namespace I2C_Monitor_Module
 		private void button_select_Click(object sender, EventArgs e)
 		{
 			select = true;
+
+
 			foreach (Aardvark a in iface.aardvarks)
 			{
 				if (a.return_id().ToString() == (string)comboBox_aardvark.SelectedItem)
@@ -77,7 +84,7 @@ namespace I2C_Monitor_Module
 				select = false;
 
 			if (resolve_boards())
-				;
+				;//once boards are loaded, then what?
 			else
 				select = false;
 		}
