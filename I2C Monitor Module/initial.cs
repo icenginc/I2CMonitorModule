@@ -143,11 +143,11 @@ namespace I2C_Monitor_Module
 		{
 			foreach (TabPage page in tabControl_boards.TabPages)
 			{
-				
+				page.Size = new Size(tabControl_boards.Width, tabControl_boards.Height);//(page.Controls[0].Height + 2) * iface.current_job.Biby);
 				var x = page.Size.Width - 10;
 				var y = page.Size.Height;
 				var width = x / iface.current_job.Bibx;
-				var height = y / iface.current_job.Biby;
+				var height = y / iface.current_job.Biby;	
 
 				for (int i = 0; i < iface.current_job.Biby; i++) //column
 				{

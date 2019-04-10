@@ -17,9 +17,9 @@ namespace I2C_Monitor_Module
 		string config_path = "C://InSituMonitorModule//";
 		FileInfo config_file;
 
-		public string System { get; set; }
-		public string Lot { get; set; }
-		public string Job { get; set; }
+		public string system { get; set; }
+		public string lot { get; set; }
+		public string job { get; set; }
 
 		bool loop = false; //to stop or esume the measuremetns
 		bool select = false; //to stop or 
@@ -52,6 +52,9 @@ namespace I2C_Monitor_Module
 		{
 			select = true;
 
+			this.job = textBox_job.Text;
+			this.lot = textBox_lot.Text;
+			this.system = textBox_system.Text;
 
 			foreach (Aardvark a in iface.aardvarks)
 			{
