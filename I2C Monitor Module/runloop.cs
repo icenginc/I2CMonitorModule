@@ -24,7 +24,7 @@ namespace I2C_Monitor_Module
 
 		private void Polling_loop_DoWork(object sender, DoWorkEventArgs e)
 		{
-			while (loop)
+			while (loop) //loop is set by the start button and ended by the stop button
 			{
 				var data = iface.current_beagle.snoop_i2c(2);
 				foreach (string line in data)
@@ -32,8 +32,8 @@ namespace I2C_Monitor_Module
 				textBox_data.AppendText("\n\n");
 				textBox_data.Select(textBox_data.Text.Length, 0);
 				//var data = iface.current_beagle.return_data();
-				System.Threading.Thread.Sleep(333);
-				if (iface.current_beagle.return_buffer() == 0)
+				System.Threading.Thread.Sleep(333); //delay for slowing down loop reads
+				if (iface.current_beagle.Buffer == 0)
 					iface.current_beagle.reset_beagle();
 			}
 		}

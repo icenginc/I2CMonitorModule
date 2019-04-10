@@ -68,6 +68,9 @@ namespace I2C_Monitor_Module
 		int bus_timeout;
 		public const int BUS_TIMEOUT = 150;  // ms
 
+		public ushort Port { get { return port; } }
+		public uint ID { get { return id; } }
+
 		public int i2c_write(ushort bytes, byte[] data_out)
 		{
 			//only for SHT module
@@ -83,22 +86,12 @@ namespace I2C_Monitor_Module
 		{
 			data_in = Enumerable.Repeat<byte>(0, bytes).ToArray(); //set it to all 0's first
 
-			var result =  AardvarkApi.aa_i2c_read(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, bytes, data_in);
+			var result = AardvarkApi.aa_i2c_read(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, bytes, data_in);
 
 			if (result < 0)
 				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
 
 			return result;
-		}
-
-		public ushort return_port()
-		{
-			return port;
-		}
-
-		public uint return_id()
-		{
-			return id;
 		}
 
 		private void open_handle()
@@ -161,25 +154,10 @@ namespace I2C_Monitor_Module
 		uint[] timing;
 		int timing_size;
 
-		public ushort return_port()
-		{
-			return port;
-		}
-
-		public uint return_id()
-		{
-			return id;
-		}
-
-		public ushort[] return_data()
-		{
-			return data_in;
-		}
-
-		public int return_buffer()
-		{
-			return buffer_available;
-		}
+		public ushort Port{get { return port; }	}
+		public uint ID { get { return id; } }
+		public ushort[] Data { get { return data_in; } }
+		public int Buffer{ get { return buffer_available; }	}
 
 		public void reset_beagle()
 		{

@@ -37,8 +37,8 @@ namespace I2C_Monitor_Module
 		{
 			iface.find_device(); //button to do this, then display devices
 
-			var aardvark_ids = iface.aardvarks.Select(a => a.return_id().ToString()).ToArray();
-			var beagle_ids = iface.beagles.Select(a => a.return_id().ToString()).ToArray();
+			var aardvark_ids = iface.aardvarks.Select(a => a.ID.ToString()).ToArray();
+			var beagle_ids = iface.beagles.Select(a => a.ID.ToString()).ToArray();
 
 			comboBox_aardvark.Items.AddRange(aardvark_ids);
 			comboBox_beagle.Items.AddRange(beagle_ids);
@@ -58,7 +58,7 @@ namespace I2C_Monitor_Module
 
 			foreach (Aardvark a in iface.aardvarks)
 			{
-				if (a.return_id().ToString() == (string)comboBox_aardvark.SelectedItem)
+				if (a.ID.ToString() == (string)comboBox_aardvark.SelectedItem)
 					iface.current_aardvark = a;
 				else
 					select = false;
@@ -66,7 +66,7 @@ namespace I2C_Monitor_Module
 
 			foreach (Beagle b in iface.beagles)
 			{
-				if (b.return_id().ToString() == (string)comboBox_beagle.SelectedItem)
+				if (b.ID.ToString() == (string)comboBox_beagle.SelectedItem)
 					iface.current_beagle = b;
 				else
 					select = false;
@@ -75,9 +75,9 @@ namespace I2C_Monitor_Module
 			for (int i = 0; i < listBox_active.Items.Count; i++)
 			{
 				string l = listBox_active.Items[i].ToString();
-				if (l == iface.current_aardvark.return_id().ToString())
+				if (l == iface.current_aardvark.ID.ToString())
 					listBox_active.SelectedItem = l;
-				if (l == iface.current_beagle.return_id().ToString())
+				if (l == iface.current_beagle.ID.ToString())
 					listBox_active.SelectedItem = l;
 			} //highlight the text in the listbox
 
@@ -87,14 +87,14 @@ namespace I2C_Monitor_Module
 				select = false;
 
 			if (resolve_boards())
-				;//once boards are loaded, then what?
+				;//once boards are loaded, enter other function
 			else
 				select = false;
 		}
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			if (iface.current_aardvark.return_id() != 0 && iface.current_aardvark.return_port() != 999) //making sure we have set the current aardvark first
+			if (iface.current_aardvark.ID != 0 && iface.current_aardvark.Port != 999) //making sure we have set the current aardvark first
 			{
 				ushort bytes_in = 6;
 				ushort bytes_out = 2;
