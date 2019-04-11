@@ -408,7 +408,8 @@ public enum BeagleMdioClause : int {
 }
 
 
-public class BeagleApi {
+public class BeagleApi
+	{
 
 /*=========================================================================
 | HELPER FUNCTIONS / CLASSES

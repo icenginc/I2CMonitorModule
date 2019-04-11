@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.IO;
+using System.Linq;
+using System.Windows.Forms;
 
 namespace I2C_Monitor_Module
 {
-	public partial class InSituMonitoringModule : Form
+    public partial class InSituMonitoringModule : Form
 	{
 
 		private void load_config()
@@ -42,7 +39,8 @@ namespace I2C_Monitor_Module
 				var reader = config.OpenText();
 				while ((line = reader.ReadLine()) != null)
 				{
-					file.Add(line);
+					if(!line.StartsWith("; ")) //only read the line if its not commented out
+						file.Add(line);
 				}
 
 				iface.current_job = new job(file);
@@ -50,6 +48,7 @@ namespace I2C_Monitor_Module
 			}//parse in here
 			catch
 			{
+				MessageBox.Show("Error: Failed to parse config file");
 				return false;
 			}
 			return true;
@@ -59,35 +58,39 @@ namespace I2C_Monitor_Module
 		{
 			if (!select)
 			{
-				MessageBox.Show("Cannot resolve boards before loading config file!");
+				MessageBox.Show("Error: Scan for boards failed!");
 				return false;
 			}
+			iface.current_job.Scanned = false; //not yet scanned
 			//*todo
 			//set mux to 0x50-0x5F
 			//write to the first register found in teh INI file
 			//read it back, if its valid then add to list
 			//*
-			for (ushort mux_address = 0x50; mux_address < 0x5F; mux_address++)
+
+            button_i2cmonitor_Click(this, new EventArgs());
+
+			for (ushort mux_address = 0x50; mux_address <= 0x5F; mux_address++)
 			{
-				bool valid = scan_board(mux_address);
-				if (valid)
+				var valid = scan_board(mux_address);
+				if (valid.Contains(true))
 				{
+					iface.current_job.board_list[mux_address-0x50] = valid;
 					tabControl_boards.Enabled = true;
 					tabControl_boards.Visible = true;
 					TabPage page = new TabPage("Board " + (mux_address - 0x4F));
 					tabControl_boards.TabPages.Add(page);
-				}
+				} //build each page, this happens once
 			}//each iteration is one mux address
 
 			Console.WriteLine("Buildt pages - populating now..");
 			/*
-			BackgroundWorker tab_populate = new BackgroundWorker();
-			tab_populate.DoWork += Tab_populate_DoWork;
-			tab_populate.RunWorkerAsync();
+			
 			*/
 			if (iface.current_job != null)
 			{
-				foreach (TabPage page in tabControl_boards.TabPages)
+				iface.current_job.Scanned = true; //change it to true because we have finished scanning, this opens up the DUT info scanning
+				foreach (TabPage page in tabControl_boards.TabPages) //now build after scanning
 					build_page(page); //if the job is loaded, fill the GUI with board dimensions
 
 				this.Size = new Size(this.Size.Width, this.Size.Height + tabControl_boards.Size.Height); //resize to show
@@ -98,6 +101,7 @@ namespace I2C_Monitor_Module
 				MessageBox.Show("Job not loaded in config! Can't draw boards");
 				return false;
 			}
+
 			return true; //on success
 		}
 
@@ -169,19 +173,50 @@ namespace I2C_Monitor_Module
 			//tabControl_boards.Size = new Size(tabControl_boards.Width, tabControl_boards.TabPages[0].Height + 28);
 		}
 
-		private void Tab_populate_DoWork(object sender, DoWorkEventArgs e)
+		private bool[] scan_board(ushort mux) //scans each mux address for responses on DUTs, then builds them up
 		{
-		} //moved here temporarily, moved back
-
-		private bool scan_board(ushort mux) //scans each mux address for responses on DUTs, then builds them up
-		{
-			//fake datat for now
+			textBox_data.AppendText("Scanning board at mux address " + mux.ToString("X") + "...");
+			//listen for the DUTs here
+			bool[] valid = Enumerable.Repeat<bool>(false, 40).ToArray(); //board sites
+            /*
 			int fake = mux - 0x50;
 			if (fake == 0 || fake == 3 || fake == 4)
 				return true;
 			else
 				return false;
-		}
+			*/ //fake board return
+
+            //BackgroundWorker tab_populate = new BackgroundWorker();
+            //tab_populate.DoWork += Tab_populate_DoWork;
+            //tab_populate.RunWorkerAsync(mux); //used this so no infinite loop
+
+            //ushort mux = (ushort)e.Argument;
+            for (byte i = 0; i < 40; i++)
+            {
+                //write mux again
+                iface.current_beagle.buffer.Clear();
+                int bytes = iface.current_aardvark.i2c_write(mux, 1, new byte[] { i }); //set the mux to the DUT
+                
+                device[] addresses = iface.current_job.device_adds.ToArray(); //put the iface device addresses locally
+                System.Threading.Thread.Sleep(25); //give a little time for buffer to fill
+                foreach (device address in addresses)
+                {
+                    textBox_data.AppendText("Looking for address " + address.Address + " on board " + (mux - 0x50) + "\n");
+                    if (iface.current_beagle.buffer.Contains(address.Address))
+                    {
+                        textBox_data.AppendText("Found address " + address.Address.ToString("X") + " in data buffer\n");
+                        valid[i] = true;
+                    }//if we get even 1 DUTs address data back, then the board is there with a DUT
+                }//check for each address in the data
+
+            }
+            return valid;
+		} //do this once for each board to build the board
+
+		private void Tab_populate_DoWork(object sender, DoWorkEventArgs e)
+		{
+			
+		} //moved here temporarily, moved back
 	}
 
 	

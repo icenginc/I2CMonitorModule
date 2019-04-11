@@ -71,10 +71,10 @@ namespace I2C_Monitor_Module
 		public ushort Port { get { return port; } }
 		public uint ID { get { return id; } }
 
-		public int i2c_write(ushort bytes, byte[] data_out)
+		public int i2c_write(ushort slave_addr, ushort num_bytes, byte[] data_out)
 		{
 			//only for SHT module
-			var result = AardvarkApi.aa_i2c_write(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, bytes, data_out);
+			var result = AardvarkApi.aa_i2c_write(handle, slave_addr, AardvarkI2cFlags.AA_I2C_NO_FLAGS, num_bytes, data_out);
 
 			if (result < 0)
 				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
@@ -82,16 +82,16 @@ namespace I2C_Monitor_Module
 			return result;
 		}
 
-		public int i2c_read(ushort bytes, out byte[] data_in)
+		public byte[] i2c_read(ushort slave_addr, ushort bytes, out byte[] data_in)
 		{
 			data_in = Enumerable.Repeat<byte>(0, bytes).ToArray(); //set it to all 0's first
 
-			var result = AardvarkApi.aa_i2c_read(handle, 0x44, AardvarkI2cFlags.AA_I2C_NO_FLAGS, bytes, data_in);
+			var result = AardvarkApi.aa_i2c_read(handle, slave_addr, AardvarkI2cFlags.AA_I2C_NO_FLAGS, bytes, data_in);
 
 			if (result < 0)
 				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
 
-			return result;
+			return data_in;
 		}
 
 		private void open_handle()
@@ -154,17 +154,25 @@ namespace I2C_Monitor_Module
 		uint[] timing;
 		int timing_size;
 
+        public List<ushort> buffer = new List<ushort>();
+
 		public ushort Port{get { return port; }	}
 		public uint ID { get { return id; } }
 		public ushort[] Data { get { return data_in; } }
-		public int Buffer{ get { return buffer_available; }	}
+		public int Buffer_Free{ get { return buffer_available; }	}
 
 		public void reset_beagle()
 		{
 			BeagleApi.bg_disable(handle);
-			System.Threading.Thread.Sleep(500);
+			System.Threading.Thread.Sleep(250);
 			setup_i2c();
 		}
+
+        public void clear_buffer()
+        {
+            data_in = new ushort[max_bytes];
+            buffer.Clear();
+        }
 
 		private void open_handle()
 		{
@@ -183,7 +191,7 @@ namespace I2C_Monitor_Module
 			timing_size = BeagleApi.bg_bit_timing_size(BeagleProtocol.BG_PROTOCOL_I2C, max_bytes);
 			timing = new uint[timing_size];
 
-			sample_rate = BeagleApi.bg_samplerate(handle, 0); //sampling rate in khz
+			sample_rate = BeagleApi.bg_samplerate(handle, 50000); //sampling rate in khz
 			if (BeagleApi.bg_timeout(handle, 1000) != (int)BeagleStatus.BG_OK) //set the timeout to 1s
 			{
 				Console.WriteLine("error: Could not set Beagle timeout; exiting...\n");
@@ -212,6 +220,7 @@ namespace I2C_Monitor_Module
 				int count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
 				string output = output_parse(data_in);				
 				string status_string = print_general_status(status);
+                buffer.AddRange(data_in); //add to my own buffer
 
 				lines.Add(status_string + " - " + output + " - " + "Iteration: " + i); //added this so see in gui
 

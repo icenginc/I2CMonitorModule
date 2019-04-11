@@ -21,16 +21,14 @@ namespace I2C_Monitor_Module
 		string protocol_string;
 		string device_name;
 		bool extended_bool;
-		List<device> device_adds = new List<device>(); // class that fills itself once the string is inserted
+		bool scanned;
+		public List<device> device_adds = new List<device>(); // class that fills itself once the string is inserted
+		public bool[][] board_list = new bool[16][]; //list of valid boards
 
-		public int Bibx
-		{get { return this.bibx; }}
-
-		public int Biby
-		{ get { return this.biby; } }
-
-		public int[] Monitor_Map
-		{ get { return this.monitor_map; } }
+		public int Bibx	{get { return this.bibx; } }
+		public int Biby { get { return this.biby; } }
+		public int[] Monitor_Map{ get { return this.monitor_map; } }
+		public bool Scanned { get { return scanned; } set { scanned = value; } }
 
 		private void parse(string line)
 		{
@@ -123,7 +121,7 @@ namespace I2C_Monitor_Module
 		}
 	}
 
-	class device
+	class device //each one of htese is a line in "DeviceAddress"
 	{
 		public device(string input)
 		{
@@ -132,13 +130,23 @@ namespace I2C_Monitor_Module
 			parse_address(split[1]);
 			parse_length(split[2]);
 			parse_formula(split[3]);
+			parse_log(split[4]);
 		}
 		
 		string[] split;
 		string name;
-		byte address;
+		ushort address;
 		ushort length;
 		string formula;
+		bool log;
+
+		public ushort Address { get { return address; } }
+		public ushort Length { get { return length; } }
+
+		private void parse_log(string v)
+		{
+			log = Convert.ToBoolean(short.Parse(v[0].ToString()));
+		}
 
 		private void parse_formula(string v)
 		{
@@ -153,7 +161,7 @@ namespace I2C_Monitor_Module
 		private void parse_address(string v)
 		{
 			int temp = Convert.ToInt32(v.Replace("0x", ""), 16);
-			address = byte.Parse(temp.ToString());
+			address = ushort.Parse(temp.ToString());
 		}
 
 		private void parse_name(string v)

@@ -22,7 +22,7 @@ namespace I2C_Monitor_Module
 		public string job { get; set; }
 
 		bool loop = false; //to stop or esume the measuremetns
-		bool select = false; //to stop or 
+		bool select = false; //this determines if everything was loaded correctly and can continue to operation
 		/// <summary>
 		/// these locks are to direct the user to the correct order of steps
 		/// </summary>
@@ -81,12 +81,23 @@ namespace I2C_Monitor_Module
 					listBox_active.SelectedItem = l;
 			} //highlight the text in the listbox
 
-			if (parse_config(config_file))
-				select = true;
+			if (parse_config(config_file)) //wont parse if we don't have beagle/aardvark set up
+			{
+				if (iface.current_beagle.ID == 0)
+				{
+					MessageBox.Show("Error: No Beagle found");
+					select = false;
+				}
+				if (iface.current_aardvark.ID == 0)
+				{
+					MessageBox.Show("Error: No Aardvark found");
+					select = false;
+				}
+			}//if the parse is fine then continue, also check for current beagle and aardvark set
 			else
 				select = false;
 
-			if (resolve_boards())
+			if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to scan boards
 				;//once boards are loaded, enter other function
 			else
 				select = false;
@@ -102,9 +113,9 @@ namespace I2C_Monitor_Module
 				byte[] data_out = new byte[bytes_out];
 				data_out = new byte[] { 0x2C, 0x06 }; //measure command to SHT module
 
-				Console.WriteLine("Write:" + iface.current_aardvark.i2c_write(bytes_out, data_out));
+		//		Console.WriteLine("Write:" + iface.current_aardvark.i2c_write(bytes_out, data_out));
 				System.Threading.Thread.Sleep(500);
-				Console.WriteLine("Read:" + iface.current_aardvark.i2c_read(bytes_in, out data_in)); //pass data_in by reference
+			//	Console.WriteLine("Read:" + iface.current_aardvark.i2c_read(bytes_in, out data_in)); //pass data_in by reference
 
 				foreach (byte data in data_in)
 					Console.Write(data + " ");

@@ -285,6 +285,7 @@
 			// 
 			// textBox_system
 			// 
+			this.textBox_system.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.textBox_system.Location = new System.Drawing.Point(338, 37);
 			this.textBox_system.Name = "textBox_system";
 			this.textBox_system.Size = new System.Drawing.Size(58, 20);
@@ -292,6 +293,7 @@
 			// 
 			// textBox_lot
 			// 
+			this.textBox_lot.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.textBox_lot.Location = new System.Drawing.Point(466, 37);
 			this.textBox_lot.Name = "textBox_lot";
 			this.textBox_lot.Size = new System.Drawing.Size(120, 20);
@@ -299,6 +301,7 @@
 			// 
 			// textBox_job
 			// 
+			this.textBox_job.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.textBox_job.Location = new System.Drawing.Point(402, 37);
 			this.textBox_job.Name = "textBox_job";
 			this.textBox_job.Size = new System.Drawing.Size(58, 20);
@@ -306,7 +309,7 @@
 			// 
 			// label8
 			// 
-			this.label8.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.label8.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.label8.AutoSize = true;
 			this.label8.Location = new System.Drawing.Point(335, 21);
 			this.label8.Name = "label8";
@@ -316,7 +319,7 @@
 			// 
 			// label9
 			// 
-			this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.label9.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.label9.AutoSize = true;
 			this.label9.Location = new System.Drawing.Point(399, 21);
 			this.label9.Name = "label9";
@@ -326,7 +329,7 @@
 			// 
 			// label10
 			// 
-			this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.label10.Anchor = System.Windows.Forms.AnchorStyles.Top;
 			this.label10.AutoSize = true;
 			this.label10.Location = new System.Drawing.Point(466, 21);
 			this.label10.Name = "label10";
