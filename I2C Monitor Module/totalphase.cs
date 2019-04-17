@@ -82,7 +82,7 @@ namespace I2C_Monitor_Module
 			return result;
 		}
 
-		public byte[] i2c_read(ushort slave_addr, ushort bytes, out byte[] data_in)
+		public int i2c_read(ushort slave_addr, ushort bytes, out byte[] data_in)
 		{
 			data_in = Enumerable.Repeat<byte>(0, bytes).ToArray(); //set it to all 0's first
 
@@ -91,7 +91,7 @@ namespace I2C_Monitor_Module
 			if (result < 0)
 				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
 
-			return data_in;
+            return result;
 		}
 
 		private void open_handle()

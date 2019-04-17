@@ -29,6 +29,7 @@ namespace I2C_Monitor_Module
 		public int Biby { get { return this.biby; } }
 		public int[] Monitor_Map{ get { return this.monitor_map; } }
 		public bool Scanned { get { return scanned; } set { scanned = value; } }
+		public int Sites { get { return this.sites; } }
 
 		private void parse(string line)
 		{
@@ -142,6 +143,8 @@ namespace I2C_Monitor_Module
 
 		public ushort Address { get { return address; } }
 		public ushort Length { get { return length; } }
+        public string Forumla { get { return formula; } }
+        public string Name { get { return name; } }
 
 		private void parse_log(string v)
 		{
