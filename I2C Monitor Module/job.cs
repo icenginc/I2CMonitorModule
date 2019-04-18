@@ -17,20 +17,24 @@ namespace I2C_Monitor_Module
 		int bibx = 0;
 		int biby = 0;
 		int sites;
+        int log_interval = 5;
 		ushort slave_add_short;
 		string protocol_string;
 		string device_name;
+        string logfile_name;
 		bool extended_bool;
 		bool scanned;
 		public List<device> device_adds = new List<device>(); // class that fills itself once the string is inserted
 		public bool[][] board_list = new bool[16][]; //list of valid boards
-		public string[][] board_info = new string[16][];
+        public log[][] board_log = new log[16][]; //storing info for logging
 
-		public int Bibx	{get { return this.bibx; } }
-		public int Biby { get { return this.biby; } }
-		public int[] Monitor_Map{ get { return this.monitor_map; } }
-		public bool Scanned { get { return scanned; } set { scanned = value; } }
-		public int Sites { get { return this.sites; } }
+		public int Bibx	{get => bibx; }
+		public int Biby { get => biby; }
+		public int[] Monitor_Map{ get => monitor_map; }
+		public bool Scanned { get => scanned; set => scanned = value; }
+		public int Sites { get => sites; }
+        public int LogInterval { get => log_interval; }
+        public string LogFileName { get => logfile_name; }
 
 		private void parse(string line)
 		{
@@ -44,6 +48,8 @@ namespace I2C_Monitor_Module
 				pcb(line);
 				bib(line); //do both x and y
 				monitor(line);
+                interval(line);
+                logfile(line);
 			}
 			catch
 			{
@@ -52,7 +58,21 @@ namespace I2C_Monitor_Module
 
 		}
 
-		private void name(string line)
+        private void logfile(string line)
+        {
+            string token = "LogFileName=";
+            if (line.Contains(token))
+                logfile_name = line.Replace(token, "");
+        }
+
+        private void interval(string line)
+        {
+            string token = "LogInterval=";
+            if (line.Contains(token))
+                Int32.TryParse(line.Replace(token, ""), out log_interval);
+        }
+
+        private void name(string line)
 		{
 			string token = "DeviceName=";
 			if (line.Contains(token))
@@ -140,16 +160,17 @@ namespace I2C_Monitor_Module
 		ushort address;
 		ushort length;
 		string formula;
-		bool log;
+		ushort log_order;
 
-		public ushort Address { get { return address; } }
-		public ushort Length { get { return length; } }
-        public string Forumla { get { return formula; } }
-        public string Name { get { return name; } }
+		public ushort Address { get => address; }
+		public ushort Length { get => length; }
+        public string Forumla { get => formula; }
+        public string Name { get => name; }
+        public ushort LogOrder { get => log_order; }
 
 		private void parse_log(string v)
 		{
-			log = Convert.ToBoolean(short.Parse(v[0].ToString()));
+			log_order = ushort.Parse(v[0].ToString());
 		}
 
 		private void parse_formula(string v)

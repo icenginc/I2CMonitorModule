@@ -84,9 +84,7 @@ namespace I2C_Monitor_Module
 			}//each iteration is one mux address
 
 			Console.WriteLine("Buildt pages - populating now..");
-			/*
 			
-			*/
 			if (iface.current_job != null)
 			{
 				iface.current_job.Scanned = true; //change it to true because we have finished scanning, this opens up the DUT info scanning
@@ -180,7 +178,7 @@ namespace I2C_Monitor_Module
 			bool[] valid = Enumerable.Repeat<bool>(false, 40).ToArray(); //board sites
             
 			int fake = mux - 0x50;
-			iface.current_job.board_info[fake] = new string[iface.current_job.Sites];
+            iface.current_job.board_log[fake] = new log[iface.current_job.Sites];
             //BackgroundWorker tab_populate = new BackgroundWorker();
             //tab_populate.DoWork += Tab_populate_DoWork;
             //tab_populate.RunWorkerAsync(mux); //used this so no infinite loop
@@ -215,7 +213,23 @@ namespace I2C_Monitor_Module
             return valid;
 		} //do this once for each board to build the board
 
-		private void Tab_populate_DoWork(object sender, DoWorkEventArgs e)
+        private void create_header()
+        {
+            BackgroundWorker header_worker = new BackgroundWorker();
+            header_worker.DoWork += Header_worker_DoWork;
+            header_worker.RunWorkerAsync();
+        }
+
+        private void Header_worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Console.WriteLine("Writing header for job");
+            using (StreamWriter writer = File.AppendText("C:\\InSituMonitor\\" + iface.current_job.LogFileName))
+            {
+
+            }
+        }
+
+        private void Tab_populate_DoWork(object sender, DoWorkEventArgs e)
 		{
 			
 		} //moved here temporarily, moved back
