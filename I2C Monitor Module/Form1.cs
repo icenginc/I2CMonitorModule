@@ -135,7 +135,8 @@ namespace I2C_Monitor_Module
 			if (select)
 			{
 				loop = true; //continue
-				run_here(); //do everything in separate funciton
+                if(!iface.current_job.Scanned)
+          		    run_here(); //do everything in separate funciton
 			}
 			else //if valid beagle/aardvark combo not selected
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");

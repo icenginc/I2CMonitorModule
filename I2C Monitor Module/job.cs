@@ -24,6 +24,7 @@ namespace I2C_Monitor_Module
 		bool scanned;
 		public List<device> device_adds = new List<device>(); // class that fills itself once the string is inserted
 		public bool[][] board_list = new bool[16][]; //list of valid boards
+		public string[][] board_info = new string[16][];
 
 		public int Bibx	{get { return this.bibx; } }
 		public int Biby { get { return this.biby; } }

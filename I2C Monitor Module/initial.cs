@@ -180,13 +180,7 @@ namespace I2C_Monitor_Module
 			bool[] valid = Enumerable.Repeat<bool>(false, 40).ToArray(); //board sites
             
 			int fake = mux - 0x50;
-            /*
-			if (fake == 0 || fake == 3 || fake == 4)
-				return true;
-			else
-				return false;
-			*/ //fake board return
-
+			iface.current_job.board_info[fake] = new string[iface.current_job.Sites];
             //BackgroundWorker tab_populate = new BackgroundWorker();
             //tab_populate.DoWork += Tab_populate_DoWork;
             //tab_populate.RunWorkerAsync(mux); //used this so no infinite loop
@@ -206,7 +200,7 @@ namespace I2C_Monitor_Module
 
                 device[] addresses = iface.current_job.device_adds.ToArray(); //put the iface device addresses locally
                 while(iface.current_beagle.buffer.Count == 0)
-                    System.Threading.Thread.Sleep(10); //give a little time for buffer to fill
+                    System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
                 foreach (device address in addresses)
                 {
                     textBox_data.AppendText("Looking for address " + address.Address.ToString("X") + " on board " + (mux - 0x50) + "...");
@@ -226,15 +220,12 @@ namespace I2C_Monitor_Module
 			
 		} //moved here temporarily, moved back
 	}
-
-	
+    	
 	class myLabel : System.Windows.Forms.Label //resused this code from ultracomm project (roundabout but works)
 	{
 		public int RotateAngle { get; set; }  // to rotate text
 		public string NewText { get; set; }   // to draw text
-
-
-
+               
 		protected override void OnPaint(System.Windows.Forms.PaintEventArgs e)
 		{
 			int mx = this.Size.Width / 2;
