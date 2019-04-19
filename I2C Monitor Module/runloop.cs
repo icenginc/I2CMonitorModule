@@ -41,7 +41,10 @@ namespace I2C_Monitor_Module
 				update_labels();
 
                 if (log_timer.ElapsedMilliseconds / 60000 > iface.current_job.LogInterval) //ms to min
-                    log_timer.Restart(); 
+                {
+                    log_timer.Restart();
+                    log_data(); //do this every interval
+                }
 			}//start the update of all the boards
 		}//read loop
 
@@ -49,7 +52,7 @@ namespace I2C_Monitor_Module
 		{
 			while (loop) //loop is set by the start button and ended by the stop button
 			{
-				var data = iface.current_beagle.snoop_i2c(iface.current_job.device_adds[0].Length); //this adds data into buffer
+				var data = iface.current_beagle.snoop_i2c(iface.current_job.current_adds.Length); //this adds data into buffer
 
                 if (iface.current_job.Scanned) //if not yet scanned go max speed, also dont add to textbox in initial scan
                 {
@@ -103,6 +106,7 @@ namespace I2C_Monitor_Module
 						for(int k = 0; k < addresses.Length; k++)
 						{
                             device address = addresses[k];
+                            iface.current_job.current_adds = address;
 							if (iface.current_beagle.buffer.Contains(address.Address))
 							{
 								ushort value = 0;
@@ -154,29 +158,55 @@ namespace I2C_Monitor_Module
 
         private void log_data()
         {
-			BackgroundWorker logger = new BackgroundWorker();
-			logger.DoWork += Logger_DoWork;
-			for (int i = 0; i < 16; i++)
-			{
-				if (iface.current_job.board_list[i].Contains(true))
-					logger.RunWorkerAsync(i+1); //send slot number in
+
+            for (int i = 0; i < 16; i++)
+            {
+                if (iface.current_job.board_list[i] != null && iface.current_job.board_list[i].Contains(true))
+                {
+                BackgroundWorker logger = new BackgroundWorker();
+                logger.DoWork += Logger_DoWork;
+                logger.RunWorkerAsync(i + 1); //send slot number in
+                }
 			}
         }
 
 		private void Logger_DoWork(object sender, DoWorkEventArgs e)
 		{
-			string slot = e.Argument.ToString();
+			string slot = e.Argument.ToString(); //because this is fired off 16 times
+            Int32.TryParse(slot, out int slot_num);  //convert to int
+
 			Console.WriteLine("Logging for job " + job);
-			var data = iface.current_job.board_log;
+			var data = iface.current_job.board_log[slot_num-1]; //copy the data locally - this represent each board's data
 
-			string datetime = DateTime.Now.ToString("MM//dd//yy-HH:mm:ss");
+            
+            string filename = iface.current_job.LogFileName.Replace("\"", string.Empty);
+            /*
+            string datetime = DateTime.Now.ToString("MM//dd//yy-HH:mm:ss");
 
-			string line = string.Empty;
-			line += datetime + ",";
+            if (system != "")
+                filename = filename.Replace("System", system);
+            if (lot != "")
+                filename = filename.Replace("LotNumber", lot);
+            if (job != "")
+                filename = filename.Replace("JobNumber", job);
+            filename.Replace("DateTime", datetime);
+            filename.Replace(".rlog", "_" + slot + ".rlog");
 
-            //string filepath = log_path + iface.current_job.LogFileName.Replace(".mlog", "_
-            using (StreamWriter writer = File.AppendText(log_path + iface.current_job.LogFileName))
+            string line =  datetime + ",";
+            */
+
+            string filepath = iface.current_job.LogFilePath + iface.current_job.LogFileName;
+            using (StreamWriter writer = File.AppendText(filepath))
             {
+                string line = string.Empty;
+                for (int i = 0; i < iface.current_job.device_adds.Count; i++)
+                {
+                    device add = iface.current_job.device_adds[i];
+                    for (int j = 0; j < iface.current_job.Sites; j++)
+                    {
+                        line += data[j].registers[i] + ","; //access data of the site, and the addresses in order
+                    }
+                }
                 writer.Write(line);
             }
 		}
@@ -196,7 +226,7 @@ namespace I2C_Monitor_Module
         public string Text { get
             {
                 string text = string.Empty;
-                text += ("DUT " + dut.ToString() + Environment.NewLine);
+                text += ("DUT " + dut.ToString());
                 foreach (string line in registers)
                     text += (line + Environment.NewLine);
                 return text;

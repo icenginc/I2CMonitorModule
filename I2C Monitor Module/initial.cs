@@ -215,43 +215,55 @@ namespace I2C_Monitor_Module
 
         private void create_header()
         {
-            BackgroundWorker header_worker = new BackgroundWorker();
-            header_worker.DoWork += Header_worker_DoWork;
-            for(int i = 0; i < 16; i ++)
-                if(iface.current_job.board_list[i].Contains(true))
-                    header_worker.RunWorkerAsync(i); //create 16 files
-        }
-
-        private void Header_worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            Console.WriteLine("Writing header for job");
-
-            string slot = e.Argument.ToString();
-
-            string filename = iface.current_job.LogFileName;
-            string datetime = DateTime.Now.ToString("MM//dd//yy-HH:mm:ss");
-
+            string filename = iface.current_job.LogFileName.Replace("\"", string.Empty);
+            string datetime = DateTime.Now.ToString("MM.dd.yy-HH.mm.ss");
+            string log_path = iface.current_job.LogFilePath + system + "_" + lot + "_" + job + "\\";
             if (system != "")
                 filename = filename.Replace("System", system);
             if (lot != "")
                 filename = filename.Replace("LotNumber", lot);
             if (job != "")
                 filename = filename.Replace("JobNumber", job);
-            filename.Replace("DateTime", datetime);
-            filename.Replace(".rlog", "_" + slot + ".rlog");
+            filename = filename.Replace("DateTime", datetime);
+            iface.current_job.LogFileName = filename;
+            iface.current_job.LogFilePath = log_path;
 
-            using (StreamWriter writer = File.AppendText("C:\\InSituMonitor\\" + iface.current_job.LogFileName))
+            DirectoryInfo path = new DirectoryInfo(log_path);
+            if (!path.Exists)
+                path.Create();//if the directory is not there, then create it
+
+            for (int i = 0; i < 16; i++)
+                if (iface.current_job.board_list[i] != null && iface.current_job.board_list[i].Contains(true))
+                {
+                    BackgroundWorker header_worker = new BackgroundWorker();
+                    header_worker.DoWork += Header_worker_DoWork;
+                    header_worker.RunWorkerAsync(i); //create 16 files
+                }
+        }
+
+        private void Header_worker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Console.WriteLine("Writing header for job");
+
+            string slot = e.Argument.ToString();            
+            string filename = iface.current_job.LogFileName.Replace(".rlog", "_" + slot + ".rlog");
+
+            using (StreamWriter writer = File.AppendText(iface.current_job.LogFilePath + filename))
             {
+                /*
                 foreach (string content in iface.current_job.file_contents)
                     writer.WriteLine(content);
-                string line = datetime + ",";
+                */
+                string line ="Timestamp,";
                 for (int i = 0; i < iface.current_job.device_adds.Count; i++)
                 {
+                    
                     device add = iface.current_job.device_adds[i];
                     for (int j = 0; j < iface.current_job.Sites; j++)
-                    {
-                        line += ("DUT " + j + " - " + add.Name + ',');
-                    }
+                        line += ("DUT " + (j + 1) + " - " + add.Name + ',');
+                    if (add.LogOrder == 0) //in the case of header item, write it into file
+                        writer.WriteLine(line);
+                    
                 }
                 writer.WriteLine(line); //these should be all the headers
             }

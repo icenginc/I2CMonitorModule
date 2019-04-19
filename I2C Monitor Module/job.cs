@@ -26,9 +26,12 @@ namespace I2C_Monitor_Module
 		string protocol_string;
 		string device_name;
         string logfile_name;
-		bool extended_bool;
+        string logfile_path = "C://InSituMonitorModule//ReadLogs//";
+
+        bool extended_bool;
 		bool scanned;
 		public List<device> device_adds = new List<device>(); // class that fills itself once the string is inserted
+        public device current_adds;
 		public bool[][] board_list = new bool[16][]; //list of valid boards
         public log[][] board_log = new log[16][]; //storing info for logging
 
@@ -39,8 +42,8 @@ namespace I2C_Monitor_Module
 		public int Sites { get => sites; }
         public int LogInterval { get => log_interval; }
         public string LogFileName { get => logfile_name; set => logfile_name = value; }
-
-		private void parse(string line)
+        public string LogFilePath { get => logfile_path; set => logfile_path = value; }
+        private void parse(string line)
 		{
 			try
 			{
@@ -149,6 +152,7 @@ namespace I2C_Monitor_Module
         private void sort_adds()
         {
             var list = device_adds.OrderBy(o => o.LogOrder).ToList();
+            current_adds = device_adds[0]; //to start off
         }
 	}
 

@@ -14,8 +14,7 @@ namespace I2C_Monitor_Module
 	public partial class InSituMonitoringModule : Form
 	{
 		TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
-		string config_path = "C://InSituMonitorModule//";
-		string log_path = "C://InSituMonitorModule//";
+        string config_path = "C://InSituMonitorModule//";
 		FileInfo config_file;
 
 		public string system { get; set; }
@@ -98,10 +97,10 @@ namespace I2C_Monitor_Module
 			else
 				select = false;
 
-			if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to scan boards
-				;//once boards are loaded, enter other function
-			else
-				select = false;
+            if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to scan boards
+                create_header(); //do this if the board detect works
+            else
+                select = false;
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -129,7 +128,7 @@ namespace I2C_Monitor_Module
 
 			else
 				MessageBox.Show("Aardvark device not selected");
-		} //for testing with sht31d module
+		} //for testing with sht31d module - obsolete
 
 		private void button_i2cmonitor_Click(object sender, EventArgs e)
 		{
