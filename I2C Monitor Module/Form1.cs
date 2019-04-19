@@ -15,6 +15,7 @@ namespace I2C_Monitor_Module
 	{
 		TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
 		string config_path = "C://InSituMonitorModule//";
+		string log_path = "C://InSituMonitorModule//";
 		FileInfo config_file;
 
 		public string system { get; set; }
@@ -144,12 +145,15 @@ namespace I2C_Monitor_Module
 
 		private void button_reset_Click(object sender, EventArgs e)
 		{
+			/*
 			if (select)
 			{
 				iface.current_beagle.reset_beagle();
 			}
 			else //if valid beagle/aardvark combo not selected
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");
+				*/
+			log_data();
 		}
 
 		private void button_stop_Click(object sender, EventArgs e)

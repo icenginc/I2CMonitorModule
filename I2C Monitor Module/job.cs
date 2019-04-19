@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using System.Data;
+using System.Linq;
 
 namespace I2C_Monitor_Module
 {
@@ -8,10 +9,13 @@ namespace I2C_Monitor_Module
 	{
 		public job(List<string> input)
 		{
+            file_contents = input;
 			foreach (string line in input)
 				parse(line);
+            sort_adds();
 		}//constructor 
 
+        public List<string> file_contents;
 		int[] monitor_map = new int[40];
 		int pcb_num;
 		int bibx = 0;
@@ -34,7 +38,7 @@ namespace I2C_Monitor_Module
 		public bool Scanned { get => scanned; set => scanned = value; }
 		public int Sites { get => sites; }
         public int LogInterval { get => log_interval; }
-        public string LogFileName { get => logfile_name; }
+        public string LogFileName { get => logfile_name; set => logfile_name = value; }
 
 		private void parse(string line)
 		{
@@ -141,6 +145,11 @@ namespace I2C_Monitor_Module
 				}
 			}
 		}
+
+        private void sort_adds()
+        {
+            var list = device_adds.OrderBy(o => o.LogOrder).ToList();
+        }
 	}
 
 	class device //each one of htese is a line in "DeviceAddress"

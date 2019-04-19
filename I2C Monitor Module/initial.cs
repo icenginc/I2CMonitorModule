@@ -217,15 +217,43 @@ namespace I2C_Monitor_Module
         {
             BackgroundWorker header_worker = new BackgroundWorker();
             header_worker.DoWork += Header_worker_DoWork;
-            header_worker.RunWorkerAsync();
+            for(int i = 0; i < 16; i ++)
+                if(iface.current_job.board_list[i].Contains(true))
+                    header_worker.RunWorkerAsync(i); //create 16 files
         }
 
         private void Header_worker_DoWork(object sender, DoWorkEventArgs e)
         {
             Console.WriteLine("Writing header for job");
+
+            string slot = e.Argument.ToString();
+
+            string filename = iface.current_job.LogFileName;
+            string datetime = DateTime.Now.ToString("MM//dd//yy-HH:mm:ss");
+
+            if (system != "")
+                filename = filename.Replace("System", system);
+            if (lot != "")
+                filename = filename.Replace("LotNumber", lot);
+            if (job != "")
+                filename = filename.Replace("JobNumber", job);
+            filename.Replace("DateTime", datetime);
+            filename.Replace(".rlog", "_" + slot + ".rlog");
+
             using (StreamWriter writer = File.AppendText("C:\\InSituMonitor\\" + iface.current_job.LogFileName))
             {
-
+                foreach (string content in iface.current_job.file_contents)
+                    writer.WriteLine(content);
+                string line = datetime + ",";
+                for (int i = 0; i < iface.current_job.device_adds.Count; i++)
+                {
+                    device add = iface.current_job.device_adds[i];
+                    for (int j = 0; j < iface.current_job.Sites; j++)
+                    {
+                        line += ("DUT " + j + " - " + add.Name + ',');
+                    }
+                }
+                writer.WriteLine(line); //these should be all the headers
             }
         }
 

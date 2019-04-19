@@ -154,9 +154,32 @@ namespace I2C_Monitor_Module
 
         private void log_data()
         {
-            var data = iface.current_job.board_log;
-
+			BackgroundWorker logger = new BackgroundWorker();
+			logger.DoWork += Logger_DoWork;
+			for (int i = 0; i < 16; i++)
+			{
+				if (iface.current_job.board_list[i].Contains(true))
+					logger.RunWorkerAsync(i+1); //send slot number in
+			}
         }
+
+		private void Logger_DoWork(object sender, DoWorkEventArgs e)
+		{
+			string slot = e.Argument.ToString();
+			Console.WriteLine("Logging for job " + job);
+			var data = iface.current_job.board_log;
+
+			string datetime = DateTime.Now.ToString("MM//dd//yy-HH:mm:ss");
+
+			string line = string.Empty;
+			line += datetime + ",";
+
+            //string filepath = log_path + iface.current_job.LogFileName.Replace(".mlog", "_
+            using (StreamWriter writer = File.AppendText(log_path + iface.current_job.LogFileName))
+            {
+                writer.Write(line);
+            }
+		}
 	}
 
     class log //the 'data structure' that we update label from and also access individual elements
