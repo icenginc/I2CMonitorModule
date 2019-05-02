@@ -56,7 +56,7 @@ namespace I2C_Monitor_Module
 		}
 	}
 
-	class log //the 'data structure' that we update label from and also access individual elements
+	public class log //the 'data structure' that we update label from and also access individual elements
 	{
 		public log(int size, int dut)
 		{

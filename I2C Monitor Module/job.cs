@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace I2C_Monitor_Module
 {
-    class job //the INI file basically
+    public class job //the INI file basically
     {
         public job(List<string> input)
         {
@@ -35,6 +35,7 @@ namespace I2C_Monitor_Module
         public device current_adds;
         public bool[][] board_list = new bool[16][]; //list of valid boards
         public log[][] board_log = new log[16][]; //storing info for logging
+		public string[] board_names = new string[16];
 
         public int Bibx { get => bibx; }
         public int Biby { get => biby; }
@@ -168,7 +169,7 @@ namespace I2C_Monitor_Module
         }
 	}
 
-	class device //each one of htese is a line in "DeviceAddress"
+	public class device //each one of htese is a line in "DeviceAddress"
 	{
 		public device(string input, bool extended)
 		{
@@ -192,6 +193,8 @@ namespace I2C_Monitor_Module
         public string Forumla { get => formula; }
         public string Name { get => name; }
         public ushort LogOrder { get => log_order; }
+		public int Low { get; set; }
+		public int High { get; set; }
 
 		private void parse_log(string v)
 		{

@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace I2C_Monitor_Module
 {
-	class TotalPhase
+	public class TotalPhase
 	{
 		public List<Aardvark> aardvarks = new List<Aardvark>();
 		public List<Beagle> beagles = new List<Beagle>();
@@ -46,7 +46,7 @@ namespace I2C_Monitor_Module
 		}
 	}
 
-	class Aardvark
+	public class Aardvark
 	{
 		public Aardvark()
 		{
@@ -129,7 +129,7 @@ namespace I2C_Monitor_Module
 		}
 	}
 
-	class Beagle
+	public class Beagle
 	{
 		public Beagle()
 		{

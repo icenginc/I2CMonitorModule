@@ -14,8 +14,8 @@ namespace I2C_Monitor_Module
 {
 	public partial class InSituMonitoringModule : Form
 	{
-		TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
-        string config_path = "C://InSituMonitorModule//";
+		public static TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
+		string config_path = "C://InSituMonitorModule//";
 		FileInfo config_file;
 
 		public string system { get; set; }
@@ -24,9 +24,9 @@ namespace I2C_Monitor_Module
 
 		bool loop = false; //to stop or esume the measuremetns
 		bool select = false; //this determines if everything was loaded correctly and can continue to operation
-		/// <summary>
-		/// these locks are to direct the user to the correct order of steps
-		/// </summary>
+							 /// <summary>
+							 /// these locks are to direct the user to the correct order of steps
+							 /// </summary>
 		public InSituMonitoringModule()
 		{
 			InitializeComponent();
@@ -102,7 +102,7 @@ namespace I2C_Monitor_Module
 			input[0][16] = true;
 			input[2][0] = true;
 			input[3][31] = true;
-			Form2 selection = new Form2(input);
+			Form2 selection = new Form2(input, iface.current_job.device_adds);
 			selection.ShowDialog();
 
 			if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to scan boards
