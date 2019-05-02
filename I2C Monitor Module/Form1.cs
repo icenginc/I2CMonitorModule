@@ -97,16 +97,18 @@ namespace I2C_Monitor_Module
 			}//if the parse is fine then continue, also check for current beagle and aardvark set
 			else
 				select = false;
-
+			/*
 			var input = Enumerable.Repeat<bool[]>(Enumerable.Repeat<bool>(false, 32).ToArray(), 16).ToArray();
 			input[0][16] = true;
 			input[2][0] = true;
 			input[3][31] = true;
-			Form2 selection = new Form2(input, iface.current_job.device_adds);
-			selection.ShowDialog();
+			*/
+			
 
-			if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to scan boards
+			if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to continue
 			{
+				Form2 selection = new Form2(iface.current_job.board_list, iface.current_job.device_adds);
+				selection.ShowDialog();
 				create_header(); //do this if the board detect works
 			}
 			else

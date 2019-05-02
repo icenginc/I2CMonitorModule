@@ -49,28 +49,34 @@ namespace I2C_Monitor_Module
 
 		private void button_ok_Click(object sender, EventArgs e)
 		{
-			for (int i = 0; i < dataGridView1.Rows.Count; i++)
+			for (int i = 0; i < dataGridView1.Rows.Count-1; i++)
 			{
-				string name = dataGridView1.Rows[i].Cells[1].Value.ToString();
-				if (name != "")
+
+				if (dataGridView1.Rows[i].Cells[1].Value != null)
+				{
+					string name = dataGridView1.Rows[i].Cells[1].Value.ToString();
 					InSituMonitoringModule.iface.current_job.board_names[i] = name.ToUpper();
+				}
 				else
-					InSituMonitoringModule.iface.current_job.board_names[i] = ("Board " + (i+1));
+					InSituMonitoringModule.iface.current_job.board_names[i] = ("Board " + (i + 1));
 			}
 
-			for (int i = 0; i < dataGridView2.Rows.Count; i++)
+			for (int i = 0; i < dataGridView2.Rows.Count -1; i++)
 				try
 				{
-					string low = dataGridView2.Rows[i].Cells[0].ToString();
-					string high = dataGridView2.Rows[i].Cells[1].ToString();
-
-					if (low != "")
+					if (dataGridView2.Rows[i].Cells[1].Value != null)
+					{
+						string low = dataGridView2.Rows[i].Cells[1].Value.ToString();
 						InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.Parse(low);
+					}
 					else
 						InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue; //if blank
 
-					if (high != "")
+					if (dataGridView2.Rows[i].Cells[2].Value != null)
+					{
+						string high = dataGridView2.Rows[i].Cells[2].Value.ToString();
 						InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.Parse(high);
+					}
 					else
 						InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue; //if blank
 
@@ -81,6 +87,8 @@ namespace I2C_Monitor_Module
 					InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue;
 					InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue;
 				}
+
+			this.Close();
 		}
 
 		private void button_cancel_Click(object sender, EventArgs e)

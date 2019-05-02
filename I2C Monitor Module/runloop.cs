@@ -98,7 +98,7 @@ namespace I2C_Monitor_Module
 						iface.current_beagle.buffer.Clear();
 
 						log dut = new log(addresses.Length, j); //new log entry for this DUT
-						while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) || true) //if no read is read in
+						while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress)) //if no read is read in
 							System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
 						for (int k = 0; k < addresses.Length; k++)
 						{
