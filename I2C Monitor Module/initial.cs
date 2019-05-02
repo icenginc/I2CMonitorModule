@@ -201,12 +201,14 @@ namespace I2C_Monitor_Module
                     System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
                 foreach (device address in addresses)
                 {
-                    textBox_data.AppendText("Looking for address " + address.Address.ToString("X") + " on board " + (mux - 0x50) + "...");
-                    if (iface.current_beagle.buffer.Contains(address.Address))
+                    textBox_data.AppendText("Looking for address " + iface.current_job.ReadAddress.ToString("X") + " on board " + (mux - 0x50) + "...");
+                    if (iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) || true) //just look for a readback
                     {
                         textBox_data.AppendText(" Found\n");
                         valid[i] = true;
                     }//if we get even 1 DUTs address data back, then the board is there with a DUT
+                    else
+                        textBox_data.AppendText(Environment.NewLine);
                 }//check for each address in the data
 
             }

@@ -218,10 +218,16 @@ namespace I2C_Monitor_Module
 
 				// Read transaction with bit timing data
 				int count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
-				string output = output_parse(data_in);				
+                string output = "";// output_parse(data_in);				
 				string status_string = print_general_status(status);
-                buffer.AddRange(data_in); //add to my own buffer
-
+                try
+                {
+                    buffer.AddRange(data_in); //add to my own buffer
+                }
+                catch (System.ArgumentOutOfRangeException)
+                {
+                    Console.WriteLine("Skipping measurement..");
+                }
 				lines.Add(status_string + " - " + output + " - " + "Iteration: " + i); //added this so see in gui
 
 				if (status_string.Contains("TIMEOUT"))

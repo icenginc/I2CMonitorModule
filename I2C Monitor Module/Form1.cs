@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
@@ -97,10 +98,19 @@ namespace I2C_Monitor_Module
 			else
 				select = false;
 
-            if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to scan boards
-                create_header(); //do this if the board detect works
-            else
-                select = false;
+			var input = Enumerable.Repeat<bool[]>(Enumerable.Repeat<bool>(false, 32).ToArray(), 16).ToArray();
+			input[0][16] = true;
+			input[2][0] = true;
+			input[3][31] = true;
+			Form2 selection = new Form2(input);
+			selection.ShowDialog();
+
+			if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to scan boards
+			{
+				create_header(); //do this if the board detect works
+			}
+			else
+				select = false;
 		}
 
 		private void button1_Click(object sender, EventArgs e)
