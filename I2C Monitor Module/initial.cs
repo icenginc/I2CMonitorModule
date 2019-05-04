@@ -69,7 +69,7 @@ namespace I2C_Monitor_Module
 			//*
 
             button_i2cmonitor_Click(this, new EventArgs());
-
+            Cursor.Current = Cursors.WaitCursor;
 			for (ushort mux_address = 0x50; mux_address <= 0x5F; mux_address++)
 			{
 				var valid = scan_board(mux_address);
@@ -78,7 +78,7 @@ namespace I2C_Monitor_Module
 					iface.current_job.board_list[mux_address-0x50] = valid;
 					tabControl_boards.Enabled = true;
 					tabControl_boards.Visible = true;
-					TabPage page = new TabPage("Board " + (mux_address - 0x4F));
+					TabPage page = new TabPage("Board " + (mux_address - 0x4f));
 					tabControl_boards.TabPages.Add(page);
 				} //build each page, this happens once
 			}//each iteration is one mux address
@@ -87,7 +87,6 @@ namespace I2C_Monitor_Module
 			
 			if (iface.current_job != null)
 			{
-				iface.current_job.Scanned = true; //change it to true because we have finished scanning, this opens up the DUT info scanning
 				foreach (TabPage page in tabControl_boards.TabPages) //now build after scanning
 					build_page(page); //if the job is loaded, fill the GUI with board dimensions
 
@@ -99,7 +98,7 @@ namespace I2C_Monitor_Module
 				MessageBox.Show("Job not loaded in config! Can't draw boards");
 				return false;
 			}
-
+            Cursor.Current = Cursors.Default;
 			return true; //on success
 		}
 
@@ -173,7 +172,7 @@ namespace I2C_Monitor_Module
 
 		private bool[] scan_board(ushort mux) //scans each mux address for responses on DUTs, then builds them up
 		{
-			textBox_data.AppendText("Scanning board at mux address " + mux.ToString("X") + "...");
+			textBox_data.AppendText("Scanning board at mux address " + mux.ToString("X") + "..." + Environment.NewLine);
 			//listen for the DUTs here
 			bool[] valid = Enumerable.Repeat<bool>(false, 40).ToArray(); //board sites
             
@@ -182,30 +181,31 @@ namespace I2C_Monitor_Module
             //BackgroundWorker tab_populate = new BackgroundWorker();
             //tab_populate.DoWork += Tab_populate_DoWork;
             //tab_populate.RunWorkerAsync(mux); //used this so no infinite loop
-
+            device[] addresses = iface.current_job.device_adds.ToArray(); //put the iface device addresses locally
             //ushort mux = (ushort)e.Argument;
             for (byte i = 0; i < iface.current_job.Sites; i++)
             {
                 //write mux again
                 byte unique = (byte)(iface.current_job.Sites - i);
                 byte[] register_data = new byte[] { i, unique }; //write the register to pick DUT, and 'unique data'
-                int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
-                iface.current_aardvark.i2c_read(mux, 2, out byte[] data);
+                //int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
+                //iface.current_aardvark.i2c_read(mux, 2, out byte[] data);
+                byte[] data = { 0, 0 };
                 iface.current_beagle.buffer.Clear();
 
-                if (!data.Contains(unique) && (fake > 5)) //change this when we have mux
+                if (!data.Contains(unique) && (fake > 1)) //change this when we have mux
                     continue; //skip the DUT if it doesn't read back the unique data
 
-                device[] addresses = iface.current_job.device_adds.ToArray(); //put the iface device addresses locally
                 while(iface.current_beagle.buffer.Count == 0)
-                    System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
+                    System.Threading.Thread.Sleep(10); //give a little time for buffer to fill
                 foreach (device address in addresses)
                 {
                     textBox_data.AppendText("Looking for address " + iface.current_job.ReadAddress.ToString("X") + " on board " + (mux - 0x50) + "...");
-                    if (iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) || true) //just look for a readback
+                    if (iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress)) //just look for a readback
                     {
                         textBox_data.AppendText(" Found\n");
                         valid[i] = true;
+                        break; //dont need to look for the rest if one is in there
                     }//if we get even 1 DUTs address data back, then the board is there with a DUT
                     else
                         textBox_data.AppendText(Environment.NewLine);

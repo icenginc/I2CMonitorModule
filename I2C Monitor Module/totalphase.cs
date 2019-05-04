@@ -191,8 +191,8 @@ namespace I2C_Monitor_Module
 			timing_size = BeagleApi.bg_bit_timing_size(BeagleProtocol.BG_PROTOCOL_I2C, max_bytes);
 			timing = new uint[timing_size];
 
-			sample_rate = BeagleApi.bg_samplerate(handle, 50000); //sampling rate in khz
-			if (BeagleApi.bg_timeout(handle, 1000) != (int)BeagleStatus.BG_OK) //set the timeout to 1s
+			sample_rate = BeagleApi.bg_samplerate(handle, 5000); //sampling rate in khz
+			if (BeagleApi.bg_timeout(handle, 500) != (int)BeagleStatus.BG_OK) //set the timeout to 1s
 			{
 				Console.WriteLine("error: Could not set Beagle timeout; exiting...\n");
 				throw new InvalidOperationException("Could not set Beagle timeout; exiting...");
@@ -228,25 +228,25 @@ namespace I2C_Monitor_Module
                 {
                     Console.WriteLine("Skipping measurement..");
                 }
-				lines.Add(status_string + " - " + output + " - " + "Iteration: " + i); //added this so see in gui
+				///lines.Add(status_string + " - " + output + " - " + "Iteration: " + i); //added this so see in gui
 
 				if (status_string.Contains("TIMEOUT"))
 					continue; //skip if no activity on bus
 				// Translate timestamp to ns
 				time_sop_ns = TIMESTAMP_TO_NS(time_sop, sample_rate);
 
-				Console.Write("{0:d},{1:d}", i, time_sop_ns);
-				Console.Write(",I2C,(");
+				///Console.Write("{0:d},{1:d}", i, time_sop_ns);
+				///Console.Write(",I2C,(");
 
 				if (count < 0) //error condition
 					Console.Write("error={0:d},", count);
-				else
-					Console.Write("Read " + count + " bits. ");
+				///else
+				///	Console.Write("Read " + count + " bits. ");
 
 				//print_general_status(status); //below reference funct -> moved up
-				Console.Write(status_string);
-				print_i2c_status(status); //below reference funct
-				Console.Write(")");
+				///Console.Write(status_string);
+				///print_i2c_status(status); //below reference funct
+				///Console.Write(")");
 
 				// Check for errors
 				if (count <= 0)
@@ -262,8 +262,9 @@ namespace I2C_Monitor_Module
 				}
 
 				// Print the address and read/write
-				Console.Write(",");
+				///Console.Write(",");
 				int offset = 0;
+                /*
 				if ((status & BeagleApi.BG_READ_ERR_MIDDLE_OF_PACKET) == 0)
 				{
 					// Display the start condition
@@ -294,9 +295,11 @@ namespace I2C_Monitor_Module
 						}
 					}
 				}
+                */ //take out prints
 
 				// Display rest of transaction - data
 				count = count - offset;
+                /*
 				for (int n = 0; n < count; ++n)
 				{
 					// Determine if byte was NACKed
@@ -306,6 +309,7 @@ namespace I2C_Monitor_Module
 							data_in[offset] & 0xff, (nack != 0) ? "*" : "");
 					++offset;
 				}
+                */
 			}
 
 			// Stop the capture

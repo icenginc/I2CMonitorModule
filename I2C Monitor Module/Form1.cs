@@ -109,7 +109,11 @@ namespace I2C_Monitor_Module
 			{
 				Form2 selection = new Form2(iface.current_job.board_list, iface.current_job.device_adds);
 				selection.ShowDialog();
-				create_header(); //do this if the board detect works
+                for (int i = 0; i < iface.current_job.board_names.Length; i++)
+                    if(iface.current_job.board_names[i] != null && tabControl_boards.TabPages.Count > 0)
+                        tabControl_boards.TabPages[i].Text = iface.current_job.board_names[i];
+                iface.current_job.Scanned = true; //change it to true because we have finished scanning, this opens up the DUT info scanning
+                create_header(); //do this if the board detect works
 			}
 			else
 				select = false;
@@ -182,8 +186,5 @@ namespace I2C_Monitor_Module
 		{
 			resize_pages();
 		}
-	}
-
-	
-
+    }
 }

@@ -16,7 +16,7 @@ namespace I2C_Monitor_Module
 		public Form2(bool[][] input, List<device> addresses)
 		{
 			InitializeComponent();
-			this.Name = "Enter Parameters";
+			this.Text = "Enter Parameters";
 			generate_boards(input);
 			generate_addresses(addresses);
 
@@ -34,7 +34,7 @@ namespace I2C_Monitor_Module
 			{
 				bool[] board_map = board_list[i]; //break down to current board
 
-				if (board_map.Contains(true)) //if it contains a true then add that board
+				if (board_map != null && board_map.Contains(true)) //if it contains a true then add that board
 				{
 					dataGridView1.Rows.Add(new object[] { (i + 1).ToString() });
 				}//if the board is valid
@@ -95,9 +95,9 @@ namespace I2C_Monitor_Module
 		{
 			this.Close();
 			MessageBox.Show("Using default values");
-			for (int i = 0; i < dataGridView1.Rows.Count; i++)
+			for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
 				InSituMonitoringModule.iface.current_job.board_names[i] = ("Board " + (i + 1));
-			for (int i = 0; i < dataGridView2.Rows.Count; i++)
+			for (int i = 0; i < dataGridView2.Rows.Count - 1; i++)
 			{
 				InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue;
 				InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue;

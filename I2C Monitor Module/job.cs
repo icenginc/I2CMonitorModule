@@ -74,7 +74,10 @@ namespace I2C_Monitor_Module
         {
             string token = "LogFileName=";
             if (line.Contains(token))
+            {
                 logfile_name = line.Replace(token, "");
+                logfile_name = logfile_name.Replace("\'", "");
+            }
         }
 
         private void interval(string line)
