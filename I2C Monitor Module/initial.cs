@@ -73,15 +73,16 @@ namespace I2C_Monitor_Module
 			for (ushort mux_address = 0x50; mux_address <= 0x5F; mux_address++)
 			{
 				var valid = scan_board(mux_address);
-				if (valid.Contains(true))
-				{
-					iface.current_job.board_list[mux_address-0x50] = valid;
-					tabControl_boards.Enabled = true;
-					tabControl_boards.Visible = true;
-					TabPage page = new TabPage("Board " + (mux_address - 0x4f));
-					tabControl_boards.TabPages.Add(page);
-				} //build each page, this happens once
-			}//each iteration is one mux address
+                if (valid.Contains(true))
+                {
+                    iface.current_job.board_list[mux_address - 0x50] = valid;
+                    tabControl_boards.Enabled = true;
+                    tabControl_boards.Visible = true;
+                    TabPage page = new TabPage("Board " + (mux_address - 0x4f));
+                    tabControl_boards.TabPages.Add(page);
+                    iface.current_job.tab_page_map.Add(mux_address - 0x50); //save what index in the tab control, so we can update it later.
+                } //build each page, this happens once
+            }//each iteration is one mux address
 
 			Console.WriteLine("Buildt pages - populating now..");
 			
@@ -101,6 +102,11 @@ namespace I2C_Monitor_Module
             Cursor.Current = Cursors.Default;
 			return true; //on success
 		}
+
+        private int monitor_map(int dut)
+        {
+            return iface.current_job.Monitor_Map[dut];
+        }
 
 		private void build_page(TabPage page)
 		{
@@ -176,8 +182,6 @@ namespace I2C_Monitor_Module
 			//listen for the DUTs here
 			bool[] valid = Enumerable.Repeat<bool>(false, 40).ToArray(); //board sites
             
-			int fake = mux - 0x50;
-            iface.current_job.board_log[fake] = new log[iface.current_job.Sites];
             //BackgroundWorker tab_populate = new BackgroundWorker();
             //tab_populate.DoWork += Tab_populate_DoWork;
             //tab_populate.RunWorkerAsync(mux); //used this so no infinite loop
@@ -185,19 +189,19 @@ namespace I2C_Monitor_Module
             //ushort mux = (ushort)e.Argument;
             for (byte i = 0; i < iface.current_job.Sites; i++)
             {
-                //write mux again
-                byte unique = (byte)(iface.current_job.Sites - i);
-                byte[] register_data = new byte[] { i, unique }; //write the register to pick DUT, and 'unique data'
-                //int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
-                //iface.current_aardvark.i2c_read(mux, 2, out byte[] data);
-                byte[] data = { 0, 0 };
+                byte unique = (byte)(i);// + (1<<7));
+                byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
+                int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
+                iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
                 iface.current_beagle.buffer.Clear();
 
-                if (!data.Contains(unique) && (fake > 1)) //change this when we have mux
+                
+                if (!data.Contains(unique) || bytes < register_data.Length)
                     continue; //skip the DUT if it doesn't read back the unique data
 
-                while(iface.current_beagle.buffer.Count == 0)
+                while(iface.current_beagle.buffer.Count < 10)
                     System.Threading.Thread.Sleep(10); //give a little time for buffer to fill
+                
                 foreach (device address in addresses)
                 {
                     textBox_data.AppendText("Looking for address " + iface.current_job.ReadAddress.ToString("X") + " on board " + (mux - 0x50) + "...");

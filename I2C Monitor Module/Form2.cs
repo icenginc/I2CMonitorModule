@@ -52,13 +52,17 @@ namespace I2C_Monitor_Module
 			for (int i = 0; i < dataGridView1.Rows.Count-1; i++)
 			{
 
-				if (dataGridView1.Rows[i].Cells[1].Value != null)
-				{
-					string name = dataGridView1.Rows[i].Cells[1].Value.ToString();
-					InSituMonitoringModule.iface.current_job.board_names[i] = name.ToUpper();
-				}
-				else
-					InSituMonitoringModule.iface.current_job.board_names[i] = ("Board " + (i + 1));
+                if (dataGridView1.Rows[i].Cells[1].Value != null)
+                {
+                    string name = dataGridView1.Rows[i].Cells[1].Value.ToString();
+                    InSituMonitoringModule.iface.current_job.board_names[i] = name.ToUpper();
+                }
+                else
+                {
+                    string name = dataGridView1.Rows[i].Cells[0].Value.ToString();
+                    int index = InSituMonitoringModule.iface.current_job.tab_page_map[i];
+                    InSituMonitoringModule.iface.current_job.board_names[index] = ("Board " + (index + 1));
+                }
 			}
 
 			for (int i = 0; i < dataGridView2.Rows.Count -1; i++)
@@ -88,7 +92,7 @@ namespace I2C_Monitor_Module
 					InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue;
 				}
 
-			this.Close();
+            this.Close();
 		}
 
 		private void button_cancel_Click(object sender, EventArgs e)

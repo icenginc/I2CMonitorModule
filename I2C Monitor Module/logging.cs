@@ -72,7 +72,7 @@ namespace I2C_Monitor_Module
 			get
 			{
 				string text = string.Empty;
-				text += ("DUT " + dut.ToString());
+				text += ("DUT " + dut.ToString() + Environment.NewLine);
 				foreach (string line in registers)
 					text += (line + Environment.NewLine);
 				return text;

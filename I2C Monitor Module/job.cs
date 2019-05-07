@@ -36,6 +36,7 @@ namespace I2C_Monitor_Module
         public bool[][] board_list = new bool[16][]; //list of valid boards
         public log[][] board_log = new log[16][]; //storing info for logging
 		public string[] board_names = new string[16];
+        public List<int> tab_page_map = new List<int>();
 
         public int Bibx { get => bibx; }
         public int Biby { get => biby; }

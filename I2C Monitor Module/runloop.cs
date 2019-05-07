@@ -41,7 +41,9 @@ namespace I2C_Monitor_Module
                         {
                             this.Invoke(new MethodInvoker(delegate ()
                             {
-                                textBox_data.AppendText("Collecting data on " + tabControl_boards.TabPages[i].Text + Environment.NewLine);
+                                if (iface.current_job.board_names[i] == "")
+                                    iface.current_job.board_names[i] = "Board " + (i + 1);
+                                textBox_data.AppendText("Collecting data on " + iface.current_job.board_names[i] + Environment.NewLine);
                             }));
                         }
                         catch { }
@@ -102,16 +104,17 @@ namespace I2C_Monitor_Module
 
             if (board_list[i] != null && board_list[i].Contains(true))
             {
+                iface.current_job.board_log[i] = new log[iface.current_job.Sites];
                 for (int j = 0; j < iface.current_job.Sites; j++)
                 {
-                    byte unique = (byte)(iface.current_job.Sites - i);
-                    byte[] register_data = new byte[] { (byte)i, unique }; //write the register to pick DUT, and 'unique data'
+                    byte unique = (byte)(i);
+                    byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
                     int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
 
                     //clean above into function?
                     iface.current_beagle.buffer.Clear();
 
-                    log dut = new log(addresses.Length, j); //new log entry for this DUT
+                    log dut = new log(addresses.Length, monitor_map(j) - 1); //new log entry for this DUT
                     while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) && iface.current_beagle.buffer.Count < 10) //if no read is read in
                         System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
                     Stopwatch search_timer = new Stopwatch(); //timer to time out if the address is not found
@@ -125,36 +128,41 @@ namespace I2C_Monitor_Module
 
                         if (!search_timer.IsRunning)
                             search_timer.Restart();
-                        
-
-                        if (k == 1)
-                            ;
-
+                    
                         if (check_buffer(iface.current_beagle.buffer, address)) //should contain the read command and the proper write command
                         { 
                             ushort value = 0;
+                            string result = "";
                             //int start = iface.current_beagle.buffer.IndexOf(iface.current_job.ReadAddress) + 1; //byte after address
                             int start = iface.current_beagle.buffer.IndexOf(address.Address[0]) + 3; //skip the write commmand and start after read bit
                             int stop = address.Length + start;//last data byte
 
-                            for (int l = start; l < stop; l++)//enumerate through data packet
-                                if (iface.current_beagle.buffer.Count > l)
-                                    value += (ushort)(((ushort)(iface.current_beagle.buffer[l] & 0xff)) << (8 * (stop - l - 1)));
+                            if (address.Forumla != "(ReadValue)" && address.Forumla != "ReadValue")
+                            {
+                                for (int l = start; l < stop; l++)//enumerate through data packet
+                                    if (iface.current_beagle.buffer.Count > l)
+                                        value += (ushort)(((ushort)(iface.current_beagle.buffer[l] & 0xff)) << (8 * (stop - l - 1)));
 
-                            string expression = address.Forumla.Replace("ReadValue", value.ToString()); //use formula to do data
-                            DataTable table = new DataTable();
-                            var result = table.Compute(expression, string.Empty);
+                                string expression = address.Forumla.Replace("ReadValue", value.ToString()); //use formula to do data
+                                DataTable table = new DataTable();
+                                result = table.Compute(expression, string.Empty).ToString();
+                            }
+                            else
+                                for (int l = start; l < stop; l++)//enumerate through data packet
+                                    result += (iface.current_beagle.buffer[l] & 0xff).ToString("X"); //dont bit shift and add up a value, take it literally
 
-                            dut.registers[k] = (Environment.NewLine + address.Name + ": " + result.ToString());
+                            dut.registers[k] = (address.Name + ": " + result);
                             //pick out the data, convert it and put into text dataset
                             search_timer.Reset(); //stop counting, no timeout
                             read_fails[k] = 0; //also reset the counter for timeouts
                         }//if we see the address, then read out the data and put it on the label
                         else
                         {
-                            if (search_timer.ElapsedMilliseconds > 1000) //skip if we cant find the address in teh buffer. timeout
+                            if (search_timer.ElapsedMilliseconds > 250) //skip if we cant find the address in teh buffer. timeout
                             {
                                 read_fails[k]++;
+                                Console.WriteLine("Timeout");
+                                dut.registers[k] = "";
                             } //if we timeout, then go to the next one but keep track of the fail
                             else
                             {
@@ -162,7 +170,6 @@ namespace I2C_Monitor_Module
                                 k--; //loop again
                             }//if within timeout time, try again
                         }
-
                     }//enumerate through each address
                     iface.current_job.board_log[i][j] = dut;
                 }//enumerate through each site			
@@ -172,30 +179,45 @@ namespace I2C_Monitor_Module
 
 		private bool check_buffer(List<ushort> list, device address)
 		{
+            /*
 			if (iface.current_job.Extended)
 				return (iface.current_beagle.buffer.Contains(address.Address[0])) && iface.current_beagle.buffer.Contains(address.Address[1])
 					&& iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress);
 			else
 				return (iface.current_beagle.buffer.Contains(address.Address[1]) && iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress)); //
-		}
+            */ //old way without bit mask
+            var buffer = new List<ushort>(iface.current_beagle.buffer);
+
+            if (iface.current_job.Extended)
+                return (buffer.Any(sh => ((sh & 0xff) == address.Address[0])) && buffer.Any(sh => ((sh & 0xff) == address.Address[1]))
+                    && buffer.Any(sh => ((sh & 0xff) == iface.current_job.ReadAddress)));
+            else
+                return (buffer.Any(sh => ((sh & 0xff) == address.Address[0])) && buffer.Any(sh => ((sh & 0xff) == iface.current_job.ReadAddress)));
+        }
 
         private void update_labels(int i)
         {
             var board_list = iface.current_job.board_list;
             if (board_list[i] != null && board_list[i].Contains(true))
             {
-                var tab_page = tabControl_boards.TabPages[i];
-                for (int j = 0; j < iface.current_job.Sites; j++)//go through sites
+                int index;
+                if (iface.current_job.tab_page_map.Contains(i)) //look at the tab page map to find the right index to modify
                 {
-                    var label = tab_page.Controls[j]; //this is the label to update
-                    if (board_list[i][j]) //if the DUT is valid
+                    index = iface.current_job.tab_page_map.IndexOf(i);
+
+                    var tab_page = tabControl_boards.TabPages[index];
+                    for (int j = 0; j < iface.current_job.Sites; j++)//go through sites
                     {
-                        this.Invoke(new MethodInvoker(delegate ()
+                        var label = tab_page.Controls[monitor_map(j) - 1]; //this is the label to update
+                        if (board_list[i][monitor_map(j) - 1]) //if the DUT is valid
                         {
-                            label.Text = iface.current_job.board_log[i][j].Text; //update label
+                            this.Invoke(new MethodInvoker(delegate ()
+                            {
+                                label.Text = iface.current_job.board_log[i][monitor_map(j) - 1].Text; //update label
                             }));
-                    }//check if dut va lid
-                }//iterate through duts
+                        }//check if dut va lid
+                    }//iterate through duts
+                }
             }//check if board valid
         }
 	}
