@@ -25,6 +25,7 @@ namespace I2C_Monitor_Module
 		bool loop = false; //to stop or esume the measuremetns
 		bool select = false; //this determines if everything was loaded correctly and can continue to operation
         bool run_lock = false;
+        bool[] first_log = Enumerable.Repeat<bool>(true, 16).ToArray();
 
 							 /// <summary>
 							 /// these locks are to direct the user to the correct order of steps
@@ -111,11 +112,15 @@ namespace I2C_Monitor_Module
 			{
 				Form2 selection = new Form2(iface.current_job.board_list, iface.current_job.device_adds);
 				selection.ShowDialog();
-                /*
+
                 for (int i = 0; i < iface.current_job.board_names.Length; i++)
+                {
+                    int index = iface.current_job.tab_page_map.IndexOf(i);
+                    if (index < 0)
+                        continue; //if not found (no page exists with that mapping)
                     if (iface.current_job.board_names[i] != null && tabControl_boards.TabPages.Count > 0)
-                        tabControl_boards.TabPages[i].Text = iface.current_job.board_names[i];
-                */
+                        tabControl_boards.TabPages[index].Text = iface.current_job.board_names[i];
+                }
                 iface.current_job.Scanned = true; //change it to true because we have finished scanning, this opens up the DUT info scanning
                 create_header(); //do this if the board detect works
 			}
@@ -164,15 +169,15 @@ namespace I2C_Monitor_Module
 
 		private void button_reset_Click(object sender, EventArgs e)
 		{
-			
+			/*
 			if (select)
 			{
 				iface.current_beagle.reset_beagle();
 			}
 			else //if valid beagle/aardvark combo not selected
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");
-				
-			//log_data();
+				*/
+			log_data();
 		}
 
 		private void button_stop_Click(object sender, EventArgs e)

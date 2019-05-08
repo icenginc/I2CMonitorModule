@@ -55,7 +55,8 @@ namespace I2C_Monitor_Module
                 if (dataGridView1.Rows[i].Cells[1].Value != null)
                 {
                     string name = dataGridView1.Rows[i].Cells[1].Value.ToString();
-                    InSituMonitoringModule.iface.current_job.board_names[i] = name.ToUpper();
+                    int index = InSituMonitoringModule.iface.current_job.tab_page_map[i];
+                    InSituMonitoringModule.iface.current_job.board_names[index] = (index+1) + "_" + name.ToUpper();
                 }
                 else
                 {

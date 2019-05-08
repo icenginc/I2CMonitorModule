@@ -20,10 +20,10 @@ namespace I2C_Monitor_Module
 			for (int i = 0; i < 16; i++)
 			{
 				if (iface.current_job.board_list[i] != null && iface.current_job.board_list[i].Contains(true))
-				{
+				{                
 					BackgroundWorker logger = new BackgroundWorker();
 					logger.DoWork += Logger_DoWork;
-					logger.RunWorkerAsync(i + 1); //send slot number in
+					logger.RunWorkerAsync(i); //send slot number in
 				}
 			}
 		}
@@ -33,26 +33,70 @@ namespace I2C_Monitor_Module
 			string slot = e.Argument.ToString(); //because this is fired off 16 times
 			Int32.TryParse(slot, out int slot_num);  //convert to int
 
-			Console.WriteLine("Logging for job " + job);
-			var data = iface.current_job.board_log[slot_num - 1]; //copy the data locally - this represent each board's data
+            if (first_log[slot_num])
+                System.Threading.Thread.Sleep(1000); //let data build up then go if its the first time
 
-			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", "_" + slot + ".rlog"));
-			if (file.Exists) //if we have already geneerated teh file with header
-			{
-				using (StreamWriter writer = File.AppendText(file.FullName))
-				{
-					string line = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss,");
-					for (int i = 0; i < iface.current_job.device_adds.Count; i++)
-					{
-						device add = iface.current_job.device_adds[i];
-						for (int j = 0; j < iface.current_job.Sites; j++)
-						{
-							line += (new string(data[j].registers[i].Where(ch => (!char.IsLetter(ch))).ToArray()) + ","); //access data of the site, and the addresses in order
-						}
-					}
-					writer.Write(line);
-				}
-			}
+            Console.WriteLine("Logging for job " + job);
+			var data = iface.current_job.board_log[slot_num]; //copy the data locally - this represent each board's data
+
+			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1) + ".rlog"));
+            string line = string.Empty;
+
+            if (file.Exists && first_log[slot_num]) //if header is done, first log
+            {
+
+                string[] lines = File.ReadLines(file.FullName).ToArray();
+                File.WriteAllText(file.FullName, string.Empty); //erase the headers
+                using (StreamWriter writer = File.AppendText(file.FullName))
+                {
+                    for (int i = 0; i < iface.current_job.device_adds.Count; i++)
+                    {
+
+                        device add = iface.current_job.device_adds[i];
+                        line = (lines[i] + Environment.NewLine + DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss,")); //add the header line, and date on next line
+                        for (int j = 0; j < iface.current_job.Sites; j++)
+                        {
+                            if (data[j] == null)
+                                line += ",";
+                            else
+                            {
+                                string temp = data[j].registers[i];
+                                string line_item = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
+                                line += (line_item + ","); //access data of the site, and the addresses in order
+                            }
+                        } //then add the relevant data
+                        writer.WriteLine(line);
+                    }
+                }
+            } //the first time around, we have to insert data in between the header
+
+            else if (file.Exists) //if we have already geneerated teh file with header, subsequent log
+            {
+                using (StreamWriter writer = File.AppendText(file.FullName))
+                {
+                    line += DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss,");
+                    for (int i = 0; i < iface.current_job.device_adds.Count; i++)
+                    {
+                        device add = iface.current_job.device_adds[i];
+                        if (add.LogOrder > 0)
+                        {
+                            for (int j = 0; j < iface.current_job.Sites; j++)
+                            {
+                                if (data[j] == null)
+                                    line += ",";
+                                else
+                                {
+                                    string temp = data[j].registers[i];
+                                    string line_item = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
+                                    line += (line_item + ","); //access data of the site, and the addresses in order //access data of the site, and the addresses in order
+                                }
+                            }
+                        } //dont do the ones that only should happen once
+                    }
+                    writer.WriteLine(line);
+                }
+            }
+            first_log[slot_num] = false; //mark that we have done the first go around
 		}
 	}
 

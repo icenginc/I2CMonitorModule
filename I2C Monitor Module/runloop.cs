@@ -53,7 +53,7 @@ namespace I2C_Monitor_Module
                         update_labels(i);
                     }
                 }
-                if (log_timer.ElapsedMilliseconds / 60000 > iface.current_job.LogInterval || !log_timer.IsRunning || log_timer.ElapsedMilliseconds > 10000) //ms to min
+                if (log_timer.ElapsedMilliseconds / 60000 > iface.current_job.LogInterval || !log_timer.IsRunning) //ms to min
 				{
 					log_timer.Restart();
 					log_data(); //do this every interval
@@ -105,12 +105,15 @@ namespace I2C_Monitor_Module
 
             if (board_list[i] != null && board_list[i].Contains(true))
             {
+                
+                if(iface.current_job.board_log[i] == null)
+                    iface.current_job.board_log[i] = new log[iface.current_job.Sites];
+                /*
                 var old_board_log = iface.current_job.board_log[i]; //save old one
-                iface.current_job.board_log[i] = new log[iface.current_job.Sites];
 
                 if (old_board_log == null)
                     old_board_log = new log[iface.current_job.Sites];
-
+                */
                 for (int j = 0; j < iface.current_job.Sites; j++)
                 {
                     if (!iface.current_job.board_list[i][j])
@@ -126,7 +129,11 @@ namespace I2C_Monitor_Module
                     iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
 
                     log dut = new log(addresses.Length, monitor_map(j)-1); //new log entry for this DUT //mon map maps the text to say the right number
-                    log old_dut = old_board_log[j]; //save the old one before changing
+                    log old_dut;
+                    if (iface.current_job.board_log[i] != null)
+                        old_dut = iface.current_job.board_log[i][j]; //save the old one before changing
+                    else
+                        old_dut = dut; //if not previous data, just set it to the current
 
                     while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) && iface.current_beagle.buffer.Count < 10) //if no read is read in
                         System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
@@ -146,9 +153,6 @@ namespace I2C_Monitor_Module
                         { 
                             ushort value = 0;
                             string result = "";
-                            //int start = iface.current_beagle.buffer.IndexOf(iface.current_job.ReadAddress) + 1; //byte after address
-                            //int start = iface.current_beagle.buffer.FindIndex(a => ((a & 0xff) == address.Address[0])); //skip the write commmand and start after read bit
-                            //start += (1 + (1+Convert.ToInt16(iface.current_job.Extended))); //skip the query command (+1), and go to the start of data bits (+1 for add, +1 if extended add)
                             int start = find_start(iface.current_beagle.buffer, address.Address);
                             int stop = address.Length + start;//last data byte
 
@@ -269,7 +273,7 @@ namespace I2C_Monitor_Module
             }
 
             return 0; //not found, try again
-        }
+        } //looks in the buffer to find where we start the iterator for the specified address
 
         private void update_labels(int i)
         {

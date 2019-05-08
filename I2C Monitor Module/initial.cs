@@ -252,8 +252,10 @@ namespace I2C_Monitor_Module
         {
             Console.WriteLine("Writing header for job");
 
-            string slot = e.Argument.ToString();            
-            string filename = iface.current_job.LogFileName.Replace(".rlog", "_" + slot + ".rlog");
+            string slot = e.Argument.ToString();
+            Int32.TryParse(slot, out int slot_num);
+
+            string filename = iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1)+ ".rlog");
 
             using (StreamWriter writer = File.AppendText(iface.current_job.LogFilePath + filename))
             {
@@ -268,8 +270,11 @@ namespace I2C_Monitor_Module
                     device add = iface.current_job.device_adds[i];
                     for (int j = 0; j < iface.current_job.Sites; j++)
                         line += ("DUT " + (j + 1) + " - " + add.Name + ',');
-                    if (add.LogOrder == 0) //in the case of header item, write it into file
+                    if (add.LogOrder == 0) //in the case of header item, write it into file before full header
+                    {
                         writer.WriteLine(line);
+                        line = "Timestamp,"; //reset the string to remove the header item (already been written)
+                    }
                     
                 }
                 writer.WriteLine(line); //these should be all the headers
