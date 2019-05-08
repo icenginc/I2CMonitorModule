@@ -53,7 +53,7 @@ namespace I2C_Monitor_Module
                         update_labels(i);
                     }
                 }
-				if (log_timer.ElapsedMilliseconds / 60000 > iface.current_job.LogInterval || !log_timer.IsRunning) //ms to min
+                if (log_timer.ElapsedMilliseconds / 60000 > iface.current_job.LogInterval || !log_timer.IsRunning || log_timer.ElapsedMilliseconds > 10000) //ms to min
 				{
 					log_timer.Restart();
 					log_data(); //do this every interval
@@ -65,7 +65,8 @@ namespace I2C_Monitor_Module
 		{
 			while (loop) //loop is set by the start button and ended by the stop button
 			{
-				var data = iface.current_beagle.snoop_i2c(iface.current_job.current_adds.Length); //this adds data into buffer
+                if(!run_lock)
+				    iface.current_beagle.snoop_i2c(iface.current_job.current_adds.Length); //this adds data into buffer
 
 				if (iface.current_job.Scanned) //if not yet scanned go max speed, also dont add to textbox in initial scan
 				{
@@ -82,7 +83,7 @@ namespace I2C_Monitor_Module
                         catch { }//if invoke fails
                     }
 					*/ //this adds every scan into the textbox
-					System.Threading.Thread.Sleep(10); //delay for slowing down buffer reads
+					//System.Threading.Thread.Sleep(1); //delay for slowing down buffer reads
 
 					/*
                     if (iface.current_beagle.Buffer_Free == 0)
@@ -104,17 +105,29 @@ namespace I2C_Monitor_Module
 
             if (board_list[i] != null && board_list[i].Contains(true))
             {
+                var old_board_log = iface.current_job.board_log[i]; //save old one
                 iface.current_job.board_log[i] = new log[iface.current_job.Sites];
+
+                if (old_board_log == null)
+                    old_board_log = new log[iface.current_job.Sites];
+
                 for (int j = 0; j < iface.current_job.Sites; j++)
                 {
-                    byte unique = (byte)(i);
+                    if (!iface.current_job.board_list[i][j])
+                        continue; //skip the dut if its not in the initial scan
+                    byte unique = (byte)(j);
                     byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
                     int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
 
                     //clean above into function?
+                    System.Threading.Thread.Sleep(20);
                     iface.current_beagle.buffer.Clear();
 
-                    log dut = new log(addresses.Length, monitor_map(j) - 1); //new log entry for this DUT
+                    iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
+
+                    log dut = new log(addresses.Length, monitor_map(j)-1); //new log entry for this DUT //mon map maps the text to say the right number
+                    log old_dut = old_board_log[j]; //save the old one before changing
+
                     while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) && iface.current_beagle.buffer.Count < 10) //if no read is read in
                         System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
                     Stopwatch search_timer = new Stopwatch(); //timer to time out if the address is not found
@@ -134,8 +147,17 @@ namespace I2C_Monitor_Module
                             ushort value = 0;
                             string result = "";
                             //int start = iface.current_beagle.buffer.IndexOf(iface.current_job.ReadAddress) + 1; //byte after address
-                            int start = iface.current_beagle.buffer.IndexOf(address.Address[0]) + 3; //skip the write commmand and start after read bit
+                            //int start = iface.current_beagle.buffer.FindIndex(a => ((a & 0xff) == address.Address[0])); //skip the write commmand and start after read bit
+                            //start += (1 + (1+Convert.ToInt16(iface.current_job.Extended))); //skip the query command (+1), and go to the start of data bits (+1 for add, +1 if extended add)
+                            int start = find_start(iface.current_beagle.buffer, address.Address);
                             int stop = address.Length + start;//last data byte
+
+                            if(start == -1 || start == 0)
+                            {
+                                k--;
+                                System.Threading.Thread.Sleep(5);
+                                continue; 
+                            } //if the start sequence is at the end (incomplete trasnaction) wait for a bit then go again
 
                             if (address.Forumla != "(ReadValue)" && address.Forumla != "ReadValue")
                             {
@@ -149,9 +171,21 @@ namespace I2C_Monitor_Module
                             }
                             else
                                 for (int l = start; l < stop; l++)//enumerate through data packet
-                                    result += (iface.current_beagle.buffer[l] & 0xff).ToString("X"); //dont bit shift and add up a value, take it literally
+                                {
+                                    var output = (iface.current_beagle.buffer[l] & 0xff).ToString("X");
+                                    if (output.Length == 1)
+                                        output = "0" + output;
+                                    result += output; //dont bit shift and add up a value, take it literally
+                                } //handle a single digit in here
 
-                            dut.registers[k] = (address.Name + ": " + result);
+                            
+
+                            if (result != "" && result != "FFFF")
+                                dut.registers[k] = (address.Name + ": " + result);
+                            else if (old_dut != null)
+                                dut.registers[k] = old_dut.registers[k]; //use the old one if bad data
+                            else
+                                dut.registers[k] = "";
                             //pick out the data, convert it and put into text dataset
                             search_timer.Reset(); //stop counting, no timeout
                             read_fails[k] = 0; //also reset the counter for timeouts
@@ -185,19 +219,62 @@ namespace I2C_Monitor_Module
 					&& iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress);
 			else
 				return (iface.current_beagle.buffer.Contains(address.Address[1]) && iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress)); //
-            */ //old way without bit mask
-            var buffer = new List<ushort>(iface.current_beagle.buffer);
+             //old way without bit mask
+
+            */
+            bool result = false;
+            run_lock = true;
+            System.Threading.Thread.Sleep(7);
+
+            ushort[] buffer = new ushort[list.Count];
+            buffer = list.ToArray();
 
             if (iface.current_job.Extended)
-                return (buffer.Any(sh => ((sh & 0xff) == address.Address[0])) && buffer.Any(sh => ((sh & 0xff) == address.Address[1]))
+                result = (buffer.Any(sh => ((sh & 0xff) == address.Address[0])) && buffer.Any(sh => ((sh & 0xff) == address.Address[1]))
                     && buffer.Any(sh => ((sh & 0xff) == iface.current_job.ReadAddress)));
             else
-                return (buffer.Any(sh => ((sh & 0xff) == address.Address[0])) && buffer.Any(sh => ((sh & 0xff) == iface.current_job.ReadAddress)));
+                result = (buffer.Any(sh => ((sh & 0xff) == address.Address[0])) && buffer.Any(sh => ((sh & 0xff) == iface.current_job.ReadAddress)));
+
+            run_lock = false;
+            return result;
+                
+        }
+
+        private int find_start(List<ushort> buffer, ushort[] registers)
+        {
+            if (registers.Length == 1) //not extended address
+            {
+                int start = buffer.FindIndex(a => ((a & 0xff) == registers[0])); //skip the write commmand and start after read bit
+                start += (1 + (1 + Convert.ToInt16(iface.current_job.Extended))); //skip the query command (+1), and go to the start of data bits (+1 for add, +1 if extended add)
+                return start;
+            }
+            else if (registers.Length == 2) //extended
+            {
+                for (int i = 0; i < buffer.Count - 1; i++)
+                {
+                    if ((buffer[i] & 0xff) == registers[0] && (buffer[i + 1] & 0xff) == registers[1])
+                    {
+                        int start = i;
+                        start += (1 + (1 + Convert.ToInt16(iface.current_job.Extended)));
+                        if (start > (buffer.Count - 2))
+                            return -1;
+                        return start;
+                    }               
+                }
+            }
+            else
+            {
+                MessageBox.Show("Invalid register length in config file.. data collection won't work");
+                return -1; //address doesn't match.. this case will only happen if the config is wrong
+            }
+
+            return 0; //not found, try again
         }
 
         private void update_labels(int i)
         {
             var board_list = iface.current_job.board_list;
+
             if (board_list[i] != null && board_list[i].Contains(true))
             {
                 int index;
@@ -208,12 +285,12 @@ namespace I2C_Monitor_Module
                     var tab_page = tabControl_boards.TabPages[index];
                     for (int j = 0; j < iface.current_job.Sites; j++)//go through sites
                     {
-                        var label = tab_page.Controls[monitor_map(j) - 1]; //this is the label to update
-                        if (board_list[i][monitor_map(j) - 1]) //if the DUT is valid
+                        var label = tab_page.Controls[monitor_map(j)-1]; //this is the label to update
+                        if (board_list[i][j]) //if the DUT is valid
                         {
                             this.Invoke(new MethodInvoker(delegate ()
                             {
-                                label.Text = iface.current_job.board_log[i][monitor_map(j) - 1].Text; //update label
+                                label.Text = iface.current_job.board_log[i][j].Text; //update label
                             }));
                         }//check if dut va lid
                     }//iterate through duts

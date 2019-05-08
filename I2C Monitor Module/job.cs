@@ -10,6 +10,7 @@ namespace I2C_Monitor_Module
         public job(List<string> input)
         {
             file_contents = input;
+            for (int i = 0; i < 40; i++) monitor_map[i] = (i+1); //fill this up first
             foreach (string line in input)
                 parse(line);
             sort_adds();

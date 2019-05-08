@@ -24,6 +24,8 @@ namespace I2C_Monitor_Module
 
 		bool loop = false; //to stop or esume the measuremetns
 		bool select = false; //this determines if everything was loaded correctly and can continue to operation
+        bool run_lock = false;
+
 							 /// <summary>
 							 /// these locks are to direct the user to the correct order of steps
 							 /// </summary>
@@ -162,15 +164,15 @@ namespace I2C_Monitor_Module
 
 		private void button_reset_Click(object sender, EventArgs e)
 		{
-			/*
+			
 			if (select)
 			{
 				iface.current_beagle.reset_beagle();
 			}
 			else //if valid beagle/aardvark combo not selected
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");
-				*/
-			log_data();
+				
+			//log_data();
 		}
 
 		private void button_stop_Click(object sender, EventArgs e)

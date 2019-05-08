@@ -121,7 +121,7 @@ namespace I2C_Monitor_Module
 				{
 					//build the DUT thing in here
 					Label label = new Label();
-					label.Text = "DUT " + iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
+					label.Text = "DUT " + ((i * iface.current_job.Bibx) + j + 1);//iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
 					label.TextAlign = ContentAlignment.TopCenter;
 					label.Location = new Point(j * width, (i * height) + 1); //calculated height based on loop position
 					label.BorderStyle = BorderStyle.Fixed3D;
@@ -192,6 +192,7 @@ namespace I2C_Monitor_Module
                 byte unique = (byte)(i);// + (1<<7));
                 byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
                 int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
+                System.Threading.Thread.Sleep(15);
                 iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
                 iface.current_beagle.buffer.Clear();
 
@@ -204,8 +205,8 @@ namespace I2C_Monitor_Module
                 
                 foreach (device address in addresses)
                 {
-                    textBox_data.AppendText("Looking for address " + iface.current_job.ReadAddress.ToString("X") + " on board " + (mux - 0x50) + "...");
-                    if (iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress)) //just look for a readback
+                    textBox_data.AppendText("Looking for address " + iface.current_job.ReadAddress.ToString("X") + " on board " + (mux - 0x50) + " DUT " + i.ToString());
+                    if (iface.current_beagle.buffer.Contains(address.Address[0])) //just look for a readback
                     {
                         textBox_data.AppendText(" Found\n");
                         valid[i] = true;

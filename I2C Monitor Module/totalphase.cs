@@ -73,7 +73,6 @@ namespace I2C_Monitor_Module
 
 		public int i2c_write(ushort slave_addr, ushort num_bytes, byte[] data_out)
 		{
-			//only for SHT module
 			var result = AardvarkApi.aa_i2c_write(handle, slave_addr, AardvarkI2cFlags.AA_I2C_NO_FLAGS, num_bytes, data_out);
 
 			if (result < 0)
@@ -120,7 +119,7 @@ namespace I2C_Monitor_Module
 			AardvarkApi.aa_target_power(handle, AardvarkApi.AA_TARGET_POWER_BOTH);
 
 			// Set the bitrate
-			bitrate = AardvarkApi.aa_i2c_bitrate(handle, bitrate);
+			bitrate = AardvarkApi.aa_i2c_bitrate(handle, 400);
 			Console.WriteLine("Bitrate set to {0} kHz", bitrate);
 
 			// Set the bus lock timeout
@@ -191,16 +190,16 @@ namespace I2C_Monitor_Module
 			timing_size = BeagleApi.bg_bit_timing_size(BeagleProtocol.BG_PROTOCOL_I2C, max_bytes);
 			timing = new uint[timing_size];
 
-			sample_rate = BeagleApi.bg_samplerate(handle, 5000); //sampling rate in khz
+			sample_rate = BeagleApi.bg_samplerate(handle, 200); //sampling rate in khz
 			if (BeagleApi.bg_timeout(handle, 500) != (int)BeagleStatus.BG_OK) //set the timeout to 1s
 			{
 				Console.WriteLine("error: Could not set Beagle timeout; exiting...\n");
-				throw new InvalidOperationException("Could not set Beagle timeout; exiting...");
+				//throw new InvalidOperationException("Could not set Beagle timeout; exiting...");
 			}
 			if (BeagleApi.bg_enable(handle, BeagleProtocol.BG_PROTOCOL_I2C) != (int)BeagleStatus.BG_OK) //start polling bus
 			{
 				Console.WriteLine("error: could not enable I2C capture; exiting...\n");
-				throw new InvalidOperationException("error: could not enable I2C capture; exiting...");
+				//throw new InvalidOperationException("error: could not enable I2C capture; exiting...");
 			}
 		}
 
