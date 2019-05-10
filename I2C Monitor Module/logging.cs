@@ -39,7 +39,7 @@ namespace I2C_Monitor_Module
             Console.WriteLine("Logging for job " + job);
 			var data = iface.current_job.board_log[slot_num]; //copy the data locally - this represent each board's data
 
-			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1) + ".rlog"));
+			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1) + ".rlog.csv"));
             string line = string.Empty;
 
             if (file.Exists && first_log[slot_num]) //if header is done, first log
@@ -88,6 +88,8 @@ namespace I2C_Monitor_Module
                                 {
                                     string temp = data[j].registers[i];
                                     string line_item = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
+                                    if (iface.current_job.board_retries[slot_num][j][i] > 3)
+                                        line_item = "0"; //if it has failed, then record 0's
                                     line += (line_item + ","); //access data of the site, and the addresses in order //access data of the site, and the addresses in order
                                 }
                             }
@@ -116,7 +118,7 @@ namespace I2C_Monitor_Module
 			get
 			{
 				string text = string.Empty;
-				text += ("DUT " + dut.ToString() + Environment.NewLine);
+				text += ("S" + dut.ToString() + Environment.NewLine);
 				foreach (string line in registers)
 					text += (line + Environment.NewLine);
 				return text;

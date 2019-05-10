@@ -57,14 +57,18 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.label_high = new System.Windows.Forms.Label();
+            this.label_lo = new System.Windows.Forms.Label();
             this.label_max = new System.Windows.Forms.Label();
             this.label_min = new System.Windows.Forms.Label();
             this.label_avg = new System.Windows.Forms.Label();
-            this.label_lo = new System.Windows.Forms.Label();
-            this.label_high = new System.Windows.Forms.Label();
+            this.checkBox_debug = new System.Windows.Forms.CheckBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.numericUpDown_values = new I2C_Monitor_Module.NumericUpDownEx();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_values)).BeginInit();
             this.SuspendLayout();
             // 
             // button_scan
@@ -72,7 +76,7 @@
             this.button_scan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.button_scan.Location = new System.Drawing.Point(612, 136);
             this.button_scan.Name = "button_scan";
-            this.button_scan.Size = new System.Drawing.Size(75, 23);
+            this.button_scan.Size = new System.Drawing.Size(75, 30);
             this.button_scan.TabIndex = 0;
             this.button_scan.Text = "Scan";
             this.button_scan.UseVisualStyleBackColor = true;
@@ -81,9 +85,9 @@
             // button_select
             // 
             this.button_select.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_select.Location = new System.Drawing.Point(612, 166);
+            this.button_select.Location = new System.Drawing.Point(612, 176);
             this.button_select.Name = "button_select";
-            this.button_select.Size = new System.Drawing.Size(75, 23);
+            this.button_select.Size = new System.Drawing.Size(75, 30);
             this.button_select.TabIndex = 1;
             this.button_select.Text = "Start";
             this.button_select.UseVisualStyleBackColor = true;
@@ -149,22 +153,23 @@
             // button_i2cmonitor
             // 
             this.button_i2cmonitor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_i2cmonitor.Location = new System.Drawing.Point(612, 226);
+            this.button_i2cmonitor.Location = new System.Drawing.Point(612, 175);
             this.button_i2cmonitor.Name = "button_i2cmonitor";
-            this.button_i2cmonitor.Size = new System.Drawing.Size(75, 23);
+            this.button_i2cmonitor.Size = new System.Drawing.Size(75, 30);
             this.button_i2cmonitor.TabIndex = 10;
-            this.button_i2cmonitor.Text = "i2cmonitor";
+            this.button_i2cmonitor.Text = "Resume";
             this.button_i2cmonitor.UseVisualStyleBackColor = true;
+            this.button_i2cmonitor.Visible = false;
             this.button_i2cmonitor.Click += new System.EventHandler(this.button_i2cmonitor_Click);
             // 
             // button_reset
             // 
             this.button_reset.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_reset.Location = new System.Drawing.Point(612, 196);
+            this.button_reset.Location = new System.Drawing.Point(612, 212);
             this.button_reset.Name = "button_reset";
-            this.button_reset.Size = new System.Drawing.Size(75, 23);
+            this.button_reset.Size = new System.Drawing.Size(75, 30);
             this.button_reset.TabIndex = 11;
-            this.button_reset.Text = "log";
+            this.button_reset.Text = "Reset";
             this.button_reset.UseVisualStyleBackColor = true;
             this.button_reset.Click += new System.EventHandler(this.button_reset_Click);
             // 
@@ -181,12 +186,13 @@
             // button_stop
             // 
             this.button_stop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button_stop.Location = new System.Drawing.Point(612, 256);
+            this.button_stop.Location = new System.Drawing.Point(612, 174);
             this.button_stop.Name = "button_stop";
-            this.button_stop.Size = new System.Drawing.Size(75, 23);
+            this.button_stop.Size = new System.Drawing.Size(75, 30);
             this.button_stop.TabIndex = 13;
             this.button_stop.Text = "Stop";
             this.button_stop.UseVisualStyleBackColor = true;
+            this.button_stop.Visible = false;
             this.button_stop.Click += new System.EventHandler(this.button_stop_Click);
             // 
             // comboBox_config
@@ -364,14 +370,34 @@
             this.panel2.Controls.Add(this.label_avg);
             this.panel2.Location = new System.Drawing.Point(127, 85);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(288, 21);
+            this.panel2.Size = new System.Drawing.Size(256, 21);
             this.panel2.TabIndex = 55;
+            // 
+            // label_high
+            // 
+            this.label_high.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_high.AutoSize = true;
+            this.label_high.Location = new System.Drawing.Point(209, 4);
+            this.label_high.Name = "label_high";
+            this.label_high.Size = new System.Drawing.Size(32, 13);
+            this.label_high.TabIndex = 59;
+            this.label_high.Text = "High:";
+            // 
+            // label_lo
+            // 
+            this.label_lo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_lo.AutoSize = true;
+            this.label_lo.Location = new System.Drawing.Point(175, 4);
+            this.label_lo.Name = "label_lo";
+            this.label_lo.Size = new System.Drawing.Size(30, 13);
+            this.label_lo.TabIndex = 58;
+            this.label_lo.Text = "Low:";
             // 
             // label_max
             // 
             this.label_max.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_max.AutoSize = true;
-            this.label_max.Location = new System.Drawing.Point(99, 4);
+            this.label_max.Location = new System.Drawing.Point(125, 4);
             this.label_max.Name = "label_max";
             this.label_max.Size = new System.Drawing.Size(30, 13);
             this.label_max.TabIndex = 57;
@@ -381,7 +407,7 @@
             // 
             this.label_min.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_min.AutoSize = true;
-            this.label_min.Location = new System.Drawing.Point(50, 4);
+            this.label_min.Location = new System.Drawing.Point(62, 4);
             this.label_min.Name = "label_min";
             this.label_min.Size = new System.Drawing.Size(27, 13);
             this.label_min.TabIndex = 56;
@@ -391,37 +417,49 @@
             // 
             this.label_avg.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_avg.AutoSize = true;
-            this.label_avg.Location = new System.Drawing.Point(2, 4);
+            this.label_avg.Location = new System.Drawing.Point(-1, 4);
             this.label_avg.Name = "label_avg";
             this.label_avg.Size = new System.Drawing.Size(29, 13);
             this.label_avg.TabIndex = 55;
             this.label_avg.Text = "Avg:";
             // 
-            // label_lo
+            // checkBox_debug
             // 
-            this.label_lo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_lo.AutoSize = true;
-            this.label_lo.Location = new System.Drawing.Point(148, 4);
-            this.label_lo.Name = "label_lo";
-            this.label_lo.Size = new System.Drawing.Size(30, 13);
-            this.label_lo.TabIndex = 58;
-            this.label_lo.Text = "Low:";
+            this.checkBox_debug.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox_debug.AutoSize = true;
+            this.checkBox_debug.Location = new System.Drawing.Point(622, 253);
+            this.checkBox_debug.Name = "checkBox_debug";
+            this.checkBox_debug.Size = new System.Drawing.Size(58, 17);
+            this.checkBox_debug.TabIndex = 57;
+            this.checkBox_debug.Text = "Debug";
+            this.checkBox_debug.UseVisualStyleBackColor = true;
             // 
-            // label_high
+            // label12
             // 
-            this.label_high.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_high.AutoSize = true;
-            this.label_high.Location = new System.Drawing.Point(197, 4);
-            this.label_high.Name = "label_high";
-            this.label_high.Size = new System.Drawing.Size(32, 13);
-            this.label_high.TabIndex = 59;
-            this.label_high.Text = "High:";
+            this.label12.AutoSize = true;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.Location = new System.Drawing.Point(384, 70);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(23, 13);
+            this.label12.TabIndex = 59;
+            this.label12.Text = "Adr";
+            // 
+            // numericUpDown_values
+            // 
+            this.numericUpDown_values.Enabled = false;
+            this.numericUpDown_values.Location = new System.Drawing.Point(386, 86);
+            this.numericUpDown_values.Name = "numericUpDown_values";
+            this.numericUpDown_values.Size = new System.Drawing.Size(46, 20);
+            this.numericUpDown_values.TabIndex = 60;
             // 
             // InSituMonitoringModule
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(698, 284);
+            this.Controls.Add(this.numericUpDown_values);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.checkBox_debug);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.label11);
             this.Controls.Add(this.label10);
@@ -452,6 +490,7 @@
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_values)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -493,6 +532,9 @@
         private System.Windows.Forms.Label label_max;
         private System.Windows.Forms.Label label_min;
         private System.Windows.Forms.Label label_avg;
+        private System.Windows.Forms.CheckBox checkBox_debug;
+        private System.Windows.Forms.Label label12;
+        private NumericUpDownEx numericUpDown_values;
     }
 }
 

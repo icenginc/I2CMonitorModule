@@ -30,8 +30,13 @@ namespace I2C_Monitor_Module
 			while (!iface.current_job.Scanned)
 				System.Threading.Thread.Sleep(100); //stay her euntil scanned
 			Stopwatch log_timer = new Stopwatch();
-			while (iface.current_job.Scanned && loop) //will lock out during initial scan (dont want to populate all DUTs yet)
-			{
+			while (iface.current_job.Scanned) //will lock out during initial scan (dont want to populate all DUTs yet)
+			{            
+                if(!loop)
+                {
+                    System.Threading.Thread.Sleep(50);
+                    continue;
+                }
                 //iface.current_beagle.buffer.Clear();
                 for (int i = 0; i < iface.current_job.board_list.Length; i++)
                 {
@@ -49,7 +54,7 @@ namespace I2C_Monitor_Module
                         catch { }
 
                         collect_data(i);
-
+                        calculate_values(i); //calculate by adding this data set as well
                         update_labels(i);
                     }
                 }
@@ -61,40 +66,43 @@ namespace I2C_Monitor_Module
 			}//start the update of all the boards
 		}//read loop
 
-		private void Polling_loop_DoWork(object sender, DoWorkEventArgs e)
-		{
-			while (loop) //loop is set by the start button and ended by the stop button
-			{
-                if(!run_lock)
-				    iface.current_beagle.snoop_i2c(iface.current_job.current_adds.Length); //this adds data into buffer
+        private void Polling_loop_DoWork(object sender, DoWorkEventArgs e)
+        {
+            while (true)
+            {
+                if (!loop) //loop is set by the start button and ended by the stop button
+                {
+                    System.Threading.Thread.Sleep(50);
+                    continue;
+                }
 
-				if (iface.current_job.Scanned) //if not yet scanned go max speed, also dont add to textbox in initial scan
-				{
-					/*
-                    foreach (string line in data)
-                    {
-                        try
-                        {
-                            this.Invoke(new MethodInvoker(delegate ()
-                            {
-                                textBox_data.AppendText(line + Environment.NewLine);
-                            }));
-                        }
-                        catch { }//if invoke fails
-                    }
-					*/ //this adds every scan into the textbox
-					//System.Threading.Thread.Sleep(1); //delay for slowing down buffer reads
+                if (!run_lock)
+                    iface.current_beagle.snoop_i2c(iface.current_job.current_adds.Length); //this adds data into buffer
 
-					/*
+                if (iface.current_job.Scanned) //if not yet scanned go max speed, also dont add to textbox in initial scan
+                {
+
+                    //System.Threading.Thread.Sleep(1); //delay for slowing down buffer reads
+
+                    /*
                     if (iface.current_beagle.Buffer_Free == 0)
                     {
                     //    iface.current_beagle.reset_beagle();
                         System.Threading.Thread.Sleep(500);
                     }
                     */ //dont need to slow down for this anymore
-				}
-			}
-		}
+                }
+            }
+
+        }
+
+        private void calculate_values(int i) //takes this board and adds to data set
+        {
+            if (iface.current_job.board_values == null)
+                iface.current_job.board_values = new values(iface.current_job.board_log[i]);
+            else
+                iface.current_job.board_values.calculate(iface.current_job.board_log[i]);
+        }
 
         private void collect_data(int i)
         {
@@ -108,6 +116,16 @@ namespace I2C_Monitor_Module
                 
                 if(iface.current_job.board_log[i] == null)
                     iface.current_job.board_log[i] = new log[iface.current_job.Sites];
+                if (iface.current_job.board_retries[i] == null)
+                {
+                    iface.current_job.board_retries[i] = new int[iface.current_job.Sites][];
+                    for (int z = 0; z < iface.current_job.Sites; z++)
+                    {
+                        iface.current_job.board_retries[i][z] = new int[addresses.Length]; //new int for each address
+                        for (int y = 0; y < addresses.Length; y++)
+                            iface.current_job.board_retries[i][z][y] = 0;
+                    }
+                }
                 /*
                 var old_board_log = iface.current_job.board_log[i]; //save old one
 
@@ -116,7 +134,7 @@ namespace I2C_Monitor_Module
                 */
                 for (int j = 0; j < iface.current_job.Sites; j++)
                 {
-                    if (!iface.current_job.board_list[i][j])
+                    if (!iface.current_job.board_list[i][j] || !loop)
                         continue; //skip the dut if its not in the initial scan
                     byte unique = (byte)(j);
                     byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
@@ -143,7 +161,7 @@ namespace I2C_Monitor_Module
                         device address = addresses[k];
                         iface.current_job.current_adds = address;
 
-                        if (read_fails[k] > 5) //skip this address if it fails 5 times - that means its proabbly not in the pattern
+                        if (read_fails[k] > 5 || !loop) //skip this address if it fails 5 times - that means its proabbly not in the pattern
                             continue;
 
                         if (!search_timer.IsRunning)
@@ -169,9 +187,16 @@ namespace I2C_Monitor_Module
                                     if (iface.current_beagle.buffer.Count > l)
                                         value += (ushort)(((ushort)(iface.current_beagle.buffer[l] & 0xff)) << (8 * (stop - l - 1)));
 
+                                float check = 0; //check if its actually all ff's
+                                for(int l = start; l < stop; l++)
+                                    check += (ushort)(((ushort)(0xff)) << (8 * (stop - l - 1))); //if we only add ff, what is it?
+
                                 string expression = address.Forumla.Replace("ReadValue", value.ToString()); //use formula to do data
                                 DataTable table = new DataTable();
                                 result = table.Compute(expression, string.Empty).ToString();
+
+                                if (check == value)
+                                    result = "FFFF";
                             }
                             else
                                 for (int l = start; l < stop; l++)//enumerate through data packet
@@ -182,14 +207,28 @@ namespace I2C_Monitor_Module
                                     result += output; //dont bit shift and add up a value, take it literally
                                 } //handle a single digit in here
 
-                            
 
-                            if (result != "" && result != "FFFF")
+
+                            if (result != "" && result != "FFFF" && iface.current_job.board_retries[i][j][k] < 4) //if normal
+                            {
                                 dut.registers[k] = (address.Name + ": " + result);
-                            else if (old_dut != null)
-                                dut.registers[k] = old_dut.registers[k]; //use the old one if bad data
-                            else
+                                iface.current_job.board_retries[i][j][k] = 0;
+                            }
+                            else if (checkBox_debug.Checked) //debug override
+                            {
                                 dut.registers[k] = "";
+                            }
+                            else if (old_dut != null && iface.current_job.board_retries[i][j][k] < 4)
+                            {
+                                dut.registers[k] = old_dut.registers[k]; //use the old one if bad data
+                                iface.current_job.board_retries[i][j][k]++;
+                            }                            
+                            else  //if there is no previous data 
+                            {
+                                dut.registers[k] = "";
+                                iface.current_job.board_retries[i][j][k]++;
+                            }                           
+                                
                             //pick out the data, convert it and put into text dataset
                             search_timer.Reset(); //stop counting, no timeout
                             read_fails[k] = 0; //also reset the counter for timeouts
@@ -216,22 +255,20 @@ namespace I2C_Monitor_Module
         }
 
 		private bool check_buffer(List<ushort> list, device address)
-		{
-            /*
-			if (iface.current_job.Extended)
-				return (iface.current_beagle.buffer.Contains(address.Address[0])) && iface.current_beagle.buffer.Contains(address.Address[1])
-					&& iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress);
-			else
-				return (iface.current_beagle.buffer.Contains(address.Address[1]) && iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress)); //
-             //old way without bit mask
-
-            */
+		{           
             bool result = false;
             run_lock = true;
-            System.Threading.Thread.Sleep(7);
+            System.Threading.Thread.Sleep(5);
+            ushort[] buffer = new ushort[list.Count*3];
 
-            ushort[] buffer = new ushort[list.Count];
-            buffer = list.ToArray();
+            try
+            {
+                buffer = list.ToArray();
+            }
+            catch(System.ArgumentException) //for some reason if buffer size is wrong
+            {
+                return false;
+            }
 
             if (iface.current_job.Extended)
                 result = (buffer.Any(sh => ((sh & 0xff) == address.Address[0])) && buffer.Any(sh => ((sh & 0xff) == address.Address[1]))
@@ -300,6 +337,128 @@ namespace I2C_Monitor_Module
                     }//iterate through duts
                 }
             }//check if board valid
+
+            //update the min/max/etc values
+            var values = iface.current_job.board_values;
+            this.Invoke(new MethodInvoker(delegate ()
+            {
+                label_min.Text = label_min.Text.Substring(0, label_min.Text.IndexOf(":") + 1)
+                 + values.Min[(int)numericUpDown_values.Value]; //strips the numbers
+                label_max.Text = label_max.Text.Substring(0, label_max.Text.IndexOf(":") + 1)
+                + values.Max[(int)numericUpDown_values.Value]; //strips the numbers
+                label_avg.Text = label_avg.Text.Substring(0, label_avg.Text.IndexOf(":") + 1)
+                + values.Avg[(int)numericUpDown_values.Value]; //strips the numbers
+            }));
         }
 	}
+
+    public class values
+    {
+        public values(log[] input)
+        {
+            min = Enumerable.Repeat<float>(float.MaxValue, input[0].registers.Length).ToArray();
+            max = Enumerable.Repeat<float>(float.MinValue, input[0].registers.Length).ToArray();
+            count = Enumerable.Repeat<int>(0, input[0].registers.Length).ToArray();
+            assign_depth(input); //based on how manly registers we have
+        } //constr
+
+        float[] min, max, avg, range, num;
+        int[] count;
+
+        public float[] Min { get { return min; } }
+        public float[] Max { get { return max; } }
+        public float[] Avg { get { return avg; } }
+        public float[] Range { get { return range; } }
+
+        public void calculate(log[] input)
+        {
+            calculate_min(input);
+            calculate_max(input);
+            calculate_avg(input);
+            calculate_range(input);
+        }
+
+        private void assign_depth(log[] data)
+        {
+            min = new float[data[0].registers.Length];
+            max = new float[data[0].registers.Length];
+            avg = new float[data[0].registers.Length];
+            range = new float[data[0].registers.Length];
+            num = new float[data[0].registers.Length];
+            count = new int[data[0].registers.Length];
+        }
+
+        private void calculate_min(log[] data)
+        {
+            foreach(log dut in data)
+            {
+                if (dut != null)
+                {
+                    for (int i = 0; i < dut.registers.Length; i++)
+                    {
+                        if (dut.registers[i] != null)
+                        {
+                            string temp = dut.registers[i];
+                            string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
+                            if (float.TryParse(substring, out float value))
+                                if (value < min[i])
+                                    min[i] = value;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void calculate_max(log[] data)
+        {
+            foreach (log dut in data)
+            {
+                if (dut != null)
+                {
+                    for (int i = 0; i < dut.registers.Length; i++)
+                    {
+                        if (dut.registers[i] != null)
+                        {
+                            string temp = dut.registers[i];
+                            string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
+                            if (float.TryParse(substring, out float value))
+                                if (value > max[i])
+                                    max[i] = value;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void calculate_avg(log[] data)
+        {
+            foreach (log dut in data)
+            {
+                if (dut != null)
+                {
+                    for (int i = 0; i < dut.registers.Length; i++)
+                    {
+                        if (dut.registers[i] != null)
+                        {
+                            string temp = dut.registers[i];
+                            string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
+                            if (float.TryParse(substring, out float value))
+                            {
+                                num[i] += value;
+                                avg[i] = num[i] / count[i];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void calculate_range(log[] data)
+        {
+            foreach (log dut in data)
+                if (dut != null)
+                    for (int i = 0; i < dut.registers.Length; i++)
+                        range[i] = max[i] - min[i];
+        }
+    }
 }

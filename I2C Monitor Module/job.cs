@@ -34,9 +34,12 @@ namespace I2C_Monitor_Module
         bool scanned;
         public List<device> device_adds = new List<device>(); // class that fills itself once the string is inserted
         public device current_adds;
+        //these next 5 should probably be their own class -> future improvement
         public bool[][] board_list = new bool[16][]; //list of valid boards
         public log[][] board_log = new log[16][]; //storing info for logging
-		public string[] board_names = new string[16];
+        public int[][][] board_retries = new int[16][][]; //for storing retries (boards, duts, addresses)
+		public string[] board_names = new string[16]; //storing names
+        public values board_values;
         public List<int> tab_page_map = new List<int>();
 
         public int Bibx { get => bibx; }

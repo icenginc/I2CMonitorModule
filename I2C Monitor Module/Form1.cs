@@ -33,7 +33,8 @@ namespace I2C_Monitor_Module
 		public InSituMonitoringModule()
 		{
 			InitializeComponent();
-			load_config();
+            this.Text = "InSitu Monitor Module";
+            load_config();
 			button_scan_Click(this, new EventArgs());
 		}
 
@@ -97,16 +98,11 @@ namespace I2C_Monitor_Module
 					MessageBox.Show("Error: No Aardvark found");
 					select = false;
 				}
+                numericUpDown_values.Enabled = true;
+                numericUpDown_values.Maximum = iface.current_job.device_adds.Count - 1;
 			}//if the parse is fine then continue, also check for current beagle and aardvark set
 			else
 				select = false;
-			/*
-			var input = Enumerable.Repeat<bool[]>(Enumerable.Repeat<bool>(false, 32).ToArray(), 16).ToArray();
-			input[0][16] = true;
-			input[2][0] = true;
-			input[3][31] = true;
-			*/
-			
 
 			if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to continue
 			{
@@ -126,6 +122,8 @@ namespace I2C_Monitor_Module
 			}
 			else
 				select = false;
+
+            button_select.Visible = false; //hide after starting, should only be able to resume
 		}
 
 		private void button1_Click(object sender, EventArgs e)
@@ -155,7 +153,7 @@ namespace I2C_Monitor_Module
 				MessageBox.Show("Aardvark device not selected");
 		} //for testing with sht31d module - obsolete
 
-		private void button_i2cmonitor_Click(object sender, EventArgs e)
+		private void button_i2cmonitor_Click(object sender, EventArgs e) //resume button
 		{
 			if (select)
 			{
@@ -165,10 +163,14 @@ namespace I2C_Monitor_Module
 			}
 			else //if valid beagle/aardvark combo not selected
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");
+
+            button_i2cmonitor.Visible = false;
+            button_stop.Visible = true; //show the stop(pause) again
 		}
 
 		private void button_reset_Click(object sender, EventArgs e)
 		{
+            loop = false;
 			/*
 			if (select)
 			{
@@ -183,6 +185,9 @@ namespace I2C_Monitor_Module
 		private void button_stop_Click(object sender, EventArgs e)
 		{
 			loop = false; //pause
+            button_stop.Visible = false;
+            button_i2cmonitor.Visible = true; //show the continue button
+            button_reset.Visible = true;
 		}
 
 		private void comboBox_config_SelectedIndexChanged(object sender, EventArgs e)
@@ -195,5 +200,21 @@ namespace I2C_Monitor_Module
 		{
 			resize_pages();
 		}
+    }
+
+    public class NumericUpDownEx : NumericUpDown
+    {
+        public NumericUpDownEx()
+        {
+        }
+
+        protected override void UpdateEditText()
+        {
+            // Append the register name
+            if (InSituMonitoringModule.iface != null && InSituMonitoringModule.iface.current_job != null && InSituMonitoringModule.iface.current_job.Scanned)
+                this.Text = InSituMonitoringModule.iface.current_job.device_adds[(int)this.Value].Name;
+            else
+                this.Text = this.Value.ToString();
+        }
     }
 }

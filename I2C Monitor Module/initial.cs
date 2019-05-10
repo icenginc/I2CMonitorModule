@@ -121,7 +121,7 @@ namespace I2C_Monitor_Module
 				{
 					//build the DUT thing in here
 					Label label = new Label();
-					label.Text = "DUT " + ((i * iface.current_job.Bibx) + j + 1);//iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
+					label.Text = "S" + ((i * iface.current_job.Bibx) + j + 1);//iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
 					label.TextAlign = ContentAlignment.TopCenter;
 					label.Location = new Point(j * width, (i * height) + 1); //calculated height based on loop position
 					label.BorderStyle = BorderStyle.Fixed3D;
@@ -192,13 +192,13 @@ namespace I2C_Monitor_Module
                 byte unique = (byte)(i);// + (1<<7));
                 byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
                 int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
-                System.Threading.Thread.Sleep(15);
+                System.Threading.Thread.Sleep(10);
                 iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
                 iface.current_beagle.buffer.Clear();
 
                 
-                if (!data.Contains(unique) || bytes < register_data.Length)
-                    continue; //skip the DUT if it doesn't read back the unique data
+                if ((!data.Contains(unique) || bytes < register_data.Length)) //this filters boards (bytes will be 0)
+                    continue; //skip the board if the mux doesn't read back
 
                 while(iface.current_beagle.buffer.Count < 10)
                     System.Threading.Thread.Sleep(10); //give a little time for buffer to fill
@@ -206,7 +206,7 @@ namespace I2C_Monitor_Module
                 foreach (device address in addresses)
                 {
                     textBox_data.AppendText("Looking for address " + iface.current_job.ReadAddress.ToString("X") + " on board " + (mux - 0x50) + " DUT " + i.ToString());
-                    if (iface.current_beagle.buffer.Contains(address.Address[0])) //just look for a readback
+                    if (iface.current_beagle.buffer.Contains(address.Address[0]) || checkBox_debug.Checked) //just look for a readback //debug override
                     {
                         textBox_data.AppendText(" Found\n");
                         valid[i] = true;
@@ -255,7 +255,7 @@ namespace I2C_Monitor_Module
             string slot = e.Argument.ToString();
             Int32.TryParse(slot, out int slot_num);
 
-            string filename = iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1)+ ".rlog");
+            string filename = iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1)+ ".rlog.csv");
 
             using (StreamWriter writer = File.AppendText(iface.current_job.LogFilePath + filename))
             {
@@ -269,7 +269,7 @@ namespace I2C_Monitor_Module
                     
                     device add = iface.current_job.device_adds[i];
                     for (int j = 0; j < iface.current_job.Sites; j++)
-                        line += ("DUT " + (j + 1) + " - " + add.Name + ',');
+                        line += ("S" + (j + 1) + " - " + add.Name + ',');
                     if (add.LogOrder == 0) //in the case of header item, write it into file before full header
                     {
                         writer.WriteLine(line);
