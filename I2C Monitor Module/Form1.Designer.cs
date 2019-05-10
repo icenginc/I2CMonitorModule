@@ -57,14 +57,14 @@
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.label_high = new System.Windows.Forms.Label();
-            this.label_lo = new System.Windows.Forms.Label();
+            this.label_range = new System.Windows.Forms.Label();
             this.label_max = new System.Windows.Forms.Label();
             this.label_min = new System.Windows.Forms.Label();
             this.label_avg = new System.Windows.Forms.Label();
             this.checkBox_debug = new System.Windows.Forms.CheckBox();
             this.label12 = new System.Windows.Forms.Label();
             this.numericUpDown_values = new I2C_Monitor_Module.NumericUpDownEx();
+            this.label_high = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -363,8 +363,7 @@
             // panel2
             // 
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel2.Controls.Add(this.label_high);
-            this.panel2.Controls.Add(this.label_lo);
+            this.panel2.Controls.Add(this.label_range);
             this.panel2.Controls.Add(this.label_max);
             this.panel2.Controls.Add(this.label_min);
             this.panel2.Controls.Add(this.label_avg);
@@ -373,31 +372,21 @@
             this.panel2.Size = new System.Drawing.Size(256, 21);
             this.panel2.TabIndex = 55;
             // 
-            // label_high
+            // label_range
             // 
-            this.label_high.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_high.AutoSize = true;
-            this.label_high.Location = new System.Drawing.Point(209, 4);
-            this.label_high.Name = "label_high";
-            this.label_high.Size = new System.Drawing.Size(32, 13);
-            this.label_high.TabIndex = 59;
-            this.label_high.Text = "High:";
-            // 
-            // label_lo
-            // 
-            this.label_lo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label_lo.AutoSize = true;
-            this.label_lo.Location = new System.Drawing.Point(175, 4);
-            this.label_lo.Name = "label_lo";
-            this.label_lo.Size = new System.Drawing.Size(30, 13);
-            this.label_lo.TabIndex = 58;
-            this.label_lo.Text = "Low:";
+            this.label_range.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_range.AutoSize = true;
+            this.label_range.Location = new System.Drawing.Point(175, 4);
+            this.label_range.Name = "label_range";
+            this.label_range.Size = new System.Drawing.Size(42, 13);
+            this.label_range.TabIndex = 58;
+            this.label_range.Text = "Range:";
             // 
             // label_max
             // 
             this.label_max.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_max.AutoSize = true;
-            this.label_max.Location = new System.Drawing.Point(125, 4);
+            this.label_max.Location = new System.Drawing.Point(114, 4);
             this.label_max.Name = "label_max";
             this.label_max.Size = new System.Drawing.Size(30, 13);
             this.label_max.TabIndex = 57;
@@ -407,7 +396,7 @@
             // 
             this.label_min.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label_min.AutoSize = true;
-            this.label_min.Location = new System.Drawing.Point(62, 4);
+            this.label_min.Location = new System.Drawing.Point(52, 4);
             this.label_min.Name = "label_min";
             this.label_min.Size = new System.Drawing.Size(27, 13);
             this.label_min.TabIndex = 56;
@@ -452,11 +441,22 @@
             this.numericUpDown_values.Size = new System.Drawing.Size(46, 20);
             this.numericUpDown_values.TabIndex = 60;
             // 
+            // label_high
+            // 
+            this.label_high.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label_high.AutoSize = true;
+            this.label_high.Location = new System.Drawing.Point(334, 53);
+            this.label_high.Name = "label_high";
+            this.label_high.Size = new System.Drawing.Size(32, 13);
+            this.label_high.TabIndex = 59;
+            this.label_high.Text = "High:";
+            // 
             // InSituMonitoringModule
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(698, 284);
+            this.Controls.Add(this.label_high);
             this.Controls.Add(this.numericUpDown_values);
             this.Controls.Add(this.label12);
             this.Controls.Add(this.checkBox_debug);
@@ -527,14 +527,14 @@
 		private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.Label label_high;
-        private System.Windows.Forms.Label label_lo;
+        private System.Windows.Forms.Label label_range;
         private System.Windows.Forms.Label label_max;
         private System.Windows.Forms.Label label_min;
         private System.Windows.Forms.Label label_avg;
         private System.Windows.Forms.CheckBox checkBox_debug;
         private System.Windows.Forms.Label label12;
         private NumericUpDownEx numericUpDown_values;
+        private System.Windows.Forms.Label label_high;
     }
 }
 

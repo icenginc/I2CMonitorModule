@@ -54,10 +54,10 @@ namespace I2C_Monitor_Module
                         catch { }
 
                         collect_data(i);
-                        calculate_values(i); //calculate by adding this data set as well
                         update_labels(i);
                     }
                 }
+                calculate_values(); //calculate by adding this data set as well
                 if (log_timer.ElapsedMilliseconds / 60000 > iface.current_job.LogInterval || !log_timer.IsRunning) //ms to min
 				{
 					log_timer.Restart();
@@ -96,12 +96,10 @@ namespace I2C_Monitor_Module
 
         }
 
-        private void calculate_values(int i) //takes this board and adds to data set
+        private void calculate_values() //takes all boards
         {
-            if (iface.current_job.board_values == null)
-                iface.current_job.board_values = new values(iface.current_job.board_log[i]);
-            else
-                iface.current_job.board_values.calculate(iface.current_job.board_log[i]);
+            iface.current_job.board_values = new values(iface.current_job.board_log);
+            update_values();
         }
 
         private void collect_data(int i)
@@ -337,29 +335,39 @@ namespace I2C_Monitor_Module
                     }//iterate through duts
                 }
             }//check if board valid
+        }
 
+        private void update_values()
+        {
             //update the min/max/etc values
             var values = iface.current_job.board_values;
             this.Invoke(new MethodInvoker(delegate ()
-            {
+            {                
                 label_min.Text = label_min.Text.Substring(0, label_min.Text.IndexOf(":") + 1)
                  + values.Min[(int)numericUpDown_values.Value]; //strips the numbers
                 label_max.Text = label_max.Text.Substring(0, label_max.Text.IndexOf(":") + 1)
                 + values.Max[(int)numericUpDown_values.Value]; //strips the numbers
                 label_avg.Text = label_avg.Text.Substring(0, label_avg.Text.IndexOf(":") + 1)
-                + values.Avg[(int)numericUpDown_values.Value]; //strips the numbers
+                + values.Avg[(int)numericUpDown_values.Value].ToString("n2"); //strips the numbers
+                label_range.Text = label_range.Text.Substring(0, label_range.Text.IndexOf(":") + 1)
+                + values.Range[(int)numericUpDown_values.Value]; //strips the numbers
             }));
         }
 	}
 
     public class values
     {
-        public values(log[] input)
+        public values(log[][] input)
         {
-            min = Enumerable.Repeat<float>(float.MaxValue, input[0].registers.Length).ToArray();
-            max = Enumerable.Repeat<float>(float.MinValue, input[0].registers.Length).ToArray();
-            count = Enumerable.Repeat<int>(0, input[0].registers.Length).ToArray();
-            assign_depth(input); //based on how manly registers we have
+            for (int i = 0; i < input.Length; i++) //look for valid board
+                if (input[i] != null)
+                {
+                    int length = input[i][0].registers.Length;
+                    
+                    assign_depth(length); //based on how manly registers we have
+                    calculate(input[i]);
+                    break;
+                }
         } //constr
 
         float[] min, max, avg, range, num;
@@ -370,22 +378,29 @@ namespace I2C_Monitor_Module
         public float[] Avg { get { return avg; } }
         public float[] Range { get { return range; } }
 
-        public void calculate(log[] input)
+        private void calculate(log[] board)
         {
-            calculate_min(input);
-            calculate_max(input);
-            calculate_avg(input);
-            calculate_range(input);
+            if (board != null)
+            {
+                calculate_min(board);
+                calculate_max(board);
+                calculate_avg(board);
+                calculate_range(board);
+            }
+
         }
 
-        private void assign_depth(log[] data)
+        private void assign_depth(int length)
         {
-            min = new float[data[0].registers.Length];
-            max = new float[data[0].registers.Length];
-            avg = new float[data[0].registers.Length];
-            range = new float[data[0].registers.Length];
-            num = new float[data[0].registers.Length];
-            count = new int[data[0].registers.Length];
+            min = new float[length];
+            max = new float[length];
+            avg = new float[length];
+            range = new float[length];
+            num = new float[length];
+            count = new int[length];
+            min = Enumerable.Repeat<float>(float.MaxValue, length).ToArray();
+            max = Enumerable.Repeat<float>(float.MinValue, length).ToArray();
+            count = Enumerable.Repeat<int>(0, length).ToArray();
         }
 
         private void calculate_min(log[] data)
@@ -401,7 +416,7 @@ namespace I2C_Monitor_Module
                             string temp = dut.registers[i];
                             string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
                             if (float.TryParse(substring, out float value))
-                                if (value < min[i])
+                                if (value < min[i] && value != 0)
                                     min[i] = value;
                         }
                     }
@@ -439,13 +454,13 @@ namespace I2C_Monitor_Module
                     for (int i = 0; i < dut.registers.Length; i++)
                     {
                         if (dut.registers[i] != null)
-                        {
+                        {                       
                             string temp = dut.registers[i];
                             string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
                             if (float.TryParse(substring, out float value))
                             {
                                 num[i] += value;
-                                avg[i] = num[i] / count[i];
+                                avg[i] = num[i] / ++count[i];
                             }
                         }
                     }

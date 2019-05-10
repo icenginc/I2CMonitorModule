@@ -195,6 +195,7 @@ namespace I2C_Monitor_Module
 		ushort length;
 		string formula;
 		ushort log_order;
+        bool literal;
 
 		public ushort[] Address { get => address; }
 		public ushort Length { get => length; }
@@ -203,6 +204,7 @@ namespace I2C_Monitor_Module
         public ushort LogOrder { get => log_order; }
 		public int Low { get; set; }
 		public int High { get; set; }
+        public bool Literal { get => literal; }
 
 		private void parse_log(string v)
 		{
@@ -212,6 +214,10 @@ namespace I2C_Monitor_Module
 		private void parse_formula(string v)
 		{
 			formula = v.Substring(v.IndexOf('('), v.Length - v.IndexOf('('));
+            if (formula == "ReadValue" || formula == "(ReadValue)")
+                literal = true;
+            else
+                literal = false;
 		}
 
 		private void parse_length(string v)
