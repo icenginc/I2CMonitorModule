@@ -324,12 +324,14 @@ namespace I2C_Monitor_Module
                     var tab_page = tabControl_boards.TabPages[index];
                     for (int j = 0; j < iface.current_job.Sites; j++)//go through sites
                     {
-                        var label = tab_page.Controls[monitor_map(j)-1]; //this is the label to update
+                        colorLabel label = (colorLabel)tab_page.Controls[monitor_map(j)-1]; //this is the label to update
                         if (board_list[i][j]) //if the DUT is valid
                         {
                             this.Invoke(new MethodInvoker(delegate ()
                             {
-                                label.Text = iface.current_job.board_log[i][j].Text; //update label
+                                label.newText = iface.current_job.board_log[i][j].Text; //update label
+                                label.Text = "";
+                                label.Refresh();
                             }));
                         }//check if dut va lid
                     }//iterate through duts
@@ -387,7 +389,6 @@ namespace I2C_Monitor_Module
                 calculate_avg(board);
                 calculate_range(board);
             }
-
         }
 
         private void assign_depth(int length)

@@ -120,13 +120,14 @@ namespace I2C_Monitor_Module
 				for (int j = 0; j < iface.current_job.Bibx; j++) //row
 				{
 					//build the DUT thing in here
-					Label label = new Label();
-					label.Text = "S" + ((i * iface.current_job.Bibx) + j + 1);//iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
+					colorLabel label = new colorLabel();
+					label.newText = "S" + ((i * iface.current_job.Bibx) + j + 1);//iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
+                    label.Text = "";
 					label.TextAlign = ContentAlignment.TopCenter;
 					label.Location = new Point(j * width, (i * height) + 1); //calculated height based on loop position
 					label.BorderStyle = BorderStyle.Fixed3D;
 					label.Size = new Size(width - 3, height - 2);
-
+                    label.Refresh();
 					page.Controls.Add(label); //add the label
 
 					//label.Anchor = ((AnchorStyles.Top | AnchorStyles.Left));// | AnchorStyles.Right | AnchorStyles.Left);
