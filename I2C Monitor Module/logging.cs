@@ -86,11 +86,16 @@ namespace I2C_Monitor_Module
                                     line += ",";
                                 else
                                 {
-                                    string temp = data[j].registers[i];
-                                    string line_item = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
-                                    if (iface.current_job.board_retries[slot_num][j][i] > 3)
-                                        line_item = "0"; //if it has failed, then record 0's
-                                    line += (line_item + ","); //access data of the site, and the addresses in order //access data of the site, and the addresses in order
+                                    try
+                                    {
+                                        string temp = data[j].registers[i];
+                                        string line_item = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
+                                        if (iface.current_job.board_retries[slot_num][j][i] > 5)
+                                            line_item = "0"; //if it has failed, then record 0's
+                                        line += (line_item + ","); //access data of the site, and the addresses in order //access data of the site, and the addresses in order
+                                    }
+                                    catch
+                                    { Console.WriteLine("Logging failed. trying again next interval"); }
                                 }
                             }
                         } //dont do the ones that only should happen once

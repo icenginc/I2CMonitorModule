@@ -251,6 +251,7 @@ namespace I2C_Monitor_Module
 
         private void Header_worker_DoWork(object sender, DoWorkEventArgs e)
         {
+			System.Threading.Thread.Sleep(500); //delay to make dataset more reliable
             Console.WriteLine("Writing header for job");
 
             string slot = e.Argument.ToString();

@@ -207,7 +207,7 @@ namespace I2C_Monitor_Module
 
 
 
-                            if (result != "" && result != "FFFF" && iface.current_job.board_retries[i][j][k] < 4) //if normal
+                            if (result != "" && result != "FFFF" && iface.current_job.board_retries[i][j][k] < 6) //if normal
                             {
                                 dut.registers[k] = (address.Name + ": " + result);
                                 iface.current_job.board_retries[i][j][k] = 0;
@@ -216,7 +216,7 @@ namespace I2C_Monitor_Module
                             {
                                 dut.registers[k] = "";
                             }
-                            else if (old_dut != null && iface.current_job.board_retries[i][j][k] < 4)
+                            else if (old_dut != null && iface.current_job.board_retries[i][j][k] < 6)
                             {
                                 dut.registers[k] = old_dut.registers[k]; //use the old one if bad data
                                 iface.current_job.board_retries[i][j][k]++;
@@ -237,6 +237,8 @@ namespace I2C_Monitor_Module
                             {
                                 read_fails[k]++;
                                 Console.WriteLine("Timeout");
+                                if (read_fails[k] > 5)
+                                    Console.WriteLine("Removed " + k + " from dataset");
                                 dut.registers[k] = "";
                             } //if we timeout, then go to the next one but keep track of the fail
                             else

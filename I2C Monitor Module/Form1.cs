@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace I2C_Monitor_Module
 {
     public partial class InSituMonitoringModule : Form
     {
+        Form2 selection; //save this
         public static TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
         string config_path = "C://InSituMonitorModule//";
         FileInfo config_file;
@@ -106,7 +108,7 @@ namespace I2C_Monitor_Module
 
             if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to continue
             {
-                Form2 selection = new Form2(iface.current_job.board_list, iface.current_job.device_adds);
+                selection = new Form2(iface.current_job.board_list, iface.current_job.device_adds);
                 selection.ShowDialog();
 
                 for (int i = 0; i < iface.current_job.board_names.Length; i++)
@@ -125,7 +127,7 @@ namespace I2C_Monitor_Module
 
             button_select.Visible = false; //hide after starting, should only be able to resume
         }
-
+		
         private void button1_Click(object sender, EventArgs e)
         {
             if (iface.current_aardvark.ID != 0 && iface.current_aardvark.Port != 999) //making sure we have set the current aardvark first
@@ -170,8 +172,33 @@ namespace I2C_Monitor_Module
 
         private void button_reset_Click(object sender, EventArgs e)
         {
-            loop = false;
-            /*
+			//reset these
+			loop = false; //to stop or esume the measuremetns
+			select = false; //this determines if everything was loaded correctly and can continue to operation
+			run_lock = false;
+			first_log = Enumerable.Repeat<bool>(true, 16).ToArray();
+			System.Threading.Thread.Sleep(250);
+
+			iface.current_aardvark = new Aardvark(); //placeholder
+			iface.current_beagle = new Beagle(); //placeholder
+			iface.current_job = null; //clear it out			
+			iface = new TotalPhase();
+
+			textBox_data.Text = "";
+			textBox_job.Text = "";
+			textBox_lot.Text = "";
+			textBox_system.Text = "";
+			listBox_active = new ListBox();
+			comboBox_aardvark = new ComboBox();
+			comboBox_beagle = new ComboBox();
+			button_stop.Visible = false;
+			button_i2cmonitor.Visible = false; //resume
+			button_select.Visible = true; //start
+			checkBox_debug.Checked = false;
+			numericUpDown_values.Value = 0;
+
+
+			/*
 			if (select)
 			{
 				iface.current_beagle.reset_beagle();
@@ -179,7 +206,7 @@ namespace I2C_Monitor_Module
 			else //if valid beagle/aardvark combo not selected
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");
 				*/
-            log_data();
+			log_data();
         }
 
         private void button_stop_Click(object sender, EventArgs e)
@@ -199,6 +226,52 @@ namespace I2C_Monitor_Module
         private void tabControl_boards_Resize(object sender, EventArgs e)
         {
             resize_pages();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            loop = false;
+            Environment.Exit(0);
+        }
+
+        private void logDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string log_directory;
+            if (select)
+                log_directory = (iface.current_job.LogFilePath);
+            else
+            {
+                log_directory = "C://InSituMonitorModule//ReadLogs//";
+                MessageBox.Show("No config file loaded, opening default path");                
+            }
+            log_directory = "/C start " + log_directory;
+
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.CreateNoWindow = true;
+            info.UseShellExecute = false;
+            info.FileName = "CMD.exe";
+            info.Arguments = log_directory;
+
+            Process.Start(info);
+        }
+
+        private void configDirectoryToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string config_directory = "/C start " + config_path;
+
+            ProcessStartInfo info = new ProcessStartInfo();
+            info.CreateNoWindow = true;
+            info.UseShellExecute = false;
+            info.FileName = "CMD.exe";
+            info.Arguments = config_directory;
+
+            Process.Start(info);
+        }
+
+        private void userParametersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Form3 user_config = new Form3(selection);
+            user_config.Show();
         }
     }
 

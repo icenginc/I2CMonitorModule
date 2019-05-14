@@ -216,8 +216,8 @@
 
 		#endregion
 
-		private System.Windows.Forms.DataGridView dataGridView1;
-		private System.Windows.Forms.DataGridView dataGridView2;
+		public System.Windows.Forms.DataGridView dataGridView1;
+        public System.Windows.Forms.DataGridView dataGridView2;
 		private System.Windows.Forms.DataGridViewTextBoxColumn baord;
 		private System.Windows.Forms.DataGridViewTextBoxColumn bib_num;
 		private System.Windows.Forms.Button button_ok;

@@ -13,12 +13,18 @@ namespace I2C_Monitor_Module
 {
 	public partial class Form2 : Form
 	{
+        public Form2()
+        { }
+
 		public Form2(bool[][] input, List<device> addresses)
 		{
 			InitializeComponent();
 			this.Text = "Enter Parameters";
-			generate_boards(input);
-			generate_addresses(addresses);
+            this.input = input;
+            this.addresses = addresses;
+
+			generate_boards(input, dataGridView1);
+			generate_addresses(addresses, dataGridView2);
 
 			if ((dataGridView1.Rows.Count * dataGridView1.Rows[0].Height) > dataGridView1.Height)
 				dataGridView1.Width += 17; //make the control wider to fit the scrollbar
@@ -27,8 +33,10 @@ namespace I2C_Monitor_Module
 		}
 
 		bool[] board_list = new bool[16];
+        public bool[][] input;
+        public List<device> addresses;
 
-		private void generate_boards(bool[][] board_list)
+        protected void generate_boards(bool[][] board_list, DataGridView grid)
 		{
 			for (int i = 0; i < board_list.Length; i++)
 			{
@@ -36,65 +44,68 @@ namespace I2C_Monitor_Module
 
 				if (board_map != null && board_map.Contains(true)) //if it contains a true then add that board
 				{
-					dataGridView1.Rows.Add(new object[] { (i + 1).ToString() });
+					grid.Rows.Add(new object[] { (i + 1).ToString() });
 				}//if the board is valid
 			}
 		}
 
-		private void generate_addresses(List<device> addresses)
+		protected void generate_addresses(List<device> addresses, DataGridView grid)
 		{
 			foreach (device s in addresses)
-				dataGridView2.Rows.Add(new object[] { s.Name + " (" + s.Address[0].ToString("X") + s.Address[1].ToString("X")+")" });
+				grid.Rows.Add(new object[] { s.Name + " (" + s.Address[0].ToString("X") + s.Address[1].ToString("X")+")" });
 		}
 
 		private void button_ok_Click(object sender, EventArgs e)
 		{
-			for (int i = 0; i < dataGridView1.Rows.Count-1; i++)
-			{
+            update_values(dataGridView1, dataGridView2);
+            this.Close();
+        }
 
-                if (dataGridView1.Rows[i].Cells[1].Value != null)
+        public void update_values(DataGridView grid1, DataGridView grid2)
+        {
+            for (int i = 0; i < grid1.Rows.Count - 1; i++)
+            {
+                int index = InSituMonitoringModule.iface.current_job.tab_page_map[i];
+
+                if (grid1.Rows[i].Cells[1].Value != null && grid1.Rows[i].Cells[1].Value.ToString() != ("Board " + (index + 1)))  //if valid
                 {
-                    string name = dataGridView1.Rows[i].Cells[1].Value.ToString();
-                    int index = InSituMonitoringModule.iface.current_job.tab_page_map[i];
-                    InSituMonitoringModule.iface.current_job.board_names[index] = (index+1) + "_" + name.ToUpper();
+                    string name = grid1.Rows[i].Cells[1].Value.ToString();
+                    InSituMonitoringModule.iface.current_job.board_names[index] = (index + 1) + "_" + name.ToUpper();
                 }
-                else
+                else if (InSituMonitoringModule.iface.current_job.board_names[index] == null) //if empty (unset)
                 {
-                    string name = dataGridView1.Rows[i].Cells[0].Value.ToString();
-                    int index = InSituMonitoringModule.iface.current_job.tab_page_map[i];
+                    string name = grid1.Rows[i].Cells[0].Value.ToString();
                     InSituMonitoringModule.iface.current_job.board_names[index] = ("Board " + (index + 1));
                 }
-			}
+            }
 
-			for (int i = 0; i < dataGridView2.Rows.Count -1; i++)
-				try
-				{
-					if (dataGridView2.Rows[i].Cells[1].Value != null)
-					{
-						string low = dataGridView2.Rows[i].Cells[1].Value.ToString();
-						InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.Parse(low);
-					}
-					else
-						InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue; //if blank
+            for (int i = 0; i < grid2.Rows.Count - 1; i++)
+                try
+                {
+                    if (grid2.Rows[i].Cells[1].Value != null)  //if valid
+                    {
+                        string low = grid2.Rows[i].Cells[1].Value.ToString();
+                        InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.Parse(low);
+                    }
+                    else if(InSituMonitoringModule.iface.current_job.device_adds[i].Low > Int32.MinValue) //if blank - check if filled already
+                        InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue; //if blank
 
-					if (dataGridView2.Rows[i].Cells[2].Value != null)
-					{
-						string high = dataGridView2.Rows[i].Cells[2].Value.ToString();
-						InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.Parse(high);
-					}
-					else
-						InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue; //if blank
+                    if (grid2.Rows[i].Cells[2].Value != null)
+                    {
+                        string high = grid2.Rows[i].Cells[2].Value.ToString();
+                        InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.Parse(high);
+                    }
+                    else if (InSituMonitoringModule.iface.current_job.device_adds[i].High < Int32.MaxValue) //if blank - check if filld already
+                        InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue; //if blank
 
-				}
-				catch
-				{
-					MessageBox.Show("Invalid value entered for hi/lo on address for " + InSituMonitoringModule.iface.current_job.device_adds[i].Name);
-					InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue;
-					InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue;
-				}
-
-            this.Close();
-		}
+                }
+                catch
+                {
+                    MessageBox.Show("Invalid value entered for hi/lo on address for " + InSituMonitoringModule.iface.current_job.device_adds[i].Name);
+                    InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue;
+                    InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue;
+                }
+        }
 
 		private void button_cancel_Click(object sender, EventArgs e)
 		{
