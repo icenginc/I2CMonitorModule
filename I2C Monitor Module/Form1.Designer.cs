@@ -567,7 +567,7 @@
 		private System.Windows.Forms.Button button_reset;
 		public System.Windows.Forms.TextBox textBox_data;
 		private System.Windows.Forms.Button button_stop;
-		private System.Windows.Forms.ComboBox comboBox_config;
+		public System.Windows.Forms.ComboBox comboBox_config;
 		private System.Windows.Forms.Label label4;
 		private System.Windows.Forms.Label label3;
 		private System.Windows.Forms.Label label5;

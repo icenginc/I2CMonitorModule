@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Collections;
 using System.ComponentModel;
@@ -8,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.WindowsAPICodePack.Dialogs;
+
 
 namespace I2C_Monitor_Module
 {
@@ -52,17 +55,70 @@ namespace I2C_Monitor_Module
                 if (high < Int32.MaxValue)
                     dataGridView2.Rows[i].Cells[2].Value = InSituMonitoringModule.iface.current_job.device_adds[i].High;
             }
+
+            textBox_config.Text = InSituMonitoringModule.config_path.Replace("//", "/");
+            try
+            {
+                textBox_log.Text = InSituMonitoringModule.iface.current_job.LogFilePath.Replace("//", "/");
+            }
+            catch
+            {
+                Console.WriteLine("Log file path not yet set");
+            }
+        }
+
+        private void update_paths()
+        {
+            DirectoryInfo directory = new DirectoryInfo(textBox_log.Text.Replace("/", "//"));
+            if (directory.Exists)
+                InSituMonitoringModule.iface.current_job.LogFilePath = directory.FullName;
+
+            directory = new DirectoryInfo(textBox_config.Text.Replace("/", "//"));
+            if (directory.Exists)
+            {
+                InSituMonitoringModule.config_path = textBox_config.Text;
+            } //figure out how to reflect this into use
+           
         }
 
         private void button_update_Click(object sender, EventArgs e)
         {
             update_values(dataGridView1, dataGridView2); //should update and save in Form1
+            update_paths();
             this.Close();
         }
 
         private void button_cancel_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void button_config_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                    textBox_config.Text = dialog.FileName;
+            }
+            catch
+            {
+                MessageBox.Show("Error in file select");
+            }
+        }
+
+        private void button_log_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                    textBox_log.Text = dialog.FileName;
+            }
+            catch
+            {
+                MessageBox.Show("Error in file select");
+            }
         }
     }
 }

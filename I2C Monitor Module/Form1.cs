@@ -17,7 +17,7 @@ namespace I2C_Monitor_Module
     {
         Form2 selection; //save this
         public static TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
-        string config_path = "C://InSituMonitorModule//";
+        public static string config_path = "C://InSituMonitorModule//";
         FileInfo config_file;
 
         public string system { get; set; }

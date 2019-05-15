@@ -10,8 +10,7 @@ namespace I2C_Monitor_Module
 {
     public partial class InSituMonitoringModule : Form
 	{
-
-		private void load_config()
+		public void load_config()
 		{
 			try
 			{
@@ -225,7 +224,7 @@ namespace I2C_Monitor_Module
         {
             string filename = iface.current_job.LogFileName.Replace("\"", string.Empty);
             string datetime = DateTime.Now.ToString("MM.dd.yy-HH.mm.ss");
-            string log_path = iface.current_job.LogFilePath + system + "_" + lot + "_" + job + "\\";
+            string log_path = iface.current_job.LogFilePath + system + "_" + lot + "_" + job + "//";
             if (system != "")
                 filename = filename.Replace("System", system);
             if (lot != "")

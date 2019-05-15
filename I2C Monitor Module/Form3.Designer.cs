@@ -49,6 +49,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textBox_config = new System.Windows.Forms.TextBox();
             this.textBox_log = new System.Windows.Forms.TextBox();
+            this.button_config = new System.Windows.Forms.Button();
+            this.button_log = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             this.SuspendLayout();
@@ -220,21 +222,43 @@
             // 
             this.textBox_config.Location = new System.Drawing.Point(101, 186);
             this.textBox_config.Name = "textBox_config";
-            this.textBox_config.Size = new System.Drawing.Size(282, 20);
+            this.textBox_config.Size = new System.Drawing.Size(257, 20);
             this.textBox_config.TabIndex = 13;
             // 
             // textBox_log
             // 
             this.textBox_log.Location = new System.Drawing.Point(101, 206);
             this.textBox_log.Name = "textBox_log";
-            this.textBox_log.Size = new System.Drawing.Size(282, 20);
+            this.textBox_log.Size = new System.Drawing.Size(257, 20);
             this.textBox_log.TabIndex = 14;
+            // 
+            // button_config
+            // 
+            this.button_config.Location = new System.Drawing.Point(359, 185);
+            this.button_config.Name = "button_config";
+            this.button_config.Size = new System.Drawing.Size(24, 21);
+            this.button_config.TabIndex = 18;
+            this.button_config.Text = "...";
+            this.button_config.UseVisualStyleBackColor = true;
+            this.button_config.Click += new System.EventHandler(this.button_config_Click);
+            // 
+            // button_log
+            // 
+            this.button_log.Location = new System.Drawing.Point(359, 206);
+            this.button_log.Name = "button_log";
+            this.button_log.Size = new System.Drawing.Size(24, 21);
+            this.button_log.TabIndex = 19;
+            this.button_log.Text = "...";
+            this.button_log.UseVisualStyleBackColor = true;
+            this.button_log.Click += new System.EventHandler(this.button_log_Click);
             // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(406, 264);
+            this.Controls.Add(this.button_log);
+            this.Controls.Add(this.button_config);
             this.Controls.Add(this.textBox_log);
             this.Controls.Add(this.textBox_config);
             this.Controls.Add(this.label4);
@@ -246,7 +270,7 @@
             this.Controls.Add(this.dataGridView2);
             this.Controls.Add(this.dataGridView1);
             this.Name = "Form3";
-            this.Text = "Form3";
+            this.Text = "V";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             this.ResumeLayout(false);
@@ -270,5 +294,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBox_config;
         private System.Windows.Forms.TextBox textBox_log;
+        private System.Windows.Forms.Button button_config;
+        private System.Windows.Forms.Button button_log;
     }
 }
