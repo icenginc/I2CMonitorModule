@@ -25,7 +25,7 @@ namespace I2C_Monitor_Module
         public string job { get; set; }
 
         bool loop = false; //to stop or esume the measuremetns
-        bool select = false; //this determines if everything was loaded correctly and can continue to operation
+        public bool select = false; //this determines if everything was loaded correctly and can continue to operation
         bool run_lock = false;
         bool[] first_log = Enumerable.Repeat<bool>(true, 16).ToArray();
 
@@ -42,20 +42,29 @@ namespace I2C_Monitor_Module
 
         private void button_scan_Click(object sender, EventArgs e)
         {
-            iface.find_device(); //button to do this, then display devices
+            if (select)
+                MessageBox.Show("Beagle/Aardvark already selected");
+            else
+            {
+                iface.find_device(); //button to do this, then display devices
 
-            var aardvark_ids = iface.aardvarks.Select(a => a.ID.ToString()).ToArray();
-            var beagle_ids = iface.beagles.Select(a => a.ID.ToString()).ToArray();
+                var aardvark_ids = iface.aardvarks.Select(a => a.ID.ToString()).ToArray();
+                var beagle_ids = iface.beagles.Select(a => a.ID.ToString()).ToArray();
 
-            comboBox_aardvark.Items.AddRange(aardvark_ids);
-            comboBox_beagle.Items.AddRange(beagle_ids);
+                comboBox_aardvark.Items.Clear();
+                comboBox_beagle.Items.Clear();
+                listBox_active.Items.Clear();
 
-            listBox_active.Items.AddRange(aardvark_ids);
-            listBox_active.Items.AddRange(beagle_ids);
-            listBox_active.SelectionMode = SelectionMode.MultiExtended;
+                comboBox_aardvark.Items.AddRange(aardvark_ids);
+                comboBox_beagle.Items.AddRange(beagle_ids);
+
+                listBox_active.Items.AddRange(aardvark_ids);
+                listBox_active.Items.AddRange(beagle_ids);
+                listBox_active.SelectionMode = SelectionMode.MultiExtended;
+            }
         }
 
-        private void button_select_Click(object sender, EventArgs e)
+        private void button_select_Click(object sender, EventArgs e)  //start
         {
             select = true;
 
@@ -66,7 +75,10 @@ namespace I2C_Monitor_Module
             foreach (Aardvark a in iface.aardvarks)
             {
                 if (a.ID.ToString() == (string)comboBox_aardvark.SelectedItem)
+                {
                     iface.current_aardvark = a;
+                    iface.current_aardvark.setup_aardvark();
+                }
                 else
                     select = false;
             }
@@ -74,7 +86,10 @@ namespace I2C_Monitor_Module
             foreach (Beagle b in iface.beagles)
             {
                 if (b.ID.ToString() == (string)comboBox_beagle.SelectedItem)
+                {
                     iface.current_beagle = b;
+                    iface.current_beagle.setup_beagle();
+                }
                 else
                     select = false;
             } //set the beagle and aardvark if it matches the combobox
@@ -206,7 +221,7 @@ namespace I2C_Monitor_Module
 			else //if valid beagle/aardvark combo not selected
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");
 				*/
-			log_data();
+			//log_data();
         }
 
         private void button_stop_Click(object sender, EventArgs e)
@@ -271,7 +286,18 @@ namespace I2C_Monitor_Module
         private void userParametersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Form3 user_config = new Form3(selection);
-            user_config.Show();
+            user_config.ShowDialog();
+            if (iface.current_job != null) //only works if loaded
+            {
+                for (int i = 0; i < iface.current_job.board_names.Length; i++)
+                {
+                    int index = iface.current_job.tab_page_map.IndexOf(i);
+                    if (index < 0)
+                        continue; //if not found (no page exists with that mapping)
+                    if (iface.current_job.board_names[i] != null && tabControl_boards.TabPages.Count > 0)
+                        tabControl_boards.TabPages[index].Text = iface.current_job.board_names[i];
+                }
+            }
         }
     }
 

@@ -47,12 +47,12 @@ namespace I2C_Monitor_Module
 
             for (int i = 0; i < dataGridView2.Rows.Count -1; i++)
             {
-                int low = InSituMonitoringModule.iface.current_job.device_adds[i].Low;
-                int high = InSituMonitoringModule.iface.current_job.device_adds[i].High;
+                float low = InSituMonitoringModule.iface.current_job.device_adds[i].Low;
+                float high = InSituMonitoringModule.iface.current_job.device_adds[i].High;
 
-                if (low > Int32.MinValue)
+                if (low > float.MinValue)
                     dataGridView2.Rows[i].Cells[1].Value = InSituMonitoringModule.iface.current_job.device_adds[i].Low;
-                if (high < Int32.MaxValue)
+                if (high < float.MaxValue)
                     dataGridView2.Rows[i].Cells[2].Value = InSituMonitoringModule.iface.current_job.device_adds[i].High;
             }
 
@@ -95,29 +95,42 @@ namespace I2C_Monitor_Module
 
         private void button_config_Click(object sender, EventArgs e)
         {
-            try
+            if (InSituMonitoringModule.iface.current_job != null)
+                MessageBox.Show("Cannot change file path after configuration is loaded");
+            else
             {
-                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    textBox_config.Text = dialog.FileName;
-            }
-            catch
-            {
-                MessageBox.Show("Error in file select");
+
+                try
+                {
+                    CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                    dialog.IsFolderPicker = true;
+                    if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                        textBox_config.Text = dialog.FileName;
+                }
+                catch
+                {
+                    MessageBox.Show("Error in file select");
+                }
             }
         }
 
         private void button_log_Click(object sender, EventArgs e)
         {
-            try
+            if (InSituMonitoringModule.iface.current_job != null)
+                MessageBox.Show("Cannot change file path after configuration is loaded");
+            else
             {
-                CommonOpenFileDialog dialog = new CommonOpenFileDialog();
-                if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-                    textBox_log.Text = dialog.FileName;
-            }
-            catch
-            {
-                MessageBox.Show("Error in file select");
+                try
+                {
+                    CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+                    dialog.IsFolderPicker = true;
+                    if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+                        textBox_log.Text = dialog.FileName;
+                }
+                catch
+                {
+                    MessageBox.Show("Error in file select");
+                }
             }
         }
     }

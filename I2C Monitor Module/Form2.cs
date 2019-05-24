@@ -85,25 +85,25 @@ namespace I2C_Monitor_Module
                     if (grid2.Rows[i].Cells[1].Value != null)  //if valid
                     {
                         string low = grid2.Rows[i].Cells[1].Value.ToString();
-                        InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.Parse(low);
+                        InSituMonitoringModule.iface.current_job.device_adds[i].Low = float.Parse(low);
                     }
-                    else if(InSituMonitoringModule.iface.current_job.device_adds[i].Low > Int32.MinValue) //if blank - check if filled already
-                        InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue; //if blank
+                    else if(InSituMonitoringModule.iface.current_job.device_adds[i].Low > float.MinValue) //if blank - check if filled already
+                        InSituMonitoringModule.iface.current_job.device_adds[i].Low = float.MinValue; //if blank
 
                     if (grid2.Rows[i].Cells[2].Value != null)
                     {
                         string high = grid2.Rows[i].Cells[2].Value.ToString();
-                        InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.Parse(high);
+                        InSituMonitoringModule.iface.current_job.device_adds[i].High = float.Parse(high);
                     }
-                    else if (InSituMonitoringModule.iface.current_job.device_adds[i].High < Int32.MaxValue) //if blank - check if filld already
-                        InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue; //if blank
+                    else if (InSituMonitoringModule.iface.current_job.device_adds[i].High < float.MaxValue) //if blank - check if filld already
+                        InSituMonitoringModule.iface.current_job.device_adds[i].High = float.MaxValue; //if blank
 
                 }
                 catch
                 {
                     MessageBox.Show("Invalid value entered for hi/lo on address for " + InSituMonitoringModule.iface.current_job.device_adds[i].Name);
-                    InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue;
-                    InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue;
+                    InSituMonitoringModule.iface.current_job.device_adds[i].Low = float.MinValue;
+                    InSituMonitoringModule.iface.current_job.device_adds[i].High = float.MaxValue;
                 }
         }
 
@@ -115,8 +115,8 @@ namespace I2C_Monitor_Module
 				InSituMonitoringModule.iface.current_job.board_names[i] = ("Board " + (i + 1));
 			for (int i = 0; i < dataGridView2.Rows.Count - 1; i++)
 			{
-				InSituMonitoringModule.iface.current_job.device_adds[i].Low = Int32.MinValue;
-				InSituMonitoringModule.iface.current_job.device_adds[i].High = Int32.MaxValue;
+				InSituMonitoringModule.iface.current_job.device_adds[i].Low = float.MinValue;
+				InSituMonitoringModule.iface.current_job.device_adds[i].High = float.MaxValue;
 			}
 		}
 	}

@@ -202,8 +202,8 @@ namespace I2C_Monitor_Module
         public string Forumla { get => formula; }
         public string Name { get => name; }
         public ushort LogOrder { get => log_order; }
-		public int Low { get; set; }
-		public int High { get; set; }
+		public float Low { get; set; }
+		public float High { get; set; }
         public bool Literal { get => literal; }
 
 		private void parse_log(string v)

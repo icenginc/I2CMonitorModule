@@ -28,14 +28,14 @@ namespace I2C_Monitor_Module
 				if (aa_num > 0)
 				{
 					for (int i = 0; i < device_num; i++)
-						if (ports[i] != 9999)
+						if (ports[i] != 9999 && !check_aardvark(ids[i])) //check if not there already
 							aardvarks.Add(new Aardvark(ports[i], ids[i]));
 				}
 				int bg_num = BeagleApi.bg_find_devices_ext(device_num, ports, device_num, ids);
 				if (bg_num > 0)
 				{
-					for (int i = 0; i < device_num; i++)
-						if (ports[i] != 9999)
+                    for (int i = 0; i < device_num; i++)
+                        if (ports[i] != 9999 && !check_beagle(ids[i]))
 							beagles.Add(new Beagle(ports[i], ids[i]));
 				}
 			}
@@ -44,34 +44,54 @@ namespace I2C_Monitor_Module
 				MessageBox.Show("Application must target 64 bit");
 			}
 		}
-	}
 
-	public class Aardvark
-	{
-		public Aardvark()
-		{
-			port = 999;
-		} //for blank one
+        private bool check_aardvark(uint id)
+        {
+            foreach (Aardvark aardvark in aardvarks)
+                if (aardvark.ID == id)
+                    return true;
+            return false;
+        }
 
-		public Aardvark(ushort port, uint id)
-		{
-			this.port = port;
-			this.id = id;
-			open_handle();
-			setup_i2c();
-		} //for building a new one
+        private bool check_beagle(uint id)
+        {
+            foreach (Beagle beagle in beagles)
+                if (beagle.ID == id)
+                    return true;
+            return false;
+        }
+    }
 
-		ushort port;
-		uint id;
-		int handle;
-		int bitrate = 100;
-		int bus_timeout;
-		public const int BUS_TIMEOUT = 150;  // ms
+    public class Aardvark
+    {
+        public Aardvark()
+        {
+            port = 999;
+        } //for blank one
 
-		public ushort Port { get { return port; } }
-		public uint ID { get { return id; } }
+        public Aardvark(ushort port, uint id)
+        {
+            this.port = port;
+            this.id = id;
+        } //for building a new one
 
-		public int i2c_write(ushort slave_addr, ushort num_bytes, byte[] data_out)
+        ushort port;
+        uint id;
+        int handle;
+        int bitrate = 100;
+        int bus_timeout;
+        public const int BUS_TIMEOUT = 150;  // ms
+
+        public ushort Port { get { return port; } }
+        public uint ID { get { return id; } }
+
+        public void setup_aardvark()
+        {
+            open_handle();
+            setup_i2c();
+        }
+
+        public int i2c_write(ushort slave_addr, ushort num_bytes, byte[] data_out)
 		{
 			var result = AardvarkApi.aa_i2c_write(handle, slave_addr, AardvarkI2cFlags.AA_I2C_NO_FLAGS, num_bytes, data_out);
 
@@ -126,7 +146,7 @@ namespace I2C_Monitor_Module
 			bus_timeout = AardvarkApi.aa_i2c_bus_timeout(handle, BUS_TIMEOUT);
 			Console.WriteLine("Bus lock timeout set to {0} ms", bus_timeout);
 		}
-	}
+    }
 
 	public class Beagle
 	{
@@ -138,8 +158,6 @@ namespace I2C_Monitor_Module
 		{
 			this.port = port;
 			this.id = id;
-			open_handle();
-			setup_i2c();
 		}
 
 		const int max_bytes = 3;  //6 for SHT31
@@ -160,7 +178,13 @@ namespace I2C_Monitor_Module
 		public ushort[] Data { get { return data_in; } }
 		public int Buffer_Free{ get { return buffer_available; }	}
 
-		public void reset_beagle()
+        public void setup_beagle()
+        {
+            open_handle();
+            setup_i2c();
+        }
+
+        public void reset_beagle()
 		{
 			BeagleApi.bg_disable(handle);
 			System.Threading.Thread.Sleep(250);
