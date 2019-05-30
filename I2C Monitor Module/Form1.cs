@@ -25,6 +25,7 @@ namespace I2C_Monitor_Module
         public string job { get; set; }
 
         bool loop = false; //to stop or esume the measuremetns
+        bool delay = false; //if the vector stops, this makes us go into 'slow' mode
         public bool select = false; //this determines if everything was loaded correctly and can continue to operation
         bool run_lock = false;
         bool[] first_log = Enumerable.Repeat<bool>(true, 16).ToArray();
@@ -37,6 +38,7 @@ namespace I2C_Monitor_Module
             InitializeComponent();
             this.Text = "InSitu Monitor Module";
             load_config();
+            tooltips();
             button_scan_Click(this, new EventArgs());
         }
 
@@ -71,6 +73,9 @@ namespace I2C_Monitor_Module
             this.job = textBox_job.Text;
             this.lot = textBox_lot.Text;
             this.system = textBox_system.Text;
+
+            if (job == "" && lot == "" && system == "" && !checkBox_debug.Checked)
+                MessageBox.Show("Job/Lot number and system name not entered!");
 
             foreach (Aardvark a in iface.aardvarks)
             {
@@ -143,6 +148,16 @@ namespace I2C_Monitor_Module
             button_select.Visible = false; //hide after starting, should only be able to resume
         }
 		
+        private void tooltips()
+        {
+            toolTip_scan.SetToolTip(button_scan, "Scan for new Beagle/Aardvarks. Use after resetting.");
+            toolTip_start.SetToolTip(button_select, "Begin data collection. Select config file and Beagle/Aardvark first.");
+            ToolTip job = new ToolTip(); ToolTip lot = new ToolTip(); ToolTip system = new ToolTip();  //define tooltips
+            lot.SetToolTip(textBox_lot, "Enter lot number before starting");
+            job.SetToolTip(textBox_job, "Enter job number before starting");
+            system.SetToolTip(textBox_system, "Enter system name before starting");
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             if (iface.current_aardvark.ID != 0 && iface.current_aardvark.Port != 999) //making sure we have set the current aardvark first
@@ -199,13 +214,14 @@ namespace I2C_Monitor_Module
 			iface.current_job = null; //clear it out			
 			iface = new TotalPhase();
 
-			textBox_data.Text = "";
+
+            comboBox_aardvark.Items.Clear();
+            comboBox_beagle.Items.Clear();
+            listBox_active.Items.Clear();
+            textBox_data.Text = "";
 			textBox_job.Text = "";
 			textBox_lot.Text = "";
-			textBox_system.Text = "";
-			listBox_active = new ListBox();
-			comboBox_aardvark = new ComboBox();
-			comboBox_beagle = new ComboBox();
+			textBox_system.Text = "";			
 			button_stop.Visible = false;
 			button_i2cmonitor.Visible = false; //resume
 			button_select.Visible = true; //start
@@ -326,7 +342,7 @@ namespace I2C_Monitor_Module
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            if (this.newText != "")
+            if (this.newText != "" && InSituMonitoringModule.iface.current_job != null) //if stop condition dont keep going
             {
                 var split = this.newText.Split('\n');
                 for (int i = 0; i < InSituMonitoringModule.iface.current_job.device_adds.Count + 1; i++) //-2 for the first "DUT#" and last blank
@@ -335,7 +351,7 @@ namespace I2C_Monitor_Module
                     if (i == 0)
                     {
                         e.Graphics.DrawString(split[i], this.Font, color, 1, 13 * i);
-                    }
+                    } //dont color if dut label
                     else
                     { 
                         var address = InSituMonitoringModule.iface.current_job.device_adds[i - 1];
@@ -355,7 +371,7 @@ namespace I2C_Monitor_Module
                             this.TextAlign = ContentAlignment.TopLeft;
                             e.Graphics.DrawString(split[i], this.Font, color, 1, 13 * i);
                         }
-                    }
+                    } //register entries
                 }
             }
         }

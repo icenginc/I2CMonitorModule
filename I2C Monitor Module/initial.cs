@@ -85,7 +85,12 @@ namespace I2C_Monitor_Module
 
 			Console.WriteLine("Buildt pages - populating now..");
 			
-			if (iface.current_job != null)
+            if(tabControl_boards.TabPages.Count == 0)
+            {
+                MessageBox.Show("No boards found!");
+                return false;
+            }
+			else if (iface.current_job != null)
 			{
 				foreach (TabPage page in tabControl_boards.TabPages) //now build after scanning
 					build_page(page); //if the job is loaded, fill the GUI with board dimensions

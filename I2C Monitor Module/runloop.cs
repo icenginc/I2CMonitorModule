@@ -30,7 +30,7 @@ namespace I2C_Monitor_Module
 			while (!iface.current_job.Scanned)
 				System.Threading.Thread.Sleep(100); //stay her euntil scanned
 			Stopwatch log_timer = new Stopwatch();
-			while (iface.current_job.Scanned) //will lock out during initial scan (dont want to populate all DUTs yet)
+			while (iface.current_job != null && iface.current_job.Scanned) //will lock out during initial scan (dont want to populate all DUTs yet) (also watches for clear)
 			{            
                 if(!loop)
                 {
@@ -46,7 +46,9 @@ namespace I2C_Monitor_Module
                         {
                             this.Invoke(new MethodInvoker(delegate ()
                             {
-                                if (iface.current_job.board_names[i] == "")
+                                if (delay)
+                                    textBox_data.AppendText("Detected stop condition, entering slow-scan mode" + Environment.NewLine);
+                                else if (iface.current_job.board_names[i] == "")
                                     iface.current_job.board_names[i] = "Board " + (i + 1);
                                 textBox_data.AppendText("Collecting data on " + iface.current_job.board_names[i] + Environment.NewLine);
                             }));
@@ -58,7 +60,7 @@ namespace I2C_Monitor_Module
                     }
                 }
                 calculate_values(); //calculate by adding this data set as well
-                if (log_timer.ElapsedMilliseconds / 60000 > iface.current_job.LogInterval || !log_timer.IsRunning) //ms to min
+                if (((log_timer.ElapsedMilliseconds / 60000) > iface.current_job.LogInterval) || !log_timer.IsRunning) //ms to min
 				{
 					log_timer.Restart();
 					log_data(); //do this every interval
@@ -81,8 +83,8 @@ namespace I2C_Monitor_Module
 
                 if (iface.current_job.Scanned) //if not yet scanned go max speed, also dont add to textbox in initial scan
                 {
-
-                    //System.Threading.Thread.Sleep(1); //delay for slowing down buffer reads
+                    if(delay)
+                        System.Threading.Thread.Sleep(10); //delay for slowing down buffer reads
 
                     /*
                     if (iface.current_beagle.Buffer_Free == 0)
@@ -132,8 +134,10 @@ namespace I2C_Monitor_Module
                 */
                 for (int j = 0; j < iface.current_job.Sites; j++)
                 {
-                    if (!iface.current_job.board_list[i][j] || !loop)
+                    if (!iface.current_job.board_list[i][j])
                         continue; //skip the dut if its not in the initial scan
+                    if (!loop)
+                        break; //exit out if stopped
                     byte unique = (byte)(j);
                     byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
                     int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
@@ -233,11 +237,9 @@ namespace I2C_Monitor_Module
                         }//if we see the address, then read out the data and put it on the label
                         else
                         {
-                            if (search_timer.ElapsedMilliseconds > 250) //skip if we cant find the address in teh buffer. timeout
-                            {
-                                read_fails[k]++;
-                                Console.WriteLine("Timeout");
-                                if (read_fails[k] > 5)
+                            if (search_timer.ElapsedMilliseconds > 50) //skip if we cant find the address in teh buffer. timeout
+                            {                       
+                                if (++read_fails[k] > 5)
                                     Console.WriteLine("Removed " + k + " from dataset");
                                 dut.registers[k] = "";
                             } //if we timeout, then go to the next one but keep track of the fail
@@ -249,9 +251,28 @@ namespace I2C_Monitor_Module
                         }
                     }//enumerate through each address
                     iface.current_job.board_log[i][j] = dut;
-                }//enumerate through each site			
+                }//enumerate through each site	
+                if (check_board_log_empty(iface.current_job.board_log[i], addresses) && !checkBox_debug.Checked) //board fully empty, and not debug mode
+                {
+                    delay = true; //turn on slow mode even if its just 1 board?
+                    System.Threading.Thread.Sleep(10000);
+                }
+                else
+                    delay = false;
             }//filter out invalid slots
 
+        }
+
+        private bool check_board_log_empty(log[] board_log, device[] addresses)
+        {
+            for (int i = 0; i < board_log.Length; i++)
+            {
+                for (int j = 0; j < addresses.Length; j++)
+                    if (board_log[i].Text.Contains(addresses[j].Name))
+                        return false; //not empty if at least one register name is in one of the duts
+            }
+            return true; //if we look through all the duts and theyre all blank, then return true
+            //works.. but takes like a minute
         }
 
 		private bool check_buffer(List<ushort> list, device address)
@@ -345,17 +366,26 @@ namespace I2C_Monitor_Module
         {
             //update the min/max/etc values
             var values = iface.current_job.board_values;
-            this.Invoke(new MethodInvoker(delegate ()
-            {                
-                label_min.Text = label_min.Text.Substring(0, label_min.Text.IndexOf(":") + 1)
-                 + values.Min[(int)numericUpDown_values.Value]; //strips the numbers
-                label_max.Text = label_max.Text.Substring(0, label_max.Text.IndexOf(":") + 1)
-                + values.Max[(int)numericUpDown_values.Value]; //strips the numbers
-                label_avg.Text = label_avg.Text.Substring(0, label_avg.Text.IndexOf(":") + 1)
-                + values.Avg[(int)numericUpDown_values.Value].ToString("n2"); //strips the numbers
-                label_range.Text = label_range.Text.Substring(0, label_range.Text.IndexOf(":") + 1)
-                + values.Range[(int)numericUpDown_values.Value]; //strips the numbers
-            }));
+            try
+            {
+                this.Invoke(new MethodInvoker(delegate ()
+                {
+                    label_min.Text = label_min.Text.Substring(0, label_min.Text.IndexOf(":") + 1)
+                     + values.Min[(int)numericUpDown_values.Value]; //strips the numbers
+                    label_max.Text = label_max.Text.Substring(0, label_max.Text.IndexOf(":") + 1)
+                        + values.Max[(int)numericUpDown_values.Value]; //strips the numbers
+                    label_avg.Text = label_avg.Text.Substring(0, label_avg.Text.IndexOf(":") + 1)
+                        + values.Avg[(int)numericUpDown_values.Value].ToString("n2"); //strips the numbers
+                    label_range.Text = label_range.Text.Substring(0, label_range.Text.IndexOf(":") + 1)
+                        + values.Range[(int)numericUpDown_values.Value]; //strips the numbers
+                }));
+            }
+            catch(System.NullReferenceException)
+            {
+                MessageBox.Show("No boards found!");
+                loop = false;
+                select = false;
+            }
         }
 	}
 

@@ -70,7 +70,7 @@ namespace I2C_Monitor_Module
                 }
             } //the first time around, we have to insert data in between the header
 
-            else if (file.Exists) //if we have already geneerated teh file with header, subsequent log
+            else if (file.Exists && !delay) //if we have already geneerated teh file with header, subsequent log // dont go if hold condition
             {
                 using (StreamWriter writer = File.AppendText(file.FullName))
                 {

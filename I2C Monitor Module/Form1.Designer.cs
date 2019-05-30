@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+            this.components = new System.ComponentModel.Container();
             this.button_scan = new System.Windows.Forms.Button();
             this.button_select = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
@@ -71,6 +72,8 @@
             this.configDirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.userParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.numericUpDown_values = new I2C_Monitor_Module.NumericUpDownEx();
+            this.toolTip_scan = new System.Windows.Forms.ToolTip(this.components);
+            this.toolTip_start = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -479,21 +482,21 @@
             // logDirectoryToolStripMenuItem
             // 
             this.logDirectoryToolStripMenuItem.Name = "logDirectoryToolStripMenuItem";
-            this.logDirectoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.logDirectoryToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.logDirectoryToolStripMenuItem.Text = "Log Directory";
             this.logDirectoryToolStripMenuItem.Click += new System.EventHandler(this.logDirectoryToolStripMenuItem_Click);
             // 
             // configDirectoryToolStripMenuItem
             // 
             this.configDirectoryToolStripMenuItem.Name = "configDirectoryToolStripMenuItem";
-            this.configDirectoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.configDirectoryToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.configDirectoryToolStripMenuItem.Text = "Config Directory";
             this.configDirectoryToolStripMenuItem.Click += new System.EventHandler(this.configDirectoryToolStripMenuItem_Click);
             // 
             // userParametersToolStripMenuItem
             // 
             this.userParametersToolStripMenuItem.Name = "userParametersToolStripMenuItem";
-            this.userParametersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.userParametersToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.userParametersToolStripMenuItem.Text = "User Parameters";
             this.userParametersToolStripMenuItem.Click += new System.EventHandler(this.userParametersToolStripMenuItem_Click);
             // 
@@ -598,6 +601,8 @@
         private System.Windows.Forms.ToolStripMenuItem logDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem configDirectoryToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem userParametersToolStripMenuItem;
+        private System.Windows.Forms.ToolTip toolTip_scan;
+        private System.Windows.Forms.ToolTip toolTip_start;
     }
 }
 
