@@ -45,7 +45,7 @@ namespace I2C_Monitor_Module
         private void button_scan_Click(object sender, EventArgs e)
         {
             if (select)
-                MessageBox.Show("Beagle/Aardvark already selected");
+                MessageBox.Show("Beagle/Aardvark/Config already selected");
             else
             {
                 iface.find_device(); //button to do this, then display devices
@@ -56,6 +56,11 @@ namespace I2C_Monitor_Module
                 comboBox_aardvark.Items.Clear();
                 comboBox_beagle.Items.Clear();
                 listBox_active.Items.Clear();
+				comboBox_config.Items.Clear();
+
+				comboBox_aardvark.ResetText();
+				comboBox_beagle.ResetText();
+				comboBox_config.ResetText();
 
                 comboBox_aardvark.Items.AddRange(aardvark_ids);
                 comboBox_beagle.Items.AddRange(beagle_ids);
@@ -63,6 +68,8 @@ namespace I2C_Monitor_Module
                 listBox_active.Items.AddRange(aardvark_ids);
                 listBox_active.Items.AddRange(beagle_ids);
                 listBox_active.SelectionMode = SelectionMode.MultiExtended;
+
+				load_config();
             }
         }
 
@@ -122,8 +129,9 @@ namespace I2C_Monitor_Module
                 }
                 numericUpDown_values.Enabled = true;
                 numericUpDown_values.Maximum = iface.current_job.device_adds.Count - 1;
-            }//if the parse is fine then continue, also check for current beagle and aardvark set
-            else
+				numericUpDown_values.Value = numericUpDown_values.Maximum;
+			}//if the parse is fine then continue, also check for current beagle and aardvark set
+			else
                 select = false;
 
             if (resolve_boards() && select) //select bool means that if the config didn't parse, cant attemp to continue
@@ -140,7 +148,8 @@ namespace I2C_Monitor_Module
                         tabControl_boards.TabPages[index].Text = iface.current_job.board_names[i];
                 }
                 iface.current_job.Scanned = true; //change it to true because we have finished scanning, this opens up the DUT info scanning
-                create_header(); //do this if the board detect works
+				numericUpDown_values.Value = 0;
+				create_header(); //do this if the board detect works
             }
             else
                 select = false;
@@ -150,7 +159,7 @@ namespace I2C_Monitor_Module
 		
         private void tooltips()
         {
-            toolTip_scan.SetToolTip(button_scan, "Scan for new Beagle/Aardvarks. Use after resetting.");
+            toolTip_scan.SetToolTip(button_scan, "Scan for new Beagle/Aardvark/Config. Use after resetting.");
             toolTip_start.SetToolTip(button_select, "Begin data collection. Select config file and Beagle/Aardvark first.");
             ToolTip job = new ToolTip(); ToolTip lot = new ToolTip(); ToolTip system = new ToolTip();  //define tooltips
             lot.SetToolTip(textBox_lot, "Enter lot number before starting");
@@ -207,7 +216,7 @@ namespace I2C_Monitor_Module
 			select = false; //this determines if everything was loaded correctly and can continue to operation
 			run_lock = false;
 			first_log = Enumerable.Repeat<bool>(true, 16).ToArray();
-			System.Threading.Thread.Sleep(250);
+			System.Threading.Thread.Sleep(500);
 
 			iface.current_aardvark = new Aardvark(); //placeholder
 			iface.current_beagle = new Beagle(); //placeholder
@@ -217,11 +226,15 @@ namespace I2C_Monitor_Module
 
             comboBox_aardvark.Items.Clear();
             comboBox_beagle.Items.Clear();
+			comboBox_config.Items.Clear();
             listBox_active.Items.Clear();
-            textBox_data.Text = "";
-			textBox_job.Text = "";
-			textBox_lot.Text = "";
-			textBox_system.Text = "";			
+			comboBox_aardvark.ResetText();
+			comboBox_beagle.ResetText();
+			comboBox_config.ResetText();
+			textBox_data.ResetText();
+			textBox_job.ResetText();
+			textBox_lot.ResetText();
+			textBox_system.ResetText();
 			button_stop.Visible = false;
 			button_i2cmonitor.Visible = false; //resume
 			button_select.Visible = true; //start
@@ -315,9 +328,9 @@ namespace I2C_Monitor_Module
                 }
             }
         }
-    }
+	}
 
-    public class NumericUpDownEx : NumericUpDown
+	public class NumericUpDownEx : NumericUpDown
     {
         public NumericUpDownEx()
         {
@@ -365,7 +378,7 @@ namespace I2C_Monitor_Module
                                 if (value > address.High)
                                     color = new SolidBrush(Color.Red);
                                 else if (value < address.Low)
-                                    color = new SolidBrush(Color.SkyBlue);
+                                    color = new SolidBrush(Color.Blue);
 
                             }
                             this.TextAlign = ContentAlignment.TopLeft;

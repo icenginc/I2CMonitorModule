@@ -39,7 +39,8 @@ namespace I2C_Monitor_Module
         public log[][] board_log = new log[16][]; //storing info for logging
         public int[][][] board_retries = new int[16][][]; //for storing retries (boards, duts, addresses)
 		public string[] board_names = new string[16]; //storing names
-        public values board_values;
+		public page[] board_pages = new page[16]; //contains labels, tooltips, etc
+		public values board_values;
         public List<int> tab_page_map = new List<int>();
 
         public int Bibx { get => bibx; }

@@ -27,7 +27,7 @@ namespace I2C_Monitor_Module
 
 		private void Read_loop_DoWork(object sender, DoWorkEventArgs e)
 		{
-			while (!iface.current_job.Scanned)
+			while (iface.current_job != null && !iface.current_job.Scanned)
 				System.Threading.Thread.Sleep(100); //stay her euntil scanned
 			Stopwatch log_timer = new Stopwatch();
 			while (iface.current_job != null && iface.current_job.Scanned) //will lock out during initial scan (dont want to populate all DUTs yet) (also watches for clear)
@@ -134,123 +134,137 @@ namespace I2C_Monitor_Module
                 */
                 for (int j = 0; j < iface.current_job.Sites; j++)
                 {
-                    if (!iface.current_job.board_list[i][j])
-                        continue; //skip the dut if its not in the initial scan
-                    if (!loop)
-                        break; //exit out if stopped
-                    byte unique = (byte)(j);
-                    byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
-                    int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
-
-                    //clean above into function?
-                    System.Threading.Thread.Sleep(20);
-                    iface.current_beagle.buffer.Clear();
-
-                    iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
-
-                    log dut = new log(addresses.Length, monitor_map(j)-1); //new log entry for this DUT //mon map maps the text to say the right number
-                    log old_dut;
-                    if (iface.current_job.board_log[i] != null)
-                        old_dut = iface.current_job.board_log[i][j]; //save the old one before changing
-                    else
-                        old_dut = dut; //if not previous data, just set it to the current
-
-                    while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) && iface.current_beagle.buffer.Count < 10) //if no read is read in
-                        System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
-                    Stopwatch search_timer = new Stopwatch(); //timer to time out if the address is not found
-                    for (int k = 0; k < addresses.Length; k++)
+                    try
                     {
-                        device address = addresses[k];
-                        iface.current_job.current_adds = address;
+                        if (!iface.current_job.board_list[i][j])
+                            continue; //skip the dut if its not in the initial scan
+                        if (!loop)
+                            break; //exit out if stopped
+                        byte unique = (byte)(j);
+                        byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
+                        int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
 
-                        if (read_fails[k] > 5 || !loop) //skip this address if it fails 5 times - that means its proabbly not in the pattern
-                            continue;
+                        //clean above into function?
+                        System.Threading.Thread.Sleep(20);
+                        iface.current_beagle.buffer.Clear();
 
-                        if (!search_timer.IsRunning)
-                            search_timer.Restart();
-                    
-                        if (check_buffer(iface.current_beagle.buffer, address)) //should contain the read command and the proper write command
-                        { 
-                            ushort value = 0;
-                            string result = "";
-                            int start = find_start(iface.current_beagle.buffer, address.Address);
-                            int stop = address.Length + start;//last data byte
+                        iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
 
-                            if(start == -1 || start == 0)
-                            {
-                                k--;
-                                System.Threading.Thread.Sleep(5);
-                                continue; 
-                            } //if the start sequence is at the end (incomplete trasnaction) wait for a bit then go again
-
-                            if (address.Forumla != "(ReadValue)" && address.Forumla != "ReadValue")
-                            {
-                                for (int l = start; l < stop; l++)//enumerate through data packet
-                                    if (iface.current_beagle.buffer.Count > l)
-                                        value += (ushort)(((ushort)(iface.current_beagle.buffer[l] & 0xff)) << (8 * (stop - l - 1)));
-
-                                float check = 0; //check if its actually all ff's
-                                for(int l = start; l < stop; l++)
-                                    check += (ushort)(((ushort)(0xff)) << (8 * (stop - l - 1))); //if we only add ff, what is it?
-
-                                string expression = address.Forumla.Replace("ReadValue", value.ToString()); //use formula to do data
-                                DataTable table = new DataTable();
-                                result = table.Compute(expression, string.Empty).ToString();
-
-                                if (check == value)
-                                    result = "FFFF";
-                            }
-                            else
-                                for (int l = start; l < stop; l++)//enumerate through data packet
-                                {
-                                    var output = (iface.current_beagle.buffer[l] & 0xff).ToString("X");
-                                    if (output.Length == 1)
-                                        output = "0" + output;
-                                    result += output; //dont bit shift and add up a value, take it literally
-                                } //handle a single digit in here
-
-
-
-                            if (result != "" && result != "FFFF" && iface.current_job.board_retries[i][j][k] < 6) //if normal
-                            {
-                                dut.registers[k] = (address.Name + ": " + result);
-                                iface.current_job.board_retries[i][j][k] = 0;
-                            }
-                            else if (checkBox_debug.Checked) //debug override
-                            {
-                                dut.registers[k] = "";
-                            }
-                            else if (old_dut != null && iface.current_job.board_retries[i][j][k] < 6)
-                            {
-                                dut.registers[k] = old_dut.registers[k]; //use the old one if bad data
-                                iface.current_job.board_retries[i][j][k]++;
-                            }                            
-                            else  //if there is no previous data 
-                            {
-                                dut.registers[k] = "";
-                                iface.current_job.board_retries[i][j][k]++;
-                            }                           
-                                
-                            //pick out the data, convert it and put into text dataset
-                            search_timer.Reset(); //stop counting, no timeout
-                            read_fails[k] = 0; //also reset the counter for timeouts
-                        }//if we see the address, then read out the data and put it on the label
+                        log dut = new log(addresses.Length, monitor_map(j) - 1); //new log entry for this DUT //mon map maps the text to say the right number
+                        log old_dut;
+                        if (iface.current_job.board_log[i] != null)
+                            old_dut = iface.current_job.board_log[i][j]; //save the old one before changing
                         else
+                            old_dut = dut; //if not previous data, just set it to the current
+
+                        while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) && iface.current_beagle.buffer.Count < 10) //if no read is read in
+                            System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
+                        Stopwatch search_timer = new Stopwatch(); //timer to time out if the address is not found
+                        for (int k = 0; k < addresses.Length; k++)
                         {
-                            if (search_timer.ElapsedMilliseconds > 50) //skip if we cant find the address in teh buffer. timeout
-                            {                       
-                                if (++read_fails[k] > 5)
-                                    Console.WriteLine("Removed " + k + " from dataset");
-                                dut.registers[k] = "";
-                            } //if we timeout, then go to the next one but keep track of the fail
+                            device address = addresses[k];
+                            iface.current_job.current_adds = address;
+
+                            if (read_fails[k] > 5 || !loop) //skip this address if it fails 5 times - that means its proabbly not in the pattern
+                                continue;
+
+							if (!first_log[i] && address.LogOrder < 1) //if recorded non-log values already, skip now
+								continue; 
+
+                            if (!search_timer.IsRunning)
+                                search_timer.Restart();
+
+                            if (check_buffer(iface.current_beagle.buffer, address)) //should contain the read command and the proper write command
+                            {
+                                ushort value = 0;
+                                string result = "";
+                                int start = find_start(iface.current_beagle.buffer, address.Address);
+                                int stop = address.Length + start;//last data byte
+
+                                if (start == -1 || start == 0)
+                                {
+                                    k--;
+                                    System.Threading.Thread.Sleep(5);
+                                    continue;
+                                } //if the start sequence is at the end (incomplete trasnaction) wait for a bit then go again
+
+                                if (address.Forumla != "(ReadValue)" && address.Forumla != "ReadValue")
+                                {
+                                    for (int l = start; l < stop; l++)//enumerate through data packet
+                                        if (iface.current_beagle.buffer.Count > l)
+                                            value += (ushort)(((ushort)(iface.current_beagle.buffer[l] & 0xff)) << (8 * (stop - l - 1)));
+
+                                    float check = 0; //check if its actually all ff's
+                                    for (int l = start; l < stop; l++)
+                                        check += (ushort)(((ushort)(0xff)) << (8 * (stop - l - 1))); //if we only add ff, what is it?
+
+                                    string expression = address.Forumla.Replace("ReadValue", value.ToString()); //use formula to do data
+                                    DataTable table = new DataTable();
+                                    result = table.Compute(expression, string.Empty).ToString();
+
+                                    if (check == value)
+                                        result = "FFFF";
+                                }
+                                else
+                                    for (int l = start; l < stop; l++)//enumerate through data packet
+                                    {
+                                        var output = (iface.current_beagle.buffer[l] & 0xff).ToString("X");
+                                        if (output.Length == 1)
+                                            output = "0" + output;
+                                        result += output; //dont bit shift and add up a value, take it literally
+                                    } //handle a single digit in here
+
+								string text;
+                                if (result != "" && result != "FFFF" && iface.current_job.board_retries[i][j][k] < 6) //if normal
+                                {
+									text = (address.Name + ": " + result);
+                                    iface.current_job.board_retries[i][j][k] = 0;
+                                }
+                                else if (checkBox_debug.Checked) //debug override
+                                {
+									text = "";
+                                }
+                                else if (old_dut != null && iface.current_job.board_retries[i][j][k] < 6)
+                                {
+									text = old_dut.registers[k]; //use the old one if bad data
+                                    iface.current_job.board_retries[i][j][k]++;
+                                }
+                                else  //if there is no previous data 
+                                {
+									text = "";
+                                    iface.current_job.board_retries[i][j][k]++;
+                                }
+
+								if (address.LogOrder < 1) //if its a header item, put it into tooltip
+								{
+									dut.tooltips[k] = text;
+								}
+								else
+									dut.registers[k] = text; //if its a log item, put it into label
+
+								//pick out the data, convert it and put into text dataset
+								search_timer.Reset(); //stop counting, no timeout
+                                read_fails[k] = 0; //also reset the counter for timeouts
+                            }//if we see the address, then read out the data and put it on the label
                             else
                             {
-                                System.Threading.Thread.Sleep(5); //give 5 more ms to the buffer
-                                k--; //loop again
-                            }//if within timeout time, try again
-                        }
-                    }//enumerate through each address
-                    iface.current_job.board_log[i][j] = dut;
+                                if (search_timer.ElapsedMilliseconds > 50) //skip if we cant find the address in teh buffer. timeout
+                                {
+                                    if (++read_fails[k] > 5)
+                                        Console.WriteLine("Removed " + k + " from dataset");
+                                    dut.registers[k] = "";
+                                } //if we timeout, then go to the next one but keep track of the fail
+                                else
+                                {
+                                    System.Threading.Thread.Sleep(5); //give 5 more ms to the buffer
+                                    k--; //loop again
+                                }//if within timeout time, try again
+                            }
+                        }//enumerate through each address
+                        iface.current_job.board_log[i][j] = dut;
+                    }
+                    catch (System.NullReferenceException)
+                    { Console.WriteLine("Exiting out of run loop.. caught null"); }
                 }//enumerate through each site	
                 if (check_board_log_empty(iface.current_job.board_log[i], addresses) && !checkBox_debug.Checked) //board fully empty, and not debug mode
                 {
@@ -336,28 +350,23 @@ namespace I2C_Monitor_Module
         private void update_labels(int i)
         {
             var board_list = iface.current_job.board_list;
+			var board_pages = iface.current_job.board_pages;
 
             if (board_list[i] != null && board_list[i].Contains(true))
             {
-                int index;
                 if (iface.current_job.tab_page_map.Contains(i)) //look at the tab page map to find the right index to modify
                 {
-                    index = iface.current_job.tab_page_map.IndexOf(i);
-
-                    var tab_page = tabControl_boards.TabPages[index];
-                    for (int j = 0; j < iface.current_job.Sites; j++)//go through sites
-                    {
-                        colorLabel label = (colorLabel)tab_page.Controls[monitor_map(j)-1]; //this is the label to update
-                        if (board_list[i][j]) //if the DUT is valid
-                        {
-                            this.Invoke(new MethodInvoker(delegate ()
-                            {
-                                label.newText = iface.current_job.board_log[i][j].Text; //update label
-                                label.Text = "";
-                                label.Refresh();
-                            }));
-                        }//check if dut va lid
-                    }//iterate through duts
+					for (int j = 0; j < iface.current_job.Sites; j++)//go through sites                    
+						if (board_list[i][j] && board_pages[i] != null) //if the DUT is valid 
+						{
+							int index = monitor_map(j) - 1;
+							var board_log = iface.current_job.board_log[i][j];
+							this.Invoke(new MethodInvoker(delegate ()
+							{
+								board_pages[i].edit_label_text(board_log.Text, index);
+								board_pages[i].edit_tooltip_text(board_log.Tooltip, index);
+							}));
+						}
                 }
             }//check if board valid
         }
@@ -371,13 +380,13 @@ namespace I2C_Monitor_Module
                 this.Invoke(new MethodInvoker(delegate ()
                 {
                     label_min.Text = label_min.Text.Substring(0, label_min.Text.IndexOf(":") + 1)
-                     + values.Min[(int)numericUpDown_values.Value]; //strips the numbers
+						+ " " + values.Min[(int)numericUpDown_values.Value]; //strips the numbers
                     label_max.Text = label_max.Text.Substring(0, label_max.Text.IndexOf(":") + 1)
-                        + values.Max[(int)numericUpDown_values.Value]; //strips the numbers
+                        + " " + values.Max[(int)numericUpDown_values.Value]; //strips the numbers
                     label_avg.Text = label_avg.Text.Substring(0, label_avg.Text.IndexOf(":") + 1)
-                        + values.Avg[(int)numericUpDown_values.Value].ToString("n2"); //strips the numbers
+                        + " " + values.Avg[(int)numericUpDown_values.Value].ToString("n2"); //strips the numbers
                     label_range.Text = label_range.Text.Substring(0, label_range.Text.IndexOf(":") + 1)
-                        + values.Range[(int)numericUpDown_values.Value]; //strips the numbers
+                        + " " + values.Range[(int)numericUpDown_values.Value]; //strips the numbers
                 }));
             }
             catch(System.NullReferenceException)

@@ -60,7 +60,16 @@ namespace I2C_Monitor_Module
                                 line += ",";
                             else
                             {
-                                string temp = data[j].registers[i];
+								string temp;
+								if (data[j].registers[i] != null)
+									temp = data[j].registers[i];
+								else if (data[j].tooltips[i] != null)
+									temp = data[j].tooltips[i];
+								else
+								{
+									line += ",";
+									continue;
+								} //if BOTH data sources are not valid, then put blank
                                 string line_item = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
                                 line += (line_item + ","); //access data of the site, and the addresses in order
                             }
@@ -82,7 +91,7 @@ namespace I2C_Monitor_Module
                         {
                             for (int j = 0; j < iface.current_job.Sites; j++)
                             {
-                                if (data[j] == null)
+                                if (data[j] == null) // no data 
                                     line += ",";
                                 else
                                 {
@@ -112,10 +121,12 @@ namespace I2C_Monitor_Module
 		public log(int size, int dut)
 		{
 			registers = new string[size];
+			tooltips = new string[size];
 			this.dut = dut + 1;
 		}
 
 		public string[] registers;
+		public string[] tooltips;
 		int dut;
 
 		public string Text
@@ -125,7 +136,20 @@ namespace I2C_Monitor_Module
 				string text = string.Empty;
 				text += ("S" + dut.ToString() + Environment.NewLine);
 				foreach (string line in registers)
-					text += (line + Environment.NewLine);
+					if(line != null)
+						text += (line + Environment.NewLine);
+				return text;
+			}
+		}
+
+		public string Tooltip
+		{
+			get
+			{
+				string text = string.Empty;
+				foreach (string line in tooltips)
+					if (line != null)
+						text += (line + Environment.NewLine);
 				return text;
 			}
 		}

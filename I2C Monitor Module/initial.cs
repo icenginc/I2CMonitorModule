@@ -61,11 +61,6 @@ namespace I2C_Monitor_Module
 				return false;
 			}
 			iface.current_job.Scanned = false; //not yet scanned
-			//*todo
-			//set mux to 0x50-0x5F
-			//write to the first register found in teh INI file
-			//read it back, if its valid then add to list
-			//*
 
             button_i2cmonitor_Click(this, new EventArgs());
             Cursor.Current = Cursors.WaitCursor;
@@ -92,9 +87,16 @@ namespace I2C_Monitor_Module
             }
 			else if (iface.current_job != null)
 			{
+				for (int i = 0; i < tabControl_boards.TabPages.Count; i++)
+				{
+					int index = iface.current_job.tab_page_map[i];
+					TabPage page = tabControl_boards.TabPages[i];
+					iface.current_job.board_pages[index] = build_page(page);
+				}
+				/*
 				foreach (TabPage page in tabControl_boards.TabPages) //now build after scanning
-					build_page(page); //if the job is loaded, fill the GUI with board dimensions
-
+					build_page(page); //if the job is loaded, fill the GUI with board dimensions (and labels/tooltips)
+					*/
 				this.Size = new Size(this.Size.Width, this.Size.Height + tabControl_boards.Size.Height); //resize to show
 				tabControl_boards.Anchor = AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right; //make it resizable dynamically
 			}
@@ -112,13 +114,15 @@ namespace I2C_Monitor_Module
             return iface.current_job.Monitor_Map[dut];
         }
 
-		private void build_page(TabPage page)
+		private page build_page(TabPage page)
 		{
+			page board = new page(page, iface);
+			/*
 			var x = page.Size.Width - 10;
 			var y = page.Size.Height;
 			var width = x / iface.current_job.Bibx;
 			var height = y / iface.current_job.Biby;
-
+			
 			for (int i = 0; i < iface.current_job.Biby; i++) //column
 			{
 				for (int j = 0; j < iface.current_job.Bibx; j++) //row
@@ -138,7 +142,7 @@ namespace I2C_Monitor_Module
 					//label.AutoSize = true;
 					label.Dock = DockStyle.None;
 				}
-			}
+			} //all this code inside page object now
 
 			myLabel prototype = new myLabel(); //this draws the golden box using a rotate label, filled in
 			prototype.RotateAngle = 90;
@@ -149,6 +153,8 @@ namespace I2C_Monitor_Module
 			page.Controls.Add(prototype);
 			prototype.Left = x - 5;
 			prototype.Top = 10;
+			*/
+			return board;
 		}
 
 		private void resize_pages()
@@ -310,6 +316,93 @@ namespace I2C_Monitor_Module
 			e.Graphics.RotateTransform(this.RotateAngle);
 			e.Graphics.DrawString(this.NewText, this.Font, b, mx - (int)size.Width / 2, my - (int)size.Height / 2);
 			base.OnPaint(e);
+		}
+	}
+
+	public class page //this is each page, which contains the tab page, all DUT labels, and all DUT tooltips
+	{
+		TotalPhase iface;
+		colorLabel[] labels;
+		ToolTip[] tips;
+		TabPage board_dispaly;
+
+		public page(TabPage input, TotalPhase iface)
+		{
+			tips = new ToolTip[iface.current_job.Sites];
+			labels = new colorLabel[iface.current_job.Sites];
+			this.iface = iface;
+			board_dispaly = input;
+			create_labels(); //also makes tooltips
+		}
+
+		private void create_tooltip(colorLabel label, int index)
+		{
+			ToolTip tip = new ToolTip();
+			tip.ToolTipTitle = "Unlogged Items";
+			tip.SetToolTip(label, "");
+			tip.InitialDelay = 0;
+			tips[index] = tip;
+			//return tip;
+		}
+
+		private void create_finger(int x, int y)
+		{
+			myLabel prototype = new myLabel(); //this draws the golden box using a rotate label, filled in
+			prototype.RotateAngle = 90;
+			prototype.BackColor = System.Drawing.Color.Gold;
+			prototype.Size = new Size(10, y - 20);
+			//prototype.Anchor = AnchorStyles.Right;
+
+			board_dispaly.Controls.Add(prototype);
+			prototype.Left = x - 5;
+			prototype.Top = 10;
+		}
+
+		public void edit_tooltip_text(string input, int index)
+		{
+			if(input != "")
+				tips[index].SetToolTip(labels[index], input);
+		}
+
+		public void edit_label_text(string input, int index)
+		{
+			labels[index].newText = input;
+			labels[index].Text = "";
+			labels[index].Refresh();
+		}
+
+		private void create_labels()
+		{
+			var x = board_dispaly.Size.Width - 10;
+			var y = board_dispaly.Size.Height;
+			var width = x / iface.current_job.Bibx;
+			var height = y / iface.current_job.Biby;
+
+			for (int i = 0; i < iface.current_job.Biby; i++) //column
+			{
+				for (int j = 0; j < iface.current_job.Bibx; j++) //row
+				{
+					int dut_num = (i * iface.current_job.Bibx) +j + 1;
+					//build the DUT thing in here
+					colorLabel label = new colorLabel();
+					board_dispaly.Controls.Add(label); //add the label
+					labels[dut_num - 1] = label;
+					
+					label.TextAlign = ContentAlignment.TopCenter;
+					label.Location = new Point(j * width, (i * height) + 1); //calculated height based on loop position
+					label.BorderStyle = BorderStyle.Fixed3D;
+					label.Size = new Size(width - 3, height - 2);
+
+					edit_label_text("S" + dut_num, dut_num - 1);
+
+					//label.Anchor = ((AnchorStyles.Top | AnchorStyles.Left));// | AnchorStyles.Right | AnchorStyles.Left);
+					//label.AutoSize = true;
+					label.Dock = DockStyle.None;
+
+					create_tooltip(label, dut_num - 1); //create it so we can index it
+				}
+			}
+			create_finger(x, y); //draws gold line for finger
 		}
 	}
 }
