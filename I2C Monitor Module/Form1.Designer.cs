@@ -186,7 +186,8 @@
 			// 
 			// textBox_data
 			// 
-			this.textBox_data.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+			this.textBox_data.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.textBox_data.Location = new System.Drawing.Point(124, 154);
 			this.textBox_data.Multiline = true;
 			this.textBox_data.Name = "textBox_data";

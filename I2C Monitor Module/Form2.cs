@@ -52,7 +52,8 @@ namespace I2C_Monitor_Module
 		protected void generate_addresses(List<device> addresses, DataGridView grid)
 		{
 			foreach (device s in addresses)
-				grid.Rows.Add(new object[] { s.Name + " (" + s.Address[0].ToString("X") + s.Address[1].ToString("X")+")" });
+				if(s.LogOrder > 0) //cleans up user parameter entry display //makes register low/hi save into the wrong register, but it is read back with the same logic so it ends up matching
+					grid.Rows.Add(new object[] { s.Name + " (" + s.Address[0].ToString("X") + s.Address[1].ToString("X")+")" });
 		}
 
 		private void button_ok_Click(object sender, EventArgs e)
