@@ -91,12 +91,9 @@ namespace I2C_Monitor_Module
 				{
 					int index = iface.current_job.tab_page_map[i];
 					TabPage page = tabControl_boards.TabPages[i];
-					iface.current_job.board_pages[index] = build_page(page);
+					iface.current_job.board_pages[index] = new page(page, iface.current_job);
 				}
-				/*
-				foreach (TabPage page in tabControl_boards.TabPages) //now build after scanning
-					build_page(page); //if the job is loaded, fill the GUI with board dimensions (and labels/tooltips)
-					*/
+				
 				this.Size = new Size(this.Size.Width, this.Size.Height + tabControl_boards.Size.Height); //resize to show
 				tabControl_boards.Anchor = AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right; //make it resizable dynamically
 			}
@@ -109,52 +106,9 @@ namespace I2C_Monitor_Module
 			return true; //on success
 		}
 
-        private int monitor_map(int dut)
-        {
-            return iface.current_job.Monitor_Map[dut];
-        }
-
-		private page build_page(TabPage page)
+		private int monitor_map(int dut)
 		{
-			page board = new page(page, iface);
-			/*
-			var x = page.Size.Width - 10;
-			var y = page.Size.Height;
-			var width = x / iface.current_job.Bibx;
-			var height = y / iface.current_job.Biby;
-			
-			for (int i = 0; i < iface.current_job.Biby; i++) //column
-			{
-				for (int j = 0; j < iface.current_job.Bibx; j++) //row
-				{
-					//build the DUT thing in here
-					colorLabel label = new colorLabel();
-					label.newText = "S" + ((i * iface.current_job.Bibx) + j + 1);//iface.current_job.Monitor_Map[((i * iface.current_job.Bibx) + j)]; //use monnitor map from file to name
-                    label.Text = "";
-					label.TextAlign = ContentAlignment.TopCenter;
-					label.Location = new Point(j * width, (i * height) + 1); //calculated height based on loop position
-					label.BorderStyle = BorderStyle.Fixed3D;
-					label.Size = new Size(width - 3, height - 2);
-                    label.Refresh();
-					page.Controls.Add(label); //add the label
-
-					//label.Anchor = ((AnchorStyles.Top | AnchorStyles.Left));// | AnchorStyles.Right | AnchorStyles.Left);
-					//label.AutoSize = true;
-					label.Dock = DockStyle.None;
-				}
-			} //all this code inside page object now
-
-			myLabel prototype = new myLabel(); //this draws the golden box using a rotate label, filled in
-			prototype.RotateAngle = 90;
-			prototype.BackColor = System.Drawing.Color.Gold;
-			prototype.Size = new Size(10, y - 20);
-			//prototype.Anchor = AnchorStyles.Right;
-
-			page.Controls.Add(prototype);
-			prototype.Left = x - 5;
-			prototype.Top = 10;
-			*/
-			return board;
+			return iface.current_job.Monitor_Map[dut];
 		}
 
 		private void resize_pages()
@@ -321,16 +275,16 @@ namespace I2C_Monitor_Module
 
 	public class page //this is each page, which contains the tab page, all DUT labels, and all DUT tooltips
 	{
-		TotalPhase iface;
+		job current_job;
 		colorLabel[] labels;
 		ToolTip[] tips;
 		TabPage board_dispaly;
 
-		public page(TabPage input, TotalPhase iface)
+		public page(TabPage input, job current_job)
 		{
-			tips = new ToolTip[iface.current_job.Sites];
-			labels = new colorLabel[iface.current_job.Sites];
-			this.iface = iface;
+			tips = new ToolTip[current_job.Sites];
+			labels = new colorLabel[current_job.Sites];
+			this.current_job = current_job;
 			board_dispaly = input;
 			create_labels(); //also makes tooltips
 		}
@@ -375,14 +329,14 @@ namespace I2C_Monitor_Module
 		{
 			var x = board_dispaly.Size.Width - 10;
 			var y = board_dispaly.Size.Height;
-			var width = x / iface.current_job.Bibx;
-			var height = y / iface.current_job.Biby;
+			var width = x / current_job.Bibx;
+			var height = y / current_job.Biby;
 
-			for (int i = 0; i < iface.current_job.Biby; i++) //column
+			for (int i = 0; i < current_job.Biby; i++) //column
 			{
-				for (int j = 0; j < iface.current_job.Bibx; j++) //row
+				for (int j = 0; j < current_job.Bibx; j++) //row
 				{
-					int dut_num = (i * iface.current_job.Bibx) +j + 1;
+					int dut_num = (i * current_job.Bibx) +j + 1;
 					//build the DUT thing in here
 					colorLabel label = new colorLabel();
 					board_dispaly.Controls.Add(label); //add the label

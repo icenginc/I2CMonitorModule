@@ -386,7 +386,7 @@
 			// 
 			this.label_range.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.label_range.AutoSize = true;
-			this.label_range.Location = new System.Drawing.Point(177, 4);
+			this.label_range.Location = new System.Drawing.Point(179, 4);
 			this.label_range.Name = "label_range";
 			this.label_range.Size = new System.Drawing.Size(42, 13);
 			this.label_range.TabIndex = 58;
@@ -396,7 +396,7 @@
 			// 
 			this.label_max.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.label_max.AutoSize = true;
-			this.label_max.Location = new System.Drawing.Point(116, 4);
+			this.label_max.Location = new System.Drawing.Point(119, 4);
 			this.label_max.Name = "label_max";
 			this.label_max.Size = new System.Drawing.Size(30, 13);
 			this.label_max.TabIndex = 57;
@@ -406,7 +406,7 @@
 			// 
 			this.label_min.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.label_min.AutoSize = true;
-			this.label_min.Location = new System.Drawing.Point(55, 4);
+			this.label_min.Location = new System.Drawing.Point(60, 4);
 			this.label_min.Name = "label_min";
 			this.label_min.Size = new System.Drawing.Size(27, 13);
 			this.label_min.TabIndex = 56;
@@ -482,21 +482,21 @@
 			// logDirectoryToolStripMenuItem
 			// 
 			this.logDirectoryToolStripMenuItem.Name = "logDirectoryToolStripMenuItem";
-			this.logDirectoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.logDirectoryToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.logDirectoryToolStripMenuItem.Text = "Log Directory";
 			this.logDirectoryToolStripMenuItem.Click += new System.EventHandler(this.logDirectoryToolStripMenuItem_Click);
 			// 
 			// configDirectoryToolStripMenuItem
 			// 
 			this.configDirectoryToolStripMenuItem.Name = "configDirectoryToolStripMenuItem";
-			this.configDirectoryToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.configDirectoryToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.configDirectoryToolStripMenuItem.Text = "Config Directory";
 			this.configDirectoryToolStripMenuItem.Click += new System.EventHandler(this.configDirectoryToolStripMenuItem_Click);
 			// 
 			// userParametersToolStripMenuItem
 			// 
 			this.userParametersToolStripMenuItem.Name = "userParametersToolStripMenuItem";
-			this.userParametersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+			this.userParametersToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
 			this.userParametersToolStripMenuItem.Text = "User Parameters";
 			this.userParametersToolStripMenuItem.Click += new System.EventHandler(this.userParametersToolStripMenuItem_Click);
 			// 
