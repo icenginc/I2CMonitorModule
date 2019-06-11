@@ -37,28 +37,36 @@ namespace I2C_Monitor_Module
                     System.Threading.Thread.Sleep(50);
                     continue;
                 }
-                //iface.current_beagle.buffer.Clear();
-                for (int i = 0; i < iface.current_job.board_list.Length; i++)
-                {
-                    if (iface.current_job.board_list[i] != null && iface.current_job.board_list[i].Contains(true))
-                    {
-                        try
-                        {
-                            this.Invoke(new MethodInvoker(delegate ()
-                            {
-                                if (delay)
-                                    textBox_data.AppendText("Detected stop condition, entering slow-scan mode" + Environment.NewLine);
-                                else if (iface.current_job.board_names[i] == "")
-                                    iface.current_job.board_names[i] = "Board " + (i + 1);
-                                textBox_data.AppendText("Collecting data on " + iface.current_job.board_names[i] + Environment.NewLine);
-                            }));
-                        }
-                        catch { }
+				//iface.current_beagle.buffer.Clear();
+				try
+				{
+					for (int i = 0; i < iface.current_job.board_list.Length; i++)
+					{
+						if (iface.current_job.board_list[i] != null && iface.current_job.board_list[i].Contains(true))
+						{
+							try
+							{
+								this.Invoke(new MethodInvoker(delegate ()
+								{
+									if (delay)
+										textBox_data.AppendText("Detected stop condition, entering slow-scan mode" + Environment.NewLine);
+									else if (iface.current_job.board_names[i] == "")
+										iface.current_job.board_names[i] = "Board " + (i + 1);
+									textBox_data.AppendText("Collecting data on " + iface.current_job.board_names[i] + Environment.NewLine);
+								}));
+							}
+							catch { }
 
-                        collect_data(i);
-                        update_labels(i);
-                    }
-                }
+							collect_data(i);
+							update_labels(i);
+						}
+					}
+				}
+				catch (NullReferenceException)
+				{
+					Console.WriteLine("Caught null from reset in main board loop, skipping");
+					continue; //skip, will go into above continue loop
+				}
                 calculate_values(); //calculate by adding this data set as well
                 if (((log_timer.ElapsedMilliseconds / 60000) > iface.current_job.LogInterval) || !log_timer.IsRunning) //ms to min
 				{
@@ -83,7 +91,7 @@ namespace I2C_Monitor_Module
 
                 if (iface.current_job.Scanned) //if not yet scanned go max speed, also dont add to textbox in initial scan
                 {
-                    if(delay)
+                    if(delay) //only if we have detected the condition where it is turned off
                         System.Threading.Thread.Sleep(10); //delay for slowing down buffer reads
 
                     /*
@@ -157,13 +165,16 @@ namespace I2C_Monitor_Module
                         else
                             old_dut = dut; //if not previous data, just set it to the current
 
-                        while (!iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) && iface.current_beagle.buffer.Count < 10) //if no read is read in
+                        while (iface.current_job != null && !iface.current_beagle.buffer.Contains(iface.current_job.ReadAddress) && iface.current_beagle.buffer.Count < 10) //if no read is read in
                             System.Threading.Thread.Sleep(5); //give a little time for buffer to fill
                         Stopwatch search_timer = new Stopwatch(); //timer to time out if the address is not found
                         for (int k = 0; k < addresses.Length; k++)
                         {
                             device address = addresses[k];
-                            iface.current_job.current_adds = address;
+							if (iface.current_job != null)
+								iface.current_job.current_adds = address;
+							else //reset was pressed
+								break;
 
                             if (read_fails[k] > 5 || !loop) //skip this address if it fails 5 times - that means its proabbly not in the pattern
                                 continue;
@@ -264,15 +275,23 @@ namespace I2C_Monitor_Module
                         iface.current_job.board_log[i][j] = dut;
                     }
                     catch (System.NullReferenceException)
-                    { Console.WriteLine("Exiting out of run loop.. caught null"); }
+                    {
+						Console.WriteLine("Exiting out of run loop.. caught null");
+						break;
+					}
                 }//enumerate through each site	
-                if (check_board_log_empty(iface.current_job.board_log[i], addresses) && !checkBox_debug.Checked) //board fully empty, and not debug mode
-                {
-                    delay = true; //turn on slow mode even if its just 1 board?
-                    System.Threading.Thread.Sleep(10000);
-                }
-                else
-                    delay = false;
+				try
+				{
+					if (check_board_log_empty(iface.current_job.board_log[i], addresses) && !checkBox_debug.Checked) //board fully empty, and not debug mode
+					{
+						delay = true; //turn on slow mode even if its just 1 board?
+						System.Threading.Thread.Sleep(10000);
+					}
+					else
+						delay = false;
+				}
+				catch
+				{ Console.WriteLine("Board empty check failed, skipping"); }
             }//filter out invalid slots
 
         }
@@ -349,26 +368,31 @@ namespace I2C_Monitor_Module
 
         private void update_labels(int i)
         {
-            var board_list = iface.current_job.board_list;
-			var board_pages = iface.current_job.board_pages;
+			try
+			{
+				var board_list = iface.current_job.board_list;
+				var board_pages = iface.current_job.board_pages;
 
-            if (board_list[i] != null && board_list[i].Contains(true))
-            {
-                if (iface.current_job.tab_page_map.Contains(i)) //look at the tab page map to find the right index to modify
-                {
-					for (int j = 0; j < iface.current_job.Sites; j++)//go through sites                    
-						if (board_list[i][j] && board_pages[i] != null) //if the DUT is valid 
-						{
-							int index = monitor_map(j) - 1;
-							var board_log = iface.current_job.board_log[i][j];
-							this.Invoke(new MethodInvoker(delegate ()
+				if (board_list[i] != null && board_list[i].Contains(true))
+				{
+					if (iface.current_job.tab_page_map.Contains(i)) //look at the tab page map to find the right index to modify
+					{
+						for (int j = 0; j < iface.current_job.Sites; j++)//go through sites                    
+							if (board_list[i][j] && board_pages[i] != null) //if the DUT is valid 
 							{
-								board_pages[i].edit_label_text(board_log.Text, index);
-								board_pages[i].edit_tooltip_text(board_log.Tooltip, index);
-							}));
-						}
-                }
-            }//check if board valid
+								int index = monitor_map(j) - 1;
+								var board_log = iface.current_job.board_log[i][j];
+								this.Invoke(new MethodInvoker(delegate ()
+								{
+									board_pages[i].edit_label_text(board_log.Text, index);
+									board_pages[i].edit_tooltip_text(board_log.Tooltip, index);
+								}));
+							}
+					}
+				}//check if board valid
+			}
+			catch (System.NullReferenceException)
+			{ Console.WriteLine("Null from reset, skipping label update"); }
         }
 
         private void update_values()

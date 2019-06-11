@@ -73,6 +73,7 @@
 			this.userParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolTip_scan = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTip_start = new System.Windows.Forms.ToolTip(this.components);
+			this.label_version = new System.Windows.Forms.Label();
 			this.numericUpDown_values = new I2C_Monitor_Module.NumericUpDownEx();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
 			this.panel1.SuspendLayout();
@@ -84,7 +85,7 @@
 			// button_scan
 			// 
 			this.button_scan.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.button_scan.Location = new System.Drawing.Point(612, 160);
+			this.button_scan.Location = new System.Drawing.Point(612, 159);
 			this.button_scan.Name = "button_scan";
 			this.button_scan.Size = new System.Drawing.Size(75, 30);
 			this.button_scan.TabIndex = 0;
@@ -95,7 +96,7 @@
 			// button_select
 			// 
 			this.button_select.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.button_select.Location = new System.Drawing.Point(612, 200);
+			this.button_select.Location = new System.Drawing.Point(612, 199);
 			this.button_select.Name = "button_select";
 			this.button_select.Size = new System.Drawing.Size(75, 30);
 			this.button_select.TabIndex = 1;
@@ -163,7 +164,7 @@
 			// button_i2cmonitor
 			// 
 			this.button_i2cmonitor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.button_i2cmonitor.Location = new System.Drawing.Point(612, 199);
+			this.button_i2cmonitor.Location = new System.Drawing.Point(612, 198);
 			this.button_i2cmonitor.Name = "button_i2cmonitor";
 			this.button_i2cmonitor.Size = new System.Drawing.Size(75, 30);
 			this.button_i2cmonitor.TabIndex = 10;
@@ -185,7 +186,7 @@
 			// 
 			// textBox_data
 			// 
-			this.textBox_data.Anchor = System.Windows.Forms.AnchorStyles.Top;
+			this.textBox_data.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
 			this.textBox_data.Location = new System.Drawing.Point(124, 154);
 			this.textBox_data.Multiline = true;
 			this.textBox_data.Name = "textBox_data";
@@ -196,7 +197,7 @@
 			// button_stop
 			// 
 			this.button_stop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.button_stop.Location = new System.Drawing.Point(612, 198);
+			this.button_stop.Location = new System.Drawing.Point(612, 197);
 			this.button_stop.Name = "button_stop";
 			this.button_stop.Size = new System.Drawing.Size(75, 30);
 			this.button_stop.TabIndex = 13;
@@ -426,7 +427,7 @@
 			// 
 			this.checkBox_debug.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.checkBox_debug.AutoSize = true;
-			this.checkBox_debug.Location = new System.Drawing.Point(622, 274);
+			this.checkBox_debug.Location = new System.Drawing.Point(622, 277);
 			this.checkBox_debug.Name = "checkBox_debug";
 			this.checkBox_debug.Size = new System.Drawing.Size(58, 17);
 			this.checkBox_debug.TabIndex = 57;
@@ -500,6 +501,16 @@
 			this.userParametersToolStripMenuItem.Text = "User Parameters";
 			this.userParametersToolStripMenuItem.Click += new System.EventHandler(this.userParametersToolStripMenuItem_Click);
 			// 
+			// label_version
+			// 
+			this.label_version.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this.label_version.AutoSize = true;
+			this.label_version.Location = new System.Drawing.Point(613, 6);
+			this.label_version.Name = "label_version";
+			this.label_version.Size = new System.Drawing.Size(41, 13);
+			this.label_version.TabIndex = 62;
+			this.label_version.Text = "label13";
+			// 
 			// numericUpDown_values
 			// 
 			this.numericUpDown_values.Enabled = false;
@@ -513,6 +524,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(698, 308);
+			this.Controls.Add(this.label_version);
 			this.Controls.Add(this.numericUpDown_values);
 			this.Controls.Add(this.label12);
 			this.Controls.Add(this.checkBox_debug);
@@ -603,6 +615,7 @@
         private System.Windows.Forms.ToolStripMenuItem userParametersToolStripMenuItem;
         private System.Windows.Forms.ToolTip toolTip_scan;
         private System.Windows.Forms.ToolTip toolTip_start;
-    }
+		private System.Windows.Forms.Label label_version;
+	}
 }
 

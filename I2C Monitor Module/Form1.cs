@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 using System.Windows.Forms;
 using System.IO;
 
@@ -36,15 +37,17 @@ namespace I2C_Monitor_Module
         public InSituMonitoringModule()
         {
             InitializeComponent();
-            this.Text = "InSitu Monitor Module";
-            load_config();
+			set_text();
+			load_config();
             tooltips();
             button_scan_Click(this, new EventArgs());
         }
 
         private void button_scan_Click(object sender, EventArgs e)
         {
-            if (select)
+			textBox_data.AppendText("SCAN Operation Initiated");
+
+			if (select)
                 MessageBox.Show("Beagle/Aardvark/Config already selected");
             else
             {
@@ -75,7 +78,9 @@ namespace I2C_Monitor_Module
 
         private void button_select_Click(object sender, EventArgs e)  //start
         {
-            select = true;
+			textBox_data.AppendText("SELECT Operation Initiated");
+
+			select = true;
 
             this.job = textBox_job.Text;
             this.lot = textBox_lot.Text;
@@ -156,7 +161,14 @@ namespace I2C_Monitor_Module
 
             button_select.Visible = false; //hide after starting, should only be able to resume
         }
-		
+
+		private void set_text()
+		{
+			this.Text = "InSitu Monitor Module";
+			label_version.Text = "Version: " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			label_version.Location = new Point(this.Width - (label_version.Size.Width + 23), label_version.Location.Y);
+		}
+
         private void tooltips()
         {
             toolTip_scan.SetToolTip(button_scan, "Scan for new Beagle/Aardvark/Config. Use after resetting.");
@@ -196,7 +208,9 @@ namespace I2C_Monitor_Module
 
         private void button_i2cmonitor_Click(object sender, EventArgs e) //resume button
         {
-            if (select)
+			textBox_data.AppendText("START Operation Initiated");
+
+			if (select)
             {
                 loop = true; //continue
                 if (!iface.current_job.Scanned)
@@ -212,36 +226,49 @@ namespace I2C_Monitor_Module
         private void button_reset_Click(object sender, EventArgs e)
         {
 			//reset these
+			textBox_data.AppendText("RESET Operation Initiated");
+
 			loop = false; //to stop or esume the measuremetns
 			select = false; //this determines if everything was loaded correctly and can continue to operation
 			run_lock = false;
 			first_log = Enumerable.Repeat<bool>(true, 16).ToArray();
-			System.Threading.Thread.Sleep(500);
+			System.Threading.Thread.Sleep(750); //wait to allow loops to exit out correctly
 
+			while (tabControl_boards.TabCount > 0) //release resources
+				tabControl_boards.TabPages[tabControl_boards.TabCount - 1].Dispose();
+			tabControl_boards.TabPages.Clear(); //remove 
+			this.Size = new Size(this.Size.Width, this.Size.Height - tabControl_boards.Size.Height); //resize to hide
+
+			AardvarkApi.aa_close(iface.current_aardvark.Port);
+			BeagleApi.bg_close(iface.current_beagle.Port);
 			iface.current_aardvark = new Aardvark(); //placeholder
 			iface.current_beagle = new Beagle(); //placeholder
 			iface.current_job = null; //clear it out			
 			iface = new TotalPhase();
 
+			label_avg.Text = "Avg: ";
+			label_max.Text = "Max: ";
+			label_min.Text = "Min: ";
+			label_range.Text = "Range: ";
+			textBox_data.ResetText();
+			textBox_job.ResetText();
+			textBox_lot.ResetText();
+			textBox_system.ResetText();
 
-            comboBox_aardvark.Items.Clear();
+			comboBox_aardvark.Items.Clear();
             comboBox_beagle.Items.Clear();
 			comboBox_config.Items.Clear();
             listBox_active.Items.Clear();
 			comboBox_aardvark.ResetText();
 			comboBox_beagle.ResetText();
 			comboBox_config.ResetText();
-			textBox_data.ResetText();
-			textBox_job.ResetText();
-			textBox_lot.ResetText();
-			textBox_system.ResetText();
+			
 			button_stop.Visible = false;
 			button_i2cmonitor.Visible = false; //resume
 			button_select.Visible = true; //start
 			checkBox_debug.Checked = false;
 			numericUpDown_values.Value = 0;
-
-
+			numericUpDown_values.ResetText();
 			/*
 			if (select)
 			{
