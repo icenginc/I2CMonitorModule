@@ -45,7 +45,7 @@ namespace I2C_Monitor_Module
 
         private void button_scan_Click(object sender, EventArgs e)
         {
-			textBox_data.AppendText("SCAN Operation Initiated");
+			textBox_data.AppendText("SCAN Operation Initiated\n");
 
 			if (select)
                 MessageBox.Show("Beagle/Aardvark/Config already selected");
@@ -78,7 +78,7 @@ namespace I2C_Monitor_Module
 
         private void button_select_Click(object sender, EventArgs e)  //start
         {
-			textBox_data.AppendText("SELECT Operation Initiated");
+			textBox_data.AppendText("SELECT Operation Initiated\n");
 
 			select = true;
 
@@ -208,7 +208,7 @@ namespace I2C_Monitor_Module
 
         private void button_i2cmonitor_Click(object sender, EventArgs e) //resume button
         {
-			textBox_data.AppendText("START Operation Initiated");
+			textBox_data.AppendText("START Operation Initiated\n");
 
 			if (select)
             {
@@ -226,8 +226,10 @@ namespace I2C_Monitor_Module
         private void button_reset_Click(object sender, EventArgs e)
         {
 			//reset these
-			textBox_data.AppendText("RESET Operation Initiated");
+			textBox_data.AppendText("RESET Operation Initiated\n");
 
+			if (select) //only if the scan completed successfully
+				this.Size = new Size(this.Size.Width, this.Size.Height - tabControl_boards.Size.Height); //resize to hide
 			loop = false; //to stop or esume the measuremetns
 			select = false; //this determines if everything was loaded correctly and can continue to operation
 			run_lock = false;
@@ -237,7 +239,6 @@ namespace I2C_Monitor_Module
 			while (tabControl_boards.TabCount > 0) //release resources
 				tabControl_boards.TabPages[tabControl_boards.TabCount - 1].Dispose();
 			tabControl_boards.TabPages.Clear(); //remove 
-			this.Size = new Size(this.Size.Width, this.Size.Height - tabControl_boards.Size.Height); //resize to hide
 
 			AardvarkApi.aa_close(iface.current_aardvark.Port);
 			BeagleApi.bg_close(iface.current_beagle.Port);
