@@ -93,8 +93,10 @@ namespace I2C_Monitor_Module
 					TabPage page = tabControl_boards.TabPages[i];
 					iface.current_job.board_pages[index] = new page(page, iface.current_job);
 				}
-				
-				this.Size = new Size(this.Size.Width, this.Size.Height + tabControl_boards.Size.Height); //resize to show
+				if(height == 0)
+					height = tabControl_boards.Size.Height; //save it so if we reset and expand again, still there
+				this.Size = new Size(this.Size.Width, this.Size.Height + height); //resize to show
+				resize_pages();
 				tabControl_boards.Anchor = AnchorStyles.Bottom | AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right; //make it resizable dynamically
 			}
 			else
@@ -294,7 +296,7 @@ namespace I2C_Monitor_Module
 			ToolTip tip = new ToolTip();
 			tip.ToolTipTitle = "Unlogged Items";
 			tip.SetToolTip(label, "");
-			tip.InitialDelay = 0;
+			tip.AutomaticDelay = 250;
 			tips[index] = tip;
 			//return tip;
 		}

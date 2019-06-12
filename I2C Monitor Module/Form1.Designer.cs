@@ -73,6 +73,7 @@
 			this.userParametersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.toolTip_scan = new System.Windows.Forms.ToolTip(this.components);
 			this.toolTip_start = new System.Windows.Forms.ToolTip(this.components);
+			this.toolTip_reset = new System.Windows.Forms.ToolTip(this.components);
 			this.label_version = new System.Windows.Forms.Label();
 			this.numericUpDown_values = new I2C_Monitor_Module.NumericUpDownEx();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -504,7 +505,7 @@
 			// 
 			// label_version
 			// 
-			this.label_version.Anchor = System.Windows.Forms.AnchorStyles.Right;
+			this.label_version.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.label_version.AutoSize = true;
 			this.label_version.Location = new System.Drawing.Point(613, 6);
 			this.label_version.Name = "label_version";
@@ -616,6 +617,7 @@
         private System.Windows.Forms.ToolStripMenuItem userParametersToolStripMenuItem;
         private System.Windows.Forms.ToolTip toolTip_scan;
         private System.Windows.Forms.ToolTip toolTip_start;
+		private System.Windows.Forms.ToolTip toolTip_reset;
 		private System.Windows.Forms.Label label_version;
 	}
 }

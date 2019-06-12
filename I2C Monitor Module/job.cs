@@ -43,7 +43,7 @@ namespace I2C_Monitor_Module
 		public values board_values;
         public List<int> tab_page_map = new List<int>();
 
-        public int Bibx { get => bibx; }
+		public int Bibx { get => bibx; }
         public int Biby { get => biby; }
         public int[] Monitor_Map { get => monitor_map; }
         public bool Scanned { get => scanned; set => scanned = value; }

@@ -18,12 +18,13 @@ namespace I2C_Monitor_Module
     {
         Form2 selection; //save this
         public static TotalPhase iface = new TotalPhase(); //one totalphase, redefine the current devices as the selection changes
-        public static string config_path = "C://InSituMonitorModule//";
-        FileInfo config_file;
+		public static string config_path = "\\\\BURN-IN_SERVER\\Inspire\\InSitu\\";
+		FileInfo config_file;
 
         public string system { get; set; }
         public string lot { get; set; }
         public string job { get; set; }
+		int height = 0;
 
         bool loop = false; //to stop or esume the measuremetns
         bool delay = false; //if the vector stops, this makes us go into 'slow' mode
@@ -154,6 +155,7 @@ namespace I2C_Monitor_Module
                 }
                 iface.current_job.Scanned = true; //change it to true because we have finished scanning, this opens up the DUT info scanning
 				numericUpDown_values.Value = 0;
+				numericUpDown_values.UpButton();
 				create_header(); //do this if the board detect works
             }
             else
@@ -173,11 +175,19 @@ namespace I2C_Monitor_Module
         {
             toolTip_scan.SetToolTip(button_scan, "Scan for new Beagle/Aardvark/Config. Use after resetting.");
             toolTip_start.SetToolTip(button_select, "Begin data collection. Select config file and Beagle/Aardvark first.");
+			toolTip_reset.SetToolTip(button_reset, "Reset program to start-up state");
             ToolTip job = new ToolTip(); ToolTip lot = new ToolTip(); ToolTip system = new ToolTip();  //define tooltips
             lot.SetToolTip(textBox_lot, "Enter lot number before starting");
             job.SetToolTip(textBox_job, "Enter job number before starting");
             system.SetToolTip(textBox_system, "Enter system name before starting");
-        }
+
+			toolTip_scan.AutomaticDelay = 300;
+			toolTip_start.AutomaticDelay = 300;
+			toolTip_reset.AutomaticDelay = 300;
+			lot.AutomaticDelay = 300;
+			job.AutomaticDelay = 300;
+			system.AutomaticDelay = 300;
+		}
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -229,7 +239,7 @@ namespace I2C_Monitor_Module
 			textBox_data.AppendText("RESET Operation Initiated\n");
 
 			if (select) //only if the scan completed successfully
-				this.Size = new Size(this.Size.Width, this.Size.Height - tabControl_boards.Size.Height); //resize to hide
+				this.Size = new Size(this.Size.Width, this.Size.Height - height); //resize to hide
 			loop = false; //to stop or esume the measuremetns
 			select = false; //this determines if everything was loaded correctly and can continue to operation
 			run_lock = false;
@@ -364,11 +374,93 @@ namespace I2C_Monitor_Module
         {
         }
 
-        protected override void UpdateEditText()
+		public override void UpButton()
+		{
+			var iface = InSituMonitoringModule.iface;
+			if (iface != null && iface.current_job != null && iface.current_job.Scanned)
+			{
+				int count = iface.current_job.device_adds.Count;
+				int loop_counter = 0;
+				decimal original = this.Value;
+				do
+				{
+					if (iface.current_job.device_adds[(int)this.Value].LogOrder > 0)
+						break; //accept it if it works
+
+					if (this.Value >= (count - 1))
+					{
+						this.Value = 0; //rotate back from the end to now
+						loop_counter++;
+						if (loop_counter > 1)
+						{
+							this.Value = original; //just skip if it doesnt find a valid one once scanning all values
+							break;
+						}
+					} //if reach end, loop back
+
+					base.UpButton(); //increment value
+				} while (this.Value < count);
+			}
+		}
+
+		public override void DownButton()
+		{
+			var iface = InSituMonitoringModule.iface;
+			if (iface != null && iface.current_job != null && iface.current_job.Scanned)
+			{
+				int count = iface.current_job.device_adds.Count;
+				int loop_counter = 0;
+				decimal original = this.Value;
+				do
+				{
+					if (iface.current_job.device_adds[(int)this.Value].LogOrder > 0)
+						break; //accept it if it works
+
+					if (this.Value < 1)
+					{
+						this.Value = count; //rotate back from the end to now
+						loop_counter++;
+						if (loop_counter > 1)
+						{
+							this.Value = original; //just skip if it doesnt find a valid one once scanning all values
+							break;
+						}
+					} //if reach end, loop back
+
+					base.DownButton(); //increment value
+				} while (this.Value < count);
+			}
+		}
+		/*
+				protected override void OnValueChanged(EventArgs e)
+				{
+					var iface = InSituMonitoringModule.iface;
+					if (iface != null && iface.current_job != null && iface.current_job.Scanned)
+					{
+						int count = iface.current_job.device_adds.Count;
+						int loop_counter = 0;
+						for (int i = (int)this.Value; i < count; i++)
+						{
+							if (iface.current_job.device_adds[i].LogOrder > 0)
+							{
+								this.Value = i; //accept it if its a log item
+								base.OnValueChanged(e);
+								break;
+							}	
+
+
+						}
+					}
+					else
+						base.OnValueChanged(e);
+				}
+			*/
+		protected override void UpdateEditText()
         {
-            // Append the register name
-            if (InSituMonitoringModule.iface != null && InSituMonitoringModule.iface.current_job != null && InSituMonitoringModule.iface.current_job.Scanned)
-                this.Text = InSituMonitoringModule.iface.current_job.device_adds[(int)this.Value].Name;
+			var iface = InSituMonitoringModule.iface;
+			// Append the register name
+			if (iface != null && iface.current_job != null && iface.current_job.Scanned)
+                this.Text = iface.current_job.device_adds[(int)this.Value].Name;
             else
                 this.Text = this.Value.ToString();
         }
