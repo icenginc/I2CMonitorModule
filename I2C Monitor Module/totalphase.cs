@@ -238,9 +238,18 @@ namespace I2C_Monitor_Module
 				ulong time_sop = 0, time_sop_ns = 0;
 				ulong time_duration = 0;
 				uint time_dataoffset = 0;
+				int count = 0;
 
 				// Read transaction with bit timing data
-				int count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
+				try
+				{
+					count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
+				}
+				catch
+				{
+					Console.WriteLine("Error in I2C bit read, skipping");
+					continue;
+				}
                 string output = "";// output_parse(data_in);			//for building console output	
 				string status_string = print_general_status(status);
                 try

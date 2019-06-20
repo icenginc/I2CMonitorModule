@@ -1083,7 +1083,15 @@ public static int bg_i2c_read_bit_timing (
     if (!BG_LIBRARY_LOADED) return (int)BeagleStatus.BG_INCOMPATIBLE_LIBRARY;
     int data_in_max_bytes = (int)tp_min(max_bytes, data_in.Length);
     int bit_timing_max_timing = (int)tp_min(max_timing, bit_timing.Length);
-    return net_bg_i2c_read_bit_timing(beagle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, data_in_max_bytes, data_in, bit_timing_max_timing, bit_timing);
+			try
+			{
+				return net_bg_i2c_read_bit_timing(beagle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, data_in_max_bytes, data_in, bit_timing_max_timing, bit_timing);
+			}
+			catch
+			{
+				Console.WriteLine("System memory access violation");
+				throw new ArgumentException();
+			}
 }
 
 

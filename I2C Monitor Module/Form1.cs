@@ -12,6 +12,8 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.IO;
 
+//Install-Package MSBuild.ILMerge.Task <- use this package in nuget
+
 namespace I2C_Monitor_Module
 {
     public partial class InSituMonitoringModule : Form

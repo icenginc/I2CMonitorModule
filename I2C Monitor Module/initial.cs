@@ -297,6 +297,7 @@ namespace I2C_Monitor_Module
 			tip.ToolTipTitle = "Unlogged Items";
 			tip.SetToolTip(label, "");
 			tip.AutomaticDelay = 250;
+			tip.AutoPopDelay = 30000;
 			tips[index] = tip;
 			//return tip;
 		}

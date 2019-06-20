@@ -259,7 +259,7 @@ namespace I2C_Monitor_Module
                             }//if we see the address, then read out the data and put it on the label
                             else
                             {
-                                if (search_timer.ElapsedMilliseconds > 50) //skip if we cant find the address in teh buffer. timeout
+                                if (search_timer.ElapsedMilliseconds > 100) //skip if we cant find the address in teh buffer. timeout
                                 {
                                     if (++read_fails[k] > 5)
                                         Console.WriteLine("Removed " + k + " from dataset");
@@ -301,7 +301,7 @@ namespace I2C_Monitor_Module
             for (int i = 0; i < board_log.Length; i++)
             {
                 for (int j = 0; j < addresses.Length; j++)
-                    if (board_log[i].Text.Contains(addresses[j].Name))
+                    if (board_log[i] != null && board_log[i].Text.Contains(addresses[j].Name))
                         return false; //not empty if at least one register name is in one of the duts
             }
             return true; //if we look through all the duts and theyre all blank, then return true
@@ -429,8 +429,8 @@ namespace I2C_Monitor_Module
             for (int i = 0; i < input.Length; i++) //look for valid board
                 if (input[i] != null)
                 {
-                    int length = input[i][0].registers.Length;
-                    
+                    //int length = input[i][0].registers.Length;
+					int length = InSituMonitoringModule.iface.current_job.device_adds.Count;
                     assign_depth(length); //based on how manly registers we have
                     calculate(input[i]);
                     break;
