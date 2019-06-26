@@ -96,7 +96,13 @@ namespace I2C_Monitor_Module
 			var result = AardvarkApi.aa_i2c_write(handle, slave_addr, AardvarkI2cFlags.AA_I2C_NO_FLAGS, num_bytes, data_out);
 
 			if (result < 0)
+			{
 				Console.WriteLine("error: {0}\n", AardvarkApi.aa_status_string(result));
+				//setup_aardvark();
+				result = AardvarkApi.aa_i2c_write(handle, slave_addr, AardvarkI2cFlags.AA_I2C_NO_FLAGS, num_bytes, data_out);
+				if (result < 0)
+					return -1;
+			}
 
 			return result;
 		}
@@ -243,7 +249,8 @@ namespace I2C_Monitor_Module
 				// Read transaction with bit timing data
 				try
 				{
-					count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
+					count = BeagleApi.bg_i2c_read(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in);
+					//count = BeagleApi.bg_i2c_read_bit_timing(handle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, max_bytes, data_in, timing_size, timing);
 				}
 				catch
 				{

@@ -148,17 +148,15 @@ namespace I2C_Monitor_Module
 			textBox_data.AppendText("Scanning board at mux address " + mux.ToString("X") + "..." + Environment.NewLine);
 			//listen for the DUTs here
 			bool[] valid = Enumerable.Repeat<bool>(false, 40).ToArray(); //board sites
+			int bytes;
             
-            //BackgroundWorker tab_populate = new BackgroundWorker();
-            //tab_populate.DoWork += Tab_populate_DoWork;
-            //tab_populate.RunWorkerAsync(mux); //used this so no infinite loop
             device[] addresses = iface.current_job.device_adds.ToArray(); //put the iface device addresses locally
-            //ushort mux = (ushort)e.Argument;
+            
             for (byte i = 0; i < iface.current_job.Sites; i++)
             {
                 byte unique = (byte)(i);// + (1<<7));
                 byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
-                int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
+                bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
                 System.Threading.Thread.Sleep(10);
                 iface.current_aardvark.i2c_read(mux, (ushort)register_data.Length, out byte[] data);
                 iface.current_beagle.buffer.Clear();
@@ -184,7 +182,8 @@ namespace I2C_Monitor_Module
                 }//check for each address in the data
 
             }
-            return valid;
+			bytes = iface.current_aardvark.i2c_write(mux, (ushort)1, new byte[] { 128 }); //set the mux to the off
+			return valid;
 		} //do this once for each board to build the board
 
         private void create_header()

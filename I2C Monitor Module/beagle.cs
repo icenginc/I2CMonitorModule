@@ -883,12 +883,18 @@ public static int bg_host_buffer_free (
 }
 
 /* Query the amount of buffering that is used and no longer available. */
+[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptionsAttribute()]
 public static int bg_host_buffer_used (
     int  beagle
 )
 {
     if (!BG_LIBRARY_LOADED) return (int)BeagleStatus.BG_INCOMPATIBLE_LIBRARY;
-    return net_bg_host_buffer_used(beagle);
+			try
+			{
+				return net_bg_host_buffer_used(beagle);
+			}
+			catch
+			{ return -1; }
 }
 
 /* Benchmark the speed of the host to Beagle interface */
@@ -1035,22 +1041,31 @@ public static int bg_i2c_pullup (
 public const ushort BG_I2C_MONITOR_DATA = 0x00ff;
 public const ushort BG_I2C_MONITOR_NACK = 0x0100;
 public const uint BG_READ_I2C_NO_STOP = 0x00010000;
-public static int bg_i2c_read (
-    int        beagle,
-    ref uint   status,
-    ref ulong  time_sop,
-    ref ulong  time_duration,
-    ref uint   time_dataoffset,
-    int        max_bytes,
-    ushort[]   data_in
-)
-{
-    if (!BG_LIBRARY_LOADED) return (int)BeagleStatus.BG_INCOMPATIBLE_LIBRARY;
-    int data_in_max_bytes = (int)tp_min(max_bytes, data_in.Length);
-    return net_bg_i2c_read(beagle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, data_in_max_bytes, data_in);
-}
 
-public static int bg_i2c_read_data_timing (
+		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptionsAttribute()]
+		public static int bg_i2c_read(
+			int beagle,
+			ref uint status,
+			ref ulong time_sop,
+			ref ulong time_duration,
+			ref uint time_dataoffset,
+			int max_bytes,
+			ushort[] data_in
+		)
+		{
+			if (!BG_LIBRARY_LOADED) return (int)BeagleStatus.BG_INCOMPATIBLE_LIBRARY;
+			int data_in_max_bytes = (int)tp_min(max_bytes, data_in.Length);
+			//try
+			//{
+			return net_bg_i2c_read(beagle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, data_in_max_bytes, data_in);
+			//}
+			//catch
+			//{
+			//	Console.WriteLine("System memory access violation");
+			//	return -1;
+			//}
+		}
+			public static int bg_i2c_read_data_timing (
     int        beagle,
     ref uint   status,
     ref ulong  time_sop,
@@ -1067,8 +1082,8 @@ public static int bg_i2c_read_data_timing (
     int data_timing_max_timing = (int)tp_min(max_timing, data_timing.Length);
     return net_bg_i2c_read_data_timing(beagle, ref status, ref time_sop, ref time_duration, ref time_dataoffset, data_in_max_bytes, data_in, data_timing_max_timing, data_timing);
 }
-
-public static int bg_i2c_read_bit_timing (
+		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptionsAttribute()]
+		public static int bg_i2c_read_bit_timing (
     int        beagle,
     ref uint   status,
     ref ulong  time_sop,
@@ -1090,7 +1105,9 @@ public static int bg_i2c_read_bit_timing (
 			catch
 			{
 				Console.WriteLine("System memory access violation");
-				throw new ArgumentException();
+				if (InSituMonitoringModule.iface != null && InSituMonitoringModule.iface.current_beagle != null)
+					InSituMonitoringModule.iface.current_beagle.reset_beagle();
+				return -1;
 			}
 }
 

@@ -118,7 +118,7 @@ namespace I2C_Monitor_Module
             int[] read_fails = new int[addresses.Length]; for (int l = 0; l < addresses.Length; l++) read_fails[l] = 0;//set to 0s. this array keeps track of read fails on this board read
             ushort mux = (ushort)(i + 0x50);
             var board_list = iface.current_job.board_list;
-
+			int bytes;
             if (board_list[i] != null && board_list[i].Contains(true))
             {
                 
@@ -150,7 +150,7 @@ namespace I2C_Monitor_Module
                             break; //exit out if stopped
                         byte unique = (byte)(j);
                         byte[] register_data = new byte[] { unique }; //write the register to pick DUT, and 'unique data'
-                        int bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
+                        bytes = iface.current_aardvark.i2c_write(mux, (ushort)register_data.Length, register_data); //set the mux to the DUT
 
                         //clean above into function?
                         System.Threading.Thread.Sleep(20);
@@ -280,6 +280,9 @@ namespace I2C_Monitor_Module
 						break;
 					}
                 }//enumerate through each site	
+				if(loop)
+					bytes = iface.current_aardvark.i2c_write(mux, (ushort)1, new byte[] { 128 }); //set the mux to the off
+
 				try
 				{
 					if (check_board_log_empty(iface.current_job.board_log[i], addresses) && !checkBox_debug.Checked) //board fully empty, and not debug mode

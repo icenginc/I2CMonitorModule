@@ -237,21 +237,37 @@ namespace I2C_Monitor_Module
 
         private void button_reset_Click(object sender, EventArgs e)
         {
-			//reset these
-			textBox_data.AppendText("RESET Operation Initiated\n");
-
+			textBox_data.AppendText("RESET Operation Initiated\n"); 
+			if(iface.current_aardvark.Port != 999)
+				AardvarkApi.aa_close(iface.current_aardvark.Port);
+			/*
+			if (iface.current_beagle.Port != 999)
+			{
+				BeagleApi.bg_capture_stop(iface.current_beagle.Port);
+				BeagleApi.bg_close(iface.current_beagle.Port);
+			}
+			*/ //dont need this
+			System.Diagnostics.Process.Start(Application.ExecutablePath);
+			this.Close();
+			//reset these - OLD WAY BELOW, NEW WAY ABOVE WORKS BETTER
+			/*
 			if (select) //only if the scan completed successfully
 				this.Size = new Size(this.Size.Width, this.Size.Height - height); //resize to hide
 			loop = false; //to stop or esume the measuremetns
 			select = false; //this determines if everything was loaded correctly and can continue to operation
 			run_lock = false;
 			first_log = Enumerable.Repeat<bool>(true, 16).ToArray();
+			for(ushort i = 0x50; i <= 0x5f; i++)
+				iface.current_aardvark.i2c_write(i, (ushort)1, new byte[] { 128 }); //set the mux to the off (all boards)
+
 			System.Threading.Thread.Sleep(750); //wait to allow loops to exit out correctly
 
 			while (tabControl_boards.TabCount > 0) //release resources
 				tabControl_boards.TabPages[tabControl_boards.TabCount - 1].Dispose();
 			tabControl_boards.TabPages.Clear(); //remove 
 
+			BeagleApi.bg_capture_stop(iface.current_beagle.Port);
+			AardvarkApi.aa_i2c_free_bus(iface.current_aardvark.Port);
 			AardvarkApi.aa_close(iface.current_aardvark.Port);
 			BeagleApi.bg_close(iface.current_beagle.Port);
 			iface.current_aardvark = new Aardvark(); //placeholder
@@ -291,12 +307,15 @@ namespace I2C_Monitor_Module
 				MessageBox.Show("Aardvark/Beagle/Config not selected!");
 				*/
 			//log_data();
+			
         }
 
         private void button_stop_Click(object sender, EventArgs e)
         {
             loop = false; //pause
-            button_stop.Visible = false;
+			for (ushort i = 0x50; i <= 0x5f; i++)
+				iface.current_aardvark.i2c_write(i, (ushort)1, new byte[] { 128 }); //set the mux to the off (all boards)
+			button_stop.Visible = false;
             button_i2cmonitor.Visible = true; //show the continue button
             button_reset.Visible = true;
         }

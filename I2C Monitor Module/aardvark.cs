@@ -684,6 +684,7 @@ public static int aa_i2c_read_ext (
 }
 
 /* Write a stream of bytes to the I2C slave device. */
+[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptionsAttribute()]
 public static int aa_i2c_write (
     int               aardvark,
     ushort            slave_addr,
@@ -694,7 +695,15 @@ public static int aa_i2c_write (
 {
     if (!AA_LIBRARY_LOADED) return (int)AardvarkStatus.AA_INCOMPATIBLE_LIBRARY;
     ushort data_out_num_bytes = (ushort)tp_min(num_bytes, data_out.Length);
-    return net_aa_i2c_write(aardvark, slave_addr, flags, data_out_num_bytes, data_out);
+			try
+			{
+				return net_aa_i2c_write(aardvark, slave_addr, flags, data_out_num_bytes, data_out);
+			}
+			catch
+			{
+				Console.WriteLine("System memory access violation");
+				return -1;
+			}
 }
 
 /*
