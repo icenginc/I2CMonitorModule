@@ -72,7 +72,7 @@ namespace I2C_Monitor_Module
                     iface.current_job.board_list[mux_address - 0x50] = valid;
                     tabControl_boards.Enabled = true;
                     tabControl_boards.Visible = true;
-                    TabPage page = new TabPage("Board " + (mux_address - 0x4f));
+                    TabPage page = new TabPage("Board" + (mux_address - 0x4f));
                     tabControl_boards.TabPages.Add(page);
                     iface.current_job.tab_page_map.Add(mux_address - 0x50); //save what index in the tab control, so we can update it later.
                 } //build each page, this happens once
@@ -222,7 +222,8 @@ namespace I2C_Monitor_Module
             string slot = e.Argument.ToString();
             Int32.TryParse(slot, out int slot_num);
 
-            string filename = iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1)+ ".rlog.csv");
+			var name = iface.current_job.board_names[slot_num];
+            string filename = iface.current_job.LogFileName.Replace(".rlog", "_" + name + ".rlog.csv");
 
             using (StreamWriter writer = File.AppendText(iface.current_job.LogFilePath + filename))
             {

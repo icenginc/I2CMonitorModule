@@ -50,8 +50,11 @@ namespace I2C_Monitor_Module
 								{
 									if (delay)
 										textBox_data.AppendText("Detected stop condition, entering slow-scan mode" + Environment.NewLine);
-									else if (iface.current_job.board_names[i] == "")
-										iface.current_job.board_names[i] = "Board " + (i + 1);
+									else if (iface.current_job.board_names[i] == "") //this shouldnt happen, failsafe
+									{
+										int index = iface.current_job.tab_page_map[i];
+										iface.current_job.board_names[index] = "Board" + (index + 1);
+									}
 									textBox_data.AppendText("Collecting data on " + iface.current_job.board_names[i] + Environment.NewLine);
 								}));
 							}
@@ -396,6 +399,7 @@ namespace I2C_Monitor_Module
 			}
 			catch (System.NullReferenceException)
 			{ Console.WriteLine("Null from reset, skipping label update"); }
+			catch { }
         }
 
         private void update_values()
@@ -429,52 +433,89 @@ namespace I2C_Monitor_Module
     {
         public values(log[][] input)
         {
-            for (int i = 0; i < input.Length; i++) //look for valid board
-                if (input[i] != null)
-                {
-                    //int length = input[i][0].registers.Length;
-					int length = InSituMonitoringModule.iface.current_job.device_adds.Count;
-                    assign_depth(length); //based on how manly registers we have
-                    calculate(input[i]);
-                    break;
-                }
+			for (int i = 0; i < input.Length; i++) //look for valid board
+				if (input[i] != null)
+				{
+					calculate(input[i]); //does for each board - saves to baord_values list
+				}
+			assign_depth();
+			calculate_overall();
         } //constr
 
-        float[] min, max, avg, range, num;
-        int[] count;
+		List<board> board_values = new List<board>();
+		int length;
+		
+        float[] min, max, avg, range, num; //array element for each reg
+        int[] count; //value count for avg
 
         public float[] Min { get { return min; } }
         public float[] Max { get { return max; } }
         public float[] Avg { get { return avg; } }
         public float[] Range { get { return range; } }
+		
 
-        private void calculate(log[] board)
+		struct board //used to store values of each board
+		{
+			public float[] min, max, avg, range, num;
+			public int[] count;
+		}
+
+		private void calculate_overall()
+		{
+			for (int i = 0; i < length; i++) //iterate through register adds
+			{
+				foreach (board dut in board_values)
+				{
+					if (dut.min[i] < min[i])
+						min[i] = dut.min[i];
+					 //do min
+
+					if (dut.max[i] > max[i])
+						max[i] = dut.max[i];
+					//do max
+
+					num[i] += dut.avg[i]; //add up all the averages for each register
+					range[i] = max[i] - min[i];
+					avg[i] = num[i] / ++count[i]; //increment the count and also use it to find avg
+				} //go througha all boards data
+				  //calc these values next				
+			}
+		}//adds up all the board values
+
+		private void calculate(log[] board)
         {
             if (board != null)
             {
-                calculate_min(board);
-                calculate_max(board);
-                calculate_avg(board);
-                calculate_range(board);
+				board current = new board();
+				length = InSituMonitoringModule.iface.current_job.device_adds.Count;
+				//assign_depth(length, current);
+
+				current.min = calculate_min(board);
+				current.max = calculate_max(board);
+				current.avg = calculate_avg(board);
+				current.range = calculate_range(board, current.max, current.min);
+
+				board_values.Add(current);
             }
+
         }
 
-        private void assign_depth(int length)
+        private void assign_depth()
         {
-            min = new float[length];
-            max = new float[length];
-            avg = new float[length];
-            range = new float[length];
-            num = new float[length];
-            count = new int[length];
-            min = Enumerable.Repeat<float>(float.MaxValue, length).ToArray();
-            max = Enumerable.Repeat<float>(float.MinValue, length).ToArray();
-            count = Enumerable.Repeat<int>(0, length).ToArray();
+			min = Enumerable.Repeat<float>(float.MaxValue, length).ToArray();
+			max = Enumerable.Repeat<float>(float.MinValue, length).ToArray();
+			avg = new float[length];
+			range = new float[length];
+			num = new float[length];
+			count = new int[length];
         }
 
-        private void calculate_min(log[] data)
+		private float[] calculate_min(log[] data)
         {
-            foreach(log dut in data)
+			float[] min = new float[length];
+			min = Enumerable.Repeat<float>(float.MaxValue, length).ToArray();
+
+			foreach (log dut in data)
             {
                 if (dut != null)
                 {
@@ -485,17 +526,21 @@ namespace I2C_Monitor_Module
                             string temp = dut.registers[i];
                             string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
                             if (float.TryParse(substring, out float value))
-                                if (value < min[i] && value != 0)
+                                if (value < min[i] && value != 0 && valid(value))
                                     min[i] = value;
                         }
                     }
                 }
             }
+			return min;
         }
 
-        private void calculate_max(log[] data)
+        private float[] calculate_max(log[] data)
         {
-            foreach (log dut in data)
+			float[] max = new float[length];
+			max = Enumerable.Repeat<float>(float.MinValue, length).ToArray();
+
+			foreach (log dut in data)
             {
                 if (dut != null)
                 {
@@ -506,17 +551,24 @@ namespace I2C_Monitor_Module
                             string temp = dut.registers[i];
                             string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
                             if (float.TryParse(substring, out float value))
-                                if (value > max[i])
+                                if (value > max[i] && valid(value))
                                     max[i] = value;
                         }
                     }
                 }
             }
+			return max;
         }
 
-        private void calculate_avg(log[] data)
+        private float[] calculate_avg(log[] data)
         {
-            foreach (log dut in data)
+			float[] avg = new float[length];
+			float[] num = new float[length];
+			int[] count = new int[length];
+			count = Enumerable.Repeat<int>(0, length).ToArray();
+			num = Enumerable.Repeat<float>(0, length).ToArray();
+
+			foreach (log dut in data)
             {
                 if (dut != null)
                 {
@@ -528,21 +580,35 @@ namespace I2C_Monitor_Module
                             string substring = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
                             if (float.TryParse(substring, out float value))
                             {
-                                num[i] += value;
-                                avg[i] = num[i] / ++count[i];
+								if (valid(value))
+								{
+									num[i] += value;
+									avg[i] = num[i] / ++count[i];
+								}
                             }
                         }
                     }
                 }
             }
+			return avg;
         }
 
-        private void calculate_range(log[] data)
+        private float[] calculate_range(log[] data, float[] max, float[] min)
         {
-            foreach (log dut in data)
+			float[] range = new float[length];
+
+			foreach (log dut in data)
                 if (dut != null)
                     for (int i = 0; i < dut.registers.Length; i++)
                         range[i] = max[i] - min[i];
+			return range;
         }
+
+		private bool valid(float input) //if below -100 or above 200 - not a good value
+		{
+			if (input < -100 || input > 200)
+				return false;
+			return true;
+		}
     }
 }

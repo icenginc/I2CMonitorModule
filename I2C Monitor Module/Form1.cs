@@ -382,8 +382,16 @@ namespace I2C_Monitor_Module
                     int index = iface.current_job.tab_page_map.IndexOf(i);
                     if (index < 0)
                         continue; //if not found (no page exists with that mapping)
-                    if (iface.current_job.board_names[i] != null && tabControl_boards.TabPages.Count > 0)
-                        tabControl_boards.TabPages[index].Text = iface.current_job.board_names[i];
+					if (iface.current_job.board_names[i] != null && tabControl_boards.TabPages.Count > 0)
+					{
+						string text = tabControl_boards.TabPages[index].Text;
+						string name = iface.current_job.board_names[i];
+						int underscore = text.LastIndexOf('_');
+						if (underscore > 0) //already has an underscore
+							if (char.IsDigit(text[underscore + 1])) //next letter is a number (means board)
+								name = name.Substring(0, name.Length - underscore); //cut off the underscore and number
+						tabControl_boards.TabPages[index].Text = name;
+					}
                 }
             }
         }

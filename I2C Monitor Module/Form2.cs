@@ -68,7 +68,7 @@ namespace I2C_Monitor_Module
             {
                 int index = InSituMonitoringModule.iface.current_job.tab_page_map[i];
 
-                if (grid1.Rows[i].Cells[1].Value != null && grid1.Rows[i].Cells[1].Value.ToString() != ("Board " + (index + 1)))  //if valid
+                if (grid1.Rows[i].Cells[1].Value != null && grid1.Rows[i].Cells[1].Value.ToString() != ("Board" + (index + 1)))  //if valid
                 {
                     string name = grid1.Rows[i].Cells[1].Value.ToString();
                     InSituMonitoringModule.iface.current_job.board_names[index] = (index + 1) + "_" + name.ToUpper();
@@ -76,7 +76,7 @@ namespace I2C_Monitor_Module
                 else if (InSituMonitoringModule.iface.current_job.board_names[index] == null) //if empty (unset)
                 {
                     string name = grid1.Rows[i].Cells[0].Value.ToString();
-                    InSituMonitoringModule.iface.current_job.board_names[index] = ("Board " + (index + 1));
+                    InSituMonitoringModule.iface.current_job.board_names[index] = ("Board" + (index + 1));
                 }
             }
 
@@ -113,7 +113,10 @@ namespace I2C_Monitor_Module
 			this.Close();
 			MessageBox.Show("Using default values");
 			for (int i = 0; i < dataGridView1.Rows.Count - 1; i++)
-				InSituMonitoringModule.iface.current_job.board_names[i] = ("Board " + (i + 1));
+			{
+				int index = InSituMonitoringModule.iface.current_job.tab_page_map[i];
+				InSituMonitoringModule.iface.current_job.board_names[index] = ("Board" + (index + 1));
+			}
 			for (int i = 0; i < dataGridView2.Rows.Count - 1; i++)
 			{
 				InSituMonitoringModule.iface.current_job.device_adds[i].Low = float.MinValue;

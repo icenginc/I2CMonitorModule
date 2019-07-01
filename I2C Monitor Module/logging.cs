@@ -38,8 +38,9 @@ namespace I2C_Monitor_Module
 
             Console.WriteLine("Logging for job " + job);
 			var data = iface.current_job.board_log[slot_num]; //copy the data locally - this represent each board's data
-
-			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", "_" + (slot_num+1) + ".rlog.csv"));
+			var name = iface.current_job.board_names[slot_num];
+			name = "_" + name;
+			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", name + "_" + ".rlog.csv"));
             string line = string.Empty;
 
             if (file.Exists && first_log[slot_num]) //if header is done, first log
