@@ -71,7 +71,7 @@ namespace I2C_Monitor_Module
 					continue; //skip, will go into above continue loop
 				}
                 calculate_values(); //calculate by adding this data set as well
-                if (((log_timer.ElapsedMilliseconds / 60000) > iface.current_job.LogInterval) || !log_timer.IsRunning) //ms to min
+                if (((log_timer.ElapsedMilliseconds / 60000.0) > iface.current_job.LogInterval) || !log_timer.IsRunning) //ms to min
 				{
 					log_timer.Restart();
 					log_data(); //do this every interval

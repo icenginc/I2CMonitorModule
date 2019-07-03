@@ -40,7 +40,7 @@ namespace I2C_Monitor_Module
 			var data = iface.current_job.board_log[slot_num]; //copy the data locally - this represent each board's data
 			var name = iface.current_job.board_names[slot_num];
 			name = "_" + name;
-			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", name + "_" + ".rlog.csv"));
+			FileInfo file = new FileInfo(iface.current_job.LogFilePath + iface.current_job.LogFileName.Replace(".rlog", name + ".rlog.csv"));
             string line = string.Empty;
 
             if (file.Exists && first_log[slot_num]) //if header is done, first log
@@ -101,7 +101,9 @@ namespace I2C_Monitor_Module
                                         string temp = data[j].registers[i];
                                         string line_item = temp.Substring(temp.IndexOf(":") + 1, temp.Length - temp.IndexOf(":") - 1);
                                         if (iface.current_job.board_retries[slot_num][j][i] > 5)
-                                            line_item = "0"; //if it has failed, then record 0's
+                                            line_item = ""; //if it has failed, then record 0's
+										if (float.TryParse(line_item, out float result) && (result < -100 || result > 200)) //if the parse worked, but the result is out of range (-100 < x < 200)
+											line_item = ""; //make it blank
                                         line += (line_item + ","); //access data of the site, and the addresses in order //access data of the site, and the addresses in order
                                     }
                                     catch
